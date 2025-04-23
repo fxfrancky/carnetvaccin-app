@@ -1,0 +1,32 @@
+package com.carnetvaccin.app.api.vaccin;
+
+import com.carnetvaccin.app.api.commons.BaseDto;
+import com.carnetvaccin.app.backend.enums.TypeVaccinEnum;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.io.Serializable;
+
+@Getter
+@Setter
+public class VaccinDTO  extends BaseDto implements Serializable {
+
+    private TypeVaccinEnum typeVaccin;
+
+    private String vaccinDescription;
+
+    private Integer numDose;
+
+    private Integer nbrMonthsDose;
+
+
+    public VaccinDTO(TypeVaccinEnum typeVaccin, String vaccinDescription, Integer numDose, Integer nbrMonthsDose) {
+        this.typeVaccin = typeVaccin;
+        this.vaccinDescription = vaccinDescription;
+        this.numDose = numDose;
+        this.nbrMonthsDose = nbrMonthsDose;
+    }
+
+    public VaccinDTO() {
+    }
+}
