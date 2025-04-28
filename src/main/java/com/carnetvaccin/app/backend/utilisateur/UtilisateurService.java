@@ -70,9 +70,21 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
         query.setParameter("userName",userName);
         return query.getSingleResult();
     }
-    public void login(){}
 
-    public void logout(){}
+
+    /**
+     * Delete A user Account
+     * @param utilisateur
+     * @throws CarnetException
+     */
+    public void deleteUserAccount(Utilisateur utilisateur) throws CarnetException{
+
+        try{
+            remove(utilisateur);
+        } catch (Exception e) {
+            throw new CarnetException("An error occurs while deleting a user ", e);
+        }
+    }
 
     public void Register(){}
 }

@@ -11,6 +11,7 @@ import com.carnetvaccin.app.backend.exceptions.CarnetException;
 import com.carnetvaccin.app.frontend.navigation.NavigationEvent;
 import com.carnetvaccin.app.frontend.security.CustomAccessControl;
 import com.carnetvaccin.app.frontend.security.LoginView;
+import com.carnetvaccin.app.frontend.utilisateur.ProfileForm;
 import com.carnetvaccin.app.frontend.utilisateur.UserInfo;
 import com.vaadin.cdi.CDIView;
 import com.vaadin.data.provider.ListDataProvider;
@@ -68,6 +69,8 @@ public class HomeView extends VerticalLayout implements View {
 //    @Inject
     private VaccinForm vaccinForm;
 //
+    private ProfileForm profileForm;
+
     public HomeView(){
         setMargin(true);
         setSpacing(true);
@@ -92,9 +95,11 @@ public class HomeView extends VerticalLayout implements View {
 
         vaccinForm = new VaccinForm(this,vFacade,vUtilisateurFacade, loggedInUser);
 
+        profileForm = new ProfileForm(utilisateurFacade,loggedInUser);
 
         tabSheet.addTab(carnetDataGridTab(), "Carnet de vaccination");
-        tabSheet.addTab(new VerticalLayout(new Label("Content for the second tab")), "Mon Profil");
+        tabSheet.addTab(profileForm, "Mon Profil");
+//        tabSheet.addTab(new VerticalLayout(new Label("Content for the second tab")), "Mon Profil");
 
 
         // Add TabSheets to the layout

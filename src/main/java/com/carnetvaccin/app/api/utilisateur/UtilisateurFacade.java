@@ -49,6 +49,10 @@ public class UtilisateurFacade extends AbstractFacade<Utilisateur,UtilisateurDTO
             return mapper.toDto(getService().getUserByUserName(userName));
 
     }
+
+    public void deleteUserAccount(UtilisateurDTO utilisateurDTO) throws CarnetException {
+         getService().deleteUserAccount(mapper.toEntity(utilisateurDTO));
+    }
 //    public Utilisateur getUserByUserNameAndPassword(String userName, String password){
 //    public UtilisateurDTO getUserByUserNameAndPassword(String userName, String password)
 //    public UtilisateurDTO getUserById(Long IdUtilisateur)

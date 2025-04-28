@@ -146,7 +146,7 @@ public void setVaccinUtilisateurDTO(VaccinUtilisateurDTO vaccinUtilisateurDTO) {
             }
             homeView.updateVaccinUtilisateurList();
             setVisible(false);
-        }
+    }
 
         private void save(){
             try {
