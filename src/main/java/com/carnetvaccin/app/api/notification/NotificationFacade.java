@@ -6,6 +6,7 @@ import com.carnetvaccin.app.backend.notification.NotificationService;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.logging.Logger;
 
 @Stateless
 public class NotificationFacade extends AbstractFacade<Notification, NotificationDTO, NotificationService, NotificationMapper> {
@@ -29,4 +30,10 @@ public class NotificationFacade extends AbstractFacade<Notification, Notificatio
     protected NotificationMapper getMapper() {
         return mapper;
     }
+
+    @Override
+    protected Logger getLogger() {
+        return Logger.getLogger(this.getClass().getSimpleName());
+    }
+
 }

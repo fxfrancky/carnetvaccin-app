@@ -24,5 +24,9 @@ public abstract class BaseDto implements Serializable {
         return Objects.hashCode(id);
     }
 
+    public boolean isPersisted() {
+        return id != null;
+    }
+
 
 }

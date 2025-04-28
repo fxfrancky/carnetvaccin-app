@@ -1,4 +1,11 @@
 package com.carnetvaccin.app.backend.exceptions;
 
-public class CarnetException {
+import javax.ejb.ApplicationException;
+
+@ApplicationException(rollback=true)
+public class CarnetException extends Exception{
+
+    public CarnetException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

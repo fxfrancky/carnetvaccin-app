@@ -1,15 +1,14 @@
 package com.carnetvaccin.app.frontend.navigation;
 
 import com.carnetvaccin.app.frontend.security.ErrorView;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-
 import com.vaadin.cdi.CDIViewProvider;
 import com.vaadin.cdi.NormalUIScoped;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.ui.UI;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
 
 @NormalUIScoped
 public class NavigationServiceImpl implements NavigationService {
@@ -26,10 +25,6 @@ public class NavigationServiceImpl implements NavigationService {
     @PostConstruct
     public void initialize() {
 
-        System.out.println("********************************* NavigationServiceImpl ********************");
-        System.out.println("********************************* NavigationServiceImpl ********************");
-        System.out.println("********************************* NavigationServiceImpl ********************");
-        System.out.println("********************************* NavigationServiceImpl ********************");
         if (ui.getNavigator() == null) {
             Navigator navigator = new Navigator(ui, ui);
             navigator.addProvider(viewProvider);
@@ -42,7 +37,10 @@ public class NavigationServiceImpl implements NavigationService {
         try {
             ui.getNavigator().navigateTo(event.getNavigateTo());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            ui.getNavigator().setErrorView(ErrorView.class);
+//            ui.getNavigator().navigateTo(ErrorView.ERROR);
+//            Notification.show("You Requested a strange Page", Notification.Type.ASSISTIVE_NOTIFICATION);
+//            throw new RuntimeException(e);
         }
     }
 

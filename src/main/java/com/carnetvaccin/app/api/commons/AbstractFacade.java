@@ -5,6 +5,7 @@ import com.carnetvaccin.app.backend.commons.BaseEntity;
 
 import javax.persistence.criteria.Predicate;
 import java.util.List;
+import java.util.logging.Logger;
 
 public abstract class AbstractFacade<Entity extends BaseEntity, DTO extends BaseDto, Service extends AbstractService<Entity>, Mapper extends AbstractMapper<Entity, DTO>> {
 
@@ -31,8 +32,8 @@ public abstract class AbstractFacade<Entity extends BaseEntity, DTO extends Base
         getService().update(getMapper().toEntity(entityDTO));
     }
 
-    public void remove(Predicate[] predicates){
-        getService().remove(predicates);
+    public void remove(DTO entityDTO){
+        getService().remove(getMapper().toEntity(entityDTO));
     }
     public DTO findById(Long id){
         return  getMapper().toDto(getService().findById(id));
@@ -57,4 +58,6 @@ public abstract class AbstractFacade<Entity extends BaseEntity, DTO extends Base
     public Long count(){
         return getService().count();
     }
+
+    protected abstract Logger getLogger();
 }

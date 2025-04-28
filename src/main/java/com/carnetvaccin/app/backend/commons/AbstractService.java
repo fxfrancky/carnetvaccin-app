@@ -31,12 +31,8 @@ public abstract class AbstractService<T> {
         getEntityManager().merge(entity);
     }
 
-    public void remove(Predicate[] predicates){
-        CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
-        CriteriaDelete<T> criteriaDelete = cb.createCriteriaDelete(entityClass);
-        Root<T> root = criteriaDelete.from(entityClass);
-        criteriaDelete.where(predicates);
-        getEntityManager().createQuery(criteriaDelete).executeUpdate();
+    public void remove(T entity){
+        getEntityManager().remove(getEntityManager().merge(entity));
     }
 
     /**

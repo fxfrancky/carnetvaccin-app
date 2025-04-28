@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.carnetvaccin.app</groupId>
@@ -29,7 +29,8 @@
 		<!-- Maven 		-->
 		<maven-clean-plugin.version>3.4.1</maven-clean-plugin.version>
 		<maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
-		<maven-war-plugin.version>3.4.0</maven-war-plugin.version>
+		<maven-war-plugin.version>3.2.3</maven-war-plugin.version>
+		<!--		<maven-war-plugin.version>3.4.0</maven-war-plugin.version>-->
 		<!-- Persistence  -->
 		<hibernate-core.version>5.6.15.Final</hibernate-core.version>
 		<eclipselink.version>2.5.2</eclipselink.version>
@@ -39,6 +40,8 @@
 		<mockito-all.version>1.10.19</mockito-all.version>
 		<junit.version>4.13.2</junit.version>
 		<commons-collections4.version>4.4</commons-collections4.version>
+		<vaadin-confirm-dialog-flow.version>4.0.2</vaadin-confirm-dialog-flow.version>
+		<!--		<tomee.version>8.0.7</tomee.version>-->
 
 	</properties>
 
@@ -57,6 +60,13 @@
 				<version>${validation-api.version}</version>
 			</dependency>
 
+			<!-- https://mvnrepository.com/artifact/com.vaadin/vaadin-confirm-dialog-flow -->
+			<!--			<dependency>-->
+			<!--				<groupId>com.vaadin</groupId>-->
+			<!--				<artifactId>vaadin-confirm-dialog-flow</artifactId>-->
+			<!--				<version>1.2.1</version>-->
+			<!--			</dependency>-->
+
 			<dependency>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-bom</artifactId>
@@ -69,13 +79,19 @@
 	</dependencyManagement>
 
 	<dependencies>
-
+		<!-- https://mvnrepository.com/artifact/com.vaadin/vaadin-confirm-dialog-flow -->
+		<!--		<dependency>-->
+		<!--			<groupId>com.vaadin</groupId>-->
+		<!--			<artifactId>vaadin-confirm-dialog-flow</artifactId>-->
+		<!--			<version>${vaadin-confirm-dialog-flow.version}</version>-->
+		<!--		</dependency>-->
 
 		<!---*************************** Vaadin ***************************************-->
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-server</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-push</artifactId>
@@ -93,6 +109,32 @@
 			<artifactId>vaadin-cdi</artifactId>
 		</dependency>
 
+		<!--		<dependency>-->
+		<!--			<groupId>javax.enterprise</groupId>-->
+		<!--			<artifactId>cdi-api</artifactId>-->
+		<!--			<version>1.2</version>-->
+		<!--			<scope>provided</scope>-->
+		<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>javax.annotation</groupId>-->
+		<!--			<artifactId>javax.annotation-api</artifactId>-->
+		<!--			<version>1.2-b01</version>-->
+		<!--			<scope>provided</scope>-->
+		<!--		</dependency>-->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.0.1</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!--	</dependencies>-->
+		<!-- https://mvnrepository.com/artifact/org.apache.tomee.maven/tomee-maven-plugin -->
+		<!--		<dependency>-->
+		<!--			<groupId>org.apache.tomee.maven</groupId>-->
+		<!--			<artifactId>tomee-maven-plugin</artifactId>-->
+		<!--			<version>${tomee.version}</version>-->
+		<!--		</dependency>-->
 		<!---*************************** Others  ***************************************-->
 		<dependency>
 			<groupId>javax</groupId>
@@ -177,8 +219,55 @@
 
 	<build>
 		<finalName>carnetvaccin-app</finalName>
-<!--		<defaultGoal>package tomee:run</defaultGoal>-->
+		<!--		<defaultGoal>package tomee:run</defaultGoal>-->
 		<plugins>
+			<!--			<plugin>-->
+			<!--				<groupId>org.apache.tomee.maven</groupId>-->
+			<!--				<artifactId>tomee-maven-plugin</artifactId>-->
+			<!--				<version>${tomee.version}</version>-->
+			<!--				<configuration>-->
+			<!--					<context>${project.artifactId}</context>-->
+			<!--					<tomeeClassifier>plus</tomeeClassifier>-->
+			<!--					<debugPort>8000</debugPort>-->
+			<!--					<tomeeAjpPort>8009</tomeeAjpPort>-->
+			<!--					<tomeeHttpPort>8080</tomeeHttpPort>-->
+			<!--					<tomeeShutdownPort>8005</tomeeShutdownPort>-->
+			<!--					&lt;!&ndash; no <path> tag &ndash;&gt;-->
+			<!--					<path>${tomee-maven-plugin-path}</path>-->
+			<!--					<useBinaries>true</useBinaries>-->
+			<!--				</configuration>-->
+			<!--				<executions>-->
+			<!--					<execution>-->
+			<!--						<id>deploy-it</id>-->
+			<!--						<phase>none</phase>-->
+			<!--						<goals>-->
+			<!--							<goal>deploy</goal>-->
+			<!--						</goals>-->
+			<!--						<configuration>-->
+			<!--							<path>${tomee-maven-plugin-path}</path>-->
+			<!--						</configuration>-->
+			<!--					</execution>-->
+			<!--					<execution>-->
+			<!--						<id>undeploy-it</id>-->
+			<!--						<phase>none</phase>-->
+			<!--						<goals>-->
+			<!--							<goal>undeploy</goal>-->
+			<!--						</goals>-->
+			<!--						<configuration>-->
+			<!--							<path>someear-1.0-SNAPSHOT</path>-->
+			<!--						</configuration>-->
+			<!--					</execution>-->
+			<!--				</executions>-->
+			<!--			</plugin>-->
+			<!--			<plugin>-->
+			<!--				<groupId>org.apache.tomee.maven</groupId>-->
+			<!--				<artifactId>tomee-maven-plugin</artifactId>-->
+			<!--				<version>8.0.1-SNAPSHOT</version>-->
+			<!--				<configuration>-->
+			<!--					<tomeeClassifier>plume</tomeeClassifier>-->
+			<!--					<args>-Xmx512m -XX:PermSize=256m</args>-->
+			<!--				</configuration>-->
+			<!--			</plugin>-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
@@ -189,6 +278,14 @@
 					<packagingExcludes>WEB-INF/classes/VAADIN/widgetsets/WEB-INF/**</packagingExcludes>
 				</configuration>
 			</plugin>
+
+
+			<!--			<plugin>-->
+			<!--				 <groupId>fish.payara.maven.plugins</groupId>-->
+			<!--				 <artifactId>payara-micro-maven-plugin</artifactId>-->
+			<!--				 <version>1.0.5</version>-->
+			<!--			 </plugin>-->
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -231,6 +328,21 @@
 	</build>
 
 	<profiles>
+		<!--		<profile>-->
+		<!--			<id>deploy</id>-->
+		<!--			<activation>-->
+		<!--				<activeByDefault>true</activeByDefault>-->
+		<!--			</activation>-->
+		<!--			<properties>-->
+		<!--				<tomee-maven-plugin-path>target/carnetvaccin-app.war</tomee-maven-plugin-path>-->
+		<!--			</properties>-->
+		<!--		</profile>-->
+		<!--		<profile>-->
+		<!--			<id>undeploy</id>-->
+		<!--			<properties>-->
+		<!--				<tomee-maven-plugin-path>carnetvaccin-app</tomee-maven-plugin-path>-->
+		<!--			</properties>-->
+		<!--		</profile>-->
 		<profile>
 			<!-- Vaadin pre-release repositories -->
 			<id>vaadin-prerelease</id>

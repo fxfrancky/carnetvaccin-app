@@ -16,7 +16,11 @@ import java.util.Objects;
 @Table(name = "utilisateur")
 @Getter
 @Setter
-@NamedQuery(name = "Utilisateur.findUserByEmail", query = "from Utilisateur u where u.email = :email")
+@NamedQueries({
+   @NamedQuery(name = "Utilisateur.getUserByEmail", query = "from Utilisateur u where u.email = :email"),
+   @NamedQuery(name = "Utilisateur.getUserByUserName", query = "from Utilisateur u where u.userName = :userName"),
+   @NamedQuery(name = "Utilisateur.getUserByUserNameAndPassword", query = "from Utilisateur u where u.userName = :userName and u.password = :password")
+})
 public class Utilisateur extends BaseEntity implements Serializable {
 
     @Id
@@ -30,7 +34,7 @@ public class Utilisateur extends BaseEntity implements Serializable {
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     private String email;
 
     @Column(name = "date_naiss")
@@ -42,28 +46,33 @@ public class Utilisateur extends BaseEntity implements Serializable {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "utilisateur")
     private List<Notification> notificationList;
 
-    @Column(name = "user_name")
+    @Column(name = "user_name" , unique = true)
     private String userName;
 
     @Column(name = "password")
     private String password;
 
+    @Column(name = "is_admin")
+    private boolean isAdmin = false;
+
     public Utilisateur() {
     }
 
-    public Utilisateur(Long utilisateurId, String firstName, String lastName, String email, LocalDate dateNaissance, List<VaccinUtilisateur> vaccinUtilisateurList, List<Notification> notificationList, String userName, String password) {
+    public Utilisateur(List<Notification> notificationList, Long utilisateurId, String firstName, String lastName, String email, LocalDate dateNaissance, List<VaccinUtilisateur> vaccinUtilisateurList, String userName, String password, Boolean isAdmin) {
+        this.notificationList = notificationList;
         this.utilisateurId = utilisateurId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.dateNaissance = dateNaissance;
         this.vaccinUtilisateurList = vaccinUtilisateurList;
-        this.notificationList = notificationList;
         this.userName = userName;
         this.password = password;
+        this.isAdmin = isAdmin;
+
     }
 
-    public Utilisateur(String firstName, String lastName, String email, LocalDate dateNaissance, List<VaccinUtilisateur> vaccinUtilisateurList, List<Notification> notificationList, String userName, String password) {
+    public Utilisateur(String firstName, String lastName, String email, LocalDate dateNaissance, List<VaccinUtilisateur> vaccinUtilisateurList, List<Notification> notificationList, String userName, String password, Boolean isAdmin) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -72,7 +81,9 @@ public class Utilisateur extends BaseEntity implements Serializable {
         this.notificationList = notificationList;
         this.userName = userName;
         this.password = password;
+        this.isAdmin = isAdmin;
     }
+
 
     @Override
     public boolean equals(Object o) {

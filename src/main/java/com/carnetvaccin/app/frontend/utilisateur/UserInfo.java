@@ -30,7 +30,7 @@ public class UserInfo implements Serializable {
         if(user == null){
             return "anonymous user";
         } else {
-            return user.getFirstName() + " - " + user.getLastName();
+            return user.getFirstName() + "  -  " + user.getLastName();
         }
     }
 

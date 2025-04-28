@@ -6,6 +6,6 @@ public enum TypeVaccinEnum {
     ROTAROVIRUS,
     PNEUMONOCOQUES,
     MENINGOCOQUE_B,
-    COMBINE_ROV,
+    COMBINE_RORV,
     MENINGOCOQUE_ACWY
 }

@@ -3,13 +3,11 @@ package com.carnetvaccin.app.frontend.utilisateur;
 import com.carnetvaccin.app.api.roles.Role;
 import com.carnetvaccin.app.api.utilisateur.UtilisateurDTO;
 import com.carnetvaccin.app.api.utilisateur.UtilisateurFacade;
-import com.carnetvaccin.app.frontend.Page;
 import com.vaadin.cdi.CDIView;
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationException;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.event.ShortcutAction.KeyCode;
-//import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.*;
@@ -19,10 +17,11 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import java.time.LocalDateTime;
 
-@CDIView(Page.USER)
+@CDIView(CreateUserView.USER)
 @RolesAllowed(Role.ADMIN)
 public class CreateUserView extends CustomComponent implements View {
 
+    public static final String USER = "user";
     @Inject
     private UtilisateurFacade userFacade;
 

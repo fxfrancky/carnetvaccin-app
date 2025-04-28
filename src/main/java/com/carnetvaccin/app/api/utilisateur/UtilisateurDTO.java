@@ -32,7 +32,9 @@ public class UtilisateurDTO extends BaseDto implements Serializable {
     @Transient
     private String password;
 
-    public UtilisateurDTO(String firstName, String lastName, String email, LocalDate dateNaissance, List<VaccinUtilisateurDTO> vaccinUtilisateurDTOList, List<NotificationDTO> notificationDTOList, String userName, String password) {
+    private boolean isAdmin;
+
+    public UtilisateurDTO(String firstName, String lastName, String email, LocalDate dateNaissance, List<VaccinUtilisateurDTO> vaccinUtilisateurDTOList, List<NotificationDTO> notificationDTOList, String userName, String password, Boolean isAdmin) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -41,8 +43,19 @@ public class UtilisateurDTO extends BaseDto implements Serializable {
         this.notificationDTOList = notificationDTOList;
         this.userName = userName;
         this.password = password;
+        this.isAdmin = isAdmin;
     }
 
     public UtilisateurDTO() {
     }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
+
+
 }

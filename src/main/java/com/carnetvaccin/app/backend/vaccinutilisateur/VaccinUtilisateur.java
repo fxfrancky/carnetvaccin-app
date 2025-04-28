@@ -15,8 +15,13 @@ import java.util.Objects;
 @Table(name = "vaccin_utilisateur")
 @Getter
 @Setter
-@NamedQuery(name = "VaccinUtilisateur.findByUtilisaterIDAndVaccinId", query = "from VaccinUtilisateur v where v.vaccin.vaccinId = :vaccinId  and v.utilisateur.utilisateurId = :utilisateurId")
-
+@NamedQueries({
+        @NamedQuery(name = "VaccinUtilisateur.findByUtilisaterIDAndVaccinId", query = "from VaccinUtilisateur v where v.vaccin.vaccinId = :vaccinId  and v.utilisateur.utilisateurId = :utilisateurId"),
+        @NamedQuery(name = "VaccinUtilisateur.findAllVaccinUtilisateurByUserId", query = "from VaccinUtilisateur v where v.utilisateur.utilisateurId = :utilisateurId order by v.dateVaccination desc"),
+        @NamedQuery(name = "VaccinUtilisateur.findrByTerms", query = "from VaccinUtilisateur v WHERE v.utilisateur.utilisateurId = :utilisateurId AND (lower(v.commentairesVaccin) LIKE :term OR  lower(v.lieuVacctination) LIKE :term" +
+                            " OR  lower(v.vaccin.vaccinDescription) LIKE :term  OR  lower(v.vaccin.typeVaccin) LIKE :term )"
+        )
+})
 public class VaccinUtilisateur extends BaseEntity implements Serializable {
 
     @Id
@@ -25,11 +30,11 @@ public class VaccinUtilisateur extends BaseEntity implements Serializable {
     private Long vaccinUtilisateurId;
 
     @JoinColumn(name = "vaccin_id", referencedColumnName = "vaccin_id")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, cascade = CascadeType.PERSIST)
     private Vaccin vaccin;
 
     @JoinColumn(name = "utilisateur_id", referencedColumnName = "utilisateur_id")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, cascade = CascadeType.PERSIST)
     private Utilisateur utilisateur;
 
     @Column(name = "date_vaccination")
@@ -71,5 +76,9 @@ public class VaccinUtilisateur extends BaseEntity implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hashCode(vaccinUtilisateurId);
+    }
+
+    public boolean isPersisted() {
+        return vaccinUtilisateurId != null;
     }
 }

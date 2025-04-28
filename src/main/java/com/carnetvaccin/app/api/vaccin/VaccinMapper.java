@@ -19,8 +19,12 @@ public class VaccinMapper extends AbstractMapper<Vaccin, VaccinDTO> {
     @Override
     public VaccinDTO toDto(Vaccin vaccinEntity) {
 
+        System.out.println("Vaccin id" + vaccinEntity.getVaccinId() + " VaccinType Enum " +vaccinEntity.getTypeVaccin().name());
         VaccinDTO vaccinDTO = new VaccinDTO();
-        vaccinDTO.setId(vaccinEntity.getVaccinId());
+        if(vaccinDTO.getId() != null){
+            vaccinDTO.setId(vaccinEntity.getVaccinId());
+        }
+//        vaccinDTO.setId(vaccinEntity.getVaccinId());
         vaccinDTO.setTypeVaccin(vaccinEntity.getTypeVaccin());
         vaccinDTO.setVaccinDescription(vaccinEntity.getVaccinDescription());
         vaccinDTO.setNumDose(vaccinEntity.getNumDose());
@@ -32,7 +36,9 @@ public class VaccinMapper extends AbstractMapper<Vaccin, VaccinDTO> {
     public Vaccin toEntity(VaccinDTO vaccinDto) {
 
        Vaccin vaccinEntity = new Vaccin();
-       vaccinEntity.setVaccinId(vaccinDto.getId());
+       if(vaccinDto.getId()!=null){
+           vaccinEntity.setVaccinId(vaccinDto.getId());
+       }
        vaccinEntity.setTypeVaccin(vaccinDto.getTypeVaccin());
        vaccinEntity.setVaccinDescription(vaccinDto.getVaccinDescription());
        vaccinEntity.setNumDose(vaccinDto.getNumDose());
