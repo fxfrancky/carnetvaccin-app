@@ -1,5 +1,8 @@
 package com.carnetvaccin.app.frontend.navigation;
 
+import lombok.Getter;
+
+@Getter
 public class NavigationEvent {
 
     private final String navigateTo;
@@ -8,7 +11,4 @@ public class NavigationEvent {
         this.navigateTo = navigateTo;
     }
 
-    public String getNavigateTo() {
-        return navigateTo;
-    }
 }
