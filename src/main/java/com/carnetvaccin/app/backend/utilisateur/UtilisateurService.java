@@ -3,9 +3,11 @@ package com.carnetvaccin.app.backend.utilisateur;
 import com.carnetvaccin.app.api.utilisateur.UtilisateurMapper;
 import com.carnetvaccin.app.backend.commons.AbstractService;
 import com.carnetvaccin.app.backend.exceptions.CarnetException;
+import com.carnetvaccin.app.frontend.utilisateur.UserInfo;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -23,6 +25,9 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
     protected EntityManager getEntityManager() {
         return em;
     }
+
+    @Inject
+    private UserInfo userInfo;
 
     public UtilisateurService() {
         super(Utilisateur.class);
@@ -91,19 +96,23 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
      * @param plainPassword
      * @return
      */
-    public String loginUser(String username, String plainPassword) {
+    public Utilisateur loginUser(String username, String plainPassword) {
         try {
             Utilisateur user = getUserByUserName(username);
-            if (user != null && user.getEncryptedPassword().equals(UtilisateurMapper.encryptPassword(plainPassword))){
+
+//            if (user != null && user.getEncryptedPassword().equals(UtilisateurMapper.encryptPassword(plainPassword))){
+            if (user.getEncryptedPassword().equals(UtilisateurMapper.encryptPassword(plainPassword))){
                 String token = UUID.randomUUID().toString();
                 user.setToken(token);
                 update(user);
-                return token;
+                return user;
             } else {
                 throw new CarnetException("Invalid password");
             }
         } catch (NoResultException e) {
             throw new CarnetException("Invalid username or password");
+        } catch (Exception e) {
+            throw new CarnetException(e.getMessage());
         }
     }
 
@@ -113,10 +122,15 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
      * @return
      */
     public boolean isUserNameTaken(String userName) {
+        try{
             return !em.createNamedQuery("Utilisateur.getUserByUserName", Utilisateur.class)
                     .setParameter("userName", userName)
                     .getResultList()
                     .isEmpty();
+        }catch (Exception ex){
+            throw new CarnetException("An error occur trying to get a user by userName");
+        }
+
     }
 
     /**
@@ -125,10 +139,15 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
      * @return
      */
     public boolean isEmailTaken(String email) {
-        return !em.createNamedQuery("Utilisateur.getUserByEmail", Utilisateur.class)
-                .setParameter("email", email)
-                .getResultList()
-                .isEmpty();
+        try{
+            return !em.createNamedQuery("Utilisateur.getUserByEmail", Utilisateur.class)
+                    .setParameter("email", email)
+                    .getResultList()
+                    .isEmpty();
+        }catch (Exception ex){
+            throw new CarnetException("An error occur trying to get a user by email");
+        }
+
     }
 
     /**

@@ -11,6 +11,7 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
 import javax.inject.Inject;
+import java.time.LocalDate;
 
 @CDIView(RegistrationView.REGISTER)
 public class RegistrationView extends VerticalLayout implements View {
@@ -62,6 +63,7 @@ public class RegistrationView extends VerticalLayout implements View {
 
         // Date of Birth
         DateField dateOfBirthField = new DateField("Date of Birth");
+        dateOfBirthField.setRangeEnd(LocalDate.now());
 
         // Is User an admin
         CheckBox isUserAdmin = new CheckBox("Is User Admin ?");
@@ -84,7 +86,7 @@ public class RegistrationView extends VerticalLayout implements View {
                 utilisateurDTO.setAdmin(isUserAdmin.getValue());
 
                 userService.registerUtilisateur(utilisateurDTO);
-                Notification.show("Registration successful! Please login.", Notification.Type.HUMANIZED_MESSAGE);
+                Notification.show("Registration successful! Please login.", Notification.Type.ASSISTIVE_NOTIFICATION);
                 navigationEvent.fire(new NavigationEvent(LoginView.LOGIN)); // Navigate to the login page
             } catch (CarnetException e) {
                 Notification.show(e.getMessage(), Notification.Type.WARNING_MESSAGE);

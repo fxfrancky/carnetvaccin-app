@@ -38,6 +38,7 @@ public class UtilisateurMapper extends AbstractMapper<Utilisateur, UtilisateurDT
         uDTO.setDateNaissance(uEntity.getDateNaissance());
         uDTO.setPlainPassword(null); // we dont return a password
         uDTO.setUserName(uEntity.getUserName());
+        uDTO.setToken(uEntity.getToken());
 //        uDTO.setVaccinUtilisateurDTOList(vaccinUtilisateurMapper.toDtoList(uEntity.getVaccinUtilisateurList()));
 //        uDTO.setNotificationDTOList(notificationMapper.toDtoList(uEntity.getNotificationList()));
         uDTO.setAdmin(uEntity.isAdmin());

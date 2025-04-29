@@ -14,10 +14,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "utilisateur",uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"username"}),
-        @UniqueConstraint(columnNames = {"email"})
-})
+@Table(name = "utilisateur")
 @Getter
 @Setter
 @NamedQueries({
@@ -51,7 +48,7 @@ public class Utilisateur extends BaseEntity implements Serializable {
     @NotNull
     private String dateNaissance;
 
-    @Column(name = "username" , unique = true)
+    @Column(name = "user_name" , unique = true)
     @NotNull
     private String userName;
 
@@ -67,10 +64,10 @@ public class Utilisateur extends BaseEntity implements Serializable {
     @Column(name = "is_admin")
     private boolean isAdmin = false;
 
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "utilisateur")
+    @OneToMany(mappedBy = "utilisateur")
     private List<VaccinUtilisateur> vaccinUtilisateurList;
 
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "utilisateur")
+    @OneToMany(mappedBy = "utilisateur")
     private List<Notification> notificationList;
 
     public Utilisateur() {

@@ -59,13 +59,14 @@ public class CustomAccessControl extends AccessControl implements Serializable {
     public void signIn(String username, String plainPassword) {
         try {
             // Authenticate the user and assign a bearer token
-            if (userInfo == null){
-                userInfo = new UserInfo();
-            }
-            if(utilisateurFacade.loginUser(username, plainPassword)!=null){
-                this.userInfo.setCurrentToken(utilisateurFacade.loginUser(username, plainPassword));
-                this.userInfo.setUser(utilisateurFacade.getUserByUserName(username));
-            }
+
+                if (userInfo == null){
+//                    userInfo = new UserInfo();
+                    throw new CarnetException("Oups Customer Info its actually Null ! ");
+                }
+//                this.userInfo.setCurrentToken(utilisateurFacade.loginUser(username, plainPassword));
+//                this.userInfo.setUser(utilisateurFacade.getUserByUserName(username));
+//            }
 
         } catch (Exception e) {
             throw new CarnetException("Invalid Credentials ! ");

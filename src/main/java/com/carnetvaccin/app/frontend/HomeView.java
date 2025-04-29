@@ -42,8 +42,8 @@ public class HomeView extends VerticalLayout implements View {
     @Inject
     private CustomAccessControl customAccessControl;
 
-    @Inject
-    private VaccinUtilisateurFacade vUtilisateurFacade;
+//    @Inject
+    private final VaccinUtilisateurFacade vUtilisateurFacade;
 
     @Inject
     private VaccinFacade vFacade;
@@ -71,11 +71,23 @@ public class HomeView extends VerticalLayout implements View {
 //
     private ProfileForm profileForm;
 
-    public HomeView(){
+    public HomeView(VaccinUtilisateurFacade vUtilisateurFacade){
+        this.vUtilisateurFacade = vUtilisateurFacade;
         setMargin(true);
         setSpacing(true);
         setSizeFull(); // Occupy full screen space
+        System.out.println("Current Logged In User :" +loggedInUser);
+        System.out.println("Current Logged In User Name :" +loggedInUser.getName());
+        System.out.println("Current Logged In User Token:" +loggedInUser.getCurrentToken());
+        System.out.println("Current Logged In User Roles :" +loggedInUser.getRoles());
+        System.out.println("Current Logged In User Id :" +loggedInUser.getUser().getId());
+        System.out.println("Current Logged In User Email :" +loggedInUser.getUser().getEmail());
+        System.out.println("Current Logged In User UserName :" +loggedInUser.getUser().getUserName());
+        System.out.println("Current Logged In User :" +loggedInUser);
+        System.out.println("Current Logged In User :" +loggedInUser);
+        System.out.println("Current Logged In User :" +loggedInUser);
     }
+
 
     @PostConstruct
     private void init(){
@@ -105,6 +117,194 @@ public class HomeView extends VerticalLayout implements View {
         // Add TabSheets to the layout
         addComponents(tabSheet);
         setExpandRatio(tabSheet, 1); // Let the first TabSheet expand
+
+
+
+
+
+//        Initialize the calendar vaccin
+
+
+
+        /**
+         //     * Init Calendrier Nationale de Vaccination
+         //     */
+////    @PostConstruct
+//    public void initCalendrierVaccination(){
+//        List<VaccinDTO> vaccinDTOList = new ArrayList<>();
+//
+////    RSV 1 (0 mois Naissance)
+//      VaccinDTO rsv1 = new VaccinDTO();
+//      rsv1.setVaccinDescription(" RSV (virus respiratoire syncytial) : administration d’un traitementpréventif (produit d’immunisation passive) qui protège contre labronchiolite, de préférence avant la sortie de la maternité, en pé-riode de haute circulation du virus, de septembre à février. ");
+//      rsv1.setTypeVaccin(TypeVaccinEnum.RSV);
+//      rsv1.setNumDose(1);
+//      rsv1.setNbrMonthsDose(0);
+//
+//      vaccinDTOList.add(rsv1);
+//
+////        RSV 2 (6 mois) Rappel si on ne l a pas pris a la naissance
+//        VaccinDTO rsv2 = new VaccinDTO();
+//        rsv2.setVaccinDescription(" RSV : pour les nourrissons de moins de 6 mois ne l’ayant pasreçu avant la sortie de la maternité, administration du traitementpréventif (produit d’immunisation passive) qui protège contre labronchiolite, en période de haute circulation du virus, de sep-tembre à février. ");
+//        rsv2.setTypeVaccin(TypeVaccinEnum.RSV);
+//        rsv2.setNumDose(2);
+//        rsv2.setNbrMonthsDose(6);
+//
+//        vaccinDTOList.add(rsv2);
+//
+////        COMBINE 1 (2 mois)
+//        VaccinDTO combine1 = new VaccinDTO();
+//        combine1.setVaccinDescription(" 1ère dose du vaccin combiné (D, T, aP, Hib, IPV, Hep B) quiprotège contre :- la diphtérie,- le tétanos,- la coqueluche,- les infections invasives à Haemophilus Inﬂuenzae de type b(méningite, épiglottite et arthrite),- la poliomyélite,- l’hépatite B. ");
+//        combine1.setTypeVaccin(TypeVaccinEnum.COMBINE);
+//        combine1.setNumDose(1);
+//        combine1.setNbrMonthsDose(2);
+//
+//        vaccinDTOList.add(combine1);
+//
+////        COMBINE 2 (4 mois)
+//        VaccinDTO combine2 = new VaccinDTO();
+//        combine2.setVaccinDescription(" 2ème dose du vaccin combiné (D, T, aP, Hib, IPV, Hep B) quiprotège contre :- la diphtérie,- le tétanos,- la coqueluche,- les infections invasives à Haemophilus Inﬂuenzae de type b(méningite, épiglottite et arthrite),- la poliomyélite,- l’hépatite B. ");
+//        combine2.setTypeVaccin(TypeVaccinEnum.COMBINE);
+//        combine2.setNumDose(2);
+//        combine2.setNbrMonthsDose(4);
+//
+//        vaccinDTOList.add(combine2);
+//
+////        COMBINE 3 (11 mois)
+//        VaccinDTO combine3 = new VaccinDTO();
+//        combine3.setVaccinDescription(" 3ème dose du vaccin combiné (D, T, aP, Hib, IPV, Hep B) quiprotège contre :- la diphtérie,- le tétanos,- la coqueluche,- les infections invasives à Haemophilus Inﬂuenzae de type b(méningite, épiglottite et arthrite),- la poliomyélite,- l’hépatite B. ");
+//        combine3.setTypeVaccin(TypeVaccinEnum.COMBINE);
+//        combine3.setNumDose(3);
+//        combine3.setNbrMonthsDose(11);
+//
+//        vaccinDTOList.add(combine3);
+//
+////        COMBINE_ROV 1 (12 mois)
+//        VaccinDTO combinerov1 = new VaccinDTO();
+//        combinerov1.setVaccinDescription(" 1ère dose du vaccin combiné (RORV) qui protège contre :- la rougeole,- les oreillons,- la rubéole,- la varicelle. ");
+//        combinerov1.setTypeVaccin(TypeVaccinEnum.COMBINE_RORV);
+//        combinerov1.setNumDose(1);
+//        combinerov1.setNbrMonthsDose(12);
+//
+//        vaccinDTOList.add(combinerov1);
+//
+////        ROTAROVIRUS 1 (2 mois)
+//        VaccinDTO rotarovirus1 = new VaccinDTO();
+//        rotarovirus1.setVaccinDescription(" Rotavirus (1ère dose) : Vaccination contre la gastro-entérite à ro-tavirus. ");
+//        rotarovirus1.setTypeVaccin(TypeVaccinEnum.ROTAROVIRUS);
+//        rotarovirus1.setNumDose(1);
+//        rotarovirus1.setNbrMonthsDose(2);
+//
+//        vaccinDTOList.add(rotarovirus1);
+//
+////        ROTAROVIRUS 2 (3 mois)
+//
+//        VaccinDTO rotarovirus2 = new VaccinDTO();
+//        rotarovirus2.setVaccinDescription(" Rotavirus (2 ième dose) : Vaccination contre la gastro-entérite à ro-tavirus. ");
+//        rotarovirus2.setTypeVaccin(TypeVaccinEnum.ROTAROVIRUS);
+//        rotarovirus2.setNumDose(2);
+//        rotarovirus2.setNbrMonthsDose(3);
+//
+//        vaccinDTOList.add(rotarovirus2);
+//
+////        ROTAROVIRUS 3 (4 mois)
+//
+//        VaccinDTO rotarovirus3 = new VaccinDTO();
+//        rotarovirus3.setVaccinDescription(" Rotavirus (3 ième dose) : Vaccination contre la gastro-entérite à ro-tavirus. ");
+//        rotarovirus3.setTypeVaccin(TypeVaccinEnum.ROTAROVIRUS);
+//        rotarovirus3.setNumDose(3);
+//        rotarovirus3.setNbrMonthsDose(4);
+//
+//        vaccinDTOList.add(rotarovirus3);
+//
+////        PNEUMONOCOQUES 1 (2 mois)
+//        VaccinDTO pneumonocoque1 = new VaccinDTO();
+//        pneumonocoque1.setVaccinDescription(" Pneumocoques (1ère dose) : vaccination contre les infections in-vasives à pneumocoques. ");
+//        pneumonocoque1.setTypeVaccin(TypeVaccinEnum.PNEUMONOCOQUES);
+//        pneumonocoque1.setNumDose(1);
+//        pneumonocoque1.setNbrMonthsDose(2);
+//
+//        vaccinDTOList.add(pneumonocoque1);
+//
+////        PNEUMONOCOQUES 2 (4 mois)
+//        VaccinDTO pneumonocoque2 = new VaccinDTO();
+//        pneumonocoque2.setVaccinDescription(" Pneumocoques (2ième dose) : vaccination contre les infections in-vasives à pneumocoques. ");
+//        pneumonocoque2.setTypeVaccin(TypeVaccinEnum.PNEUMONOCOQUES);
+//        pneumonocoque2.setNumDose(2);
+//        pneumonocoque2.setNbrMonthsDose(4);
+//
+//        vaccinDTOList.add(pneumonocoque2);
+//
+////        PNEUMONOCOQUES 3 (11 mois)
+//        VaccinDTO pneumonocoque3 = new VaccinDTO();
+//        pneumonocoque3.setVaccinDescription(" Pneumocoques (3ième dose) : vaccination contre les infections in-vasives à pneumocoques. ");
+//        pneumonocoque3.setTypeVaccin(TypeVaccinEnum.PNEUMONOCOQUES);
+//        pneumonocoque3.setNumDose(3);
+//        pneumonocoque3.setNbrMonthsDose(11);
+//
+//        vaccinDTOList.add(pneumonocoque3);
+//
+//
+////        MENINGOCOQUE_B 1 (3 mois)
+//        VaccinDTO meningocoqueb1 = new VaccinDTO();
+//        meningocoqueb1.setVaccinDescription(" Méningocoque B (1 ère dose) : vaccination contre les infections invasives à méningocoque B. ");
+//        meningocoqueb1.setTypeVaccin(TypeVaccinEnum.MENINGOCOQUE_B);
+//        meningocoqueb1.setNumDose(1);
+//        meningocoqueb1.setNbrMonthsDose(3);
+//
+//        vaccinDTOList.add(meningocoqueb1);
+//
+////        MENINGOCOQUE_B 2 (5 mois)
+//        VaccinDTO meningocoqueb2 = new VaccinDTO();
+//        meningocoqueb2.setVaccinDescription(" Méningocoque B (2 ième dose) : vaccination contre les infections invasives à méningocoque B. ");
+//        meningocoqueb2.setTypeVaccin(TypeVaccinEnum.MENINGOCOQUE_B);
+//        meningocoqueb2.setNumDose(2);
+//        meningocoqueb2.setNbrMonthsDose(5);
+//
+//        vaccinDTOList.add(meningocoqueb2);
+//
+////        MENINGOCOQUE_B 3 (12 mois)
+//        VaccinDTO meningocoqueb3 = new VaccinDTO();
+//        meningocoqueb3.setVaccinDescription(" Méningocoque B (3 ième dose) : vaccination contre les infections invasives à méningocoque B. ");
+//        meningocoqueb3.setTypeVaccin(TypeVaccinEnum.MENINGOCOQUE_B);
+//        meningocoqueb3.setNumDose(3);
+//        meningocoqueb3.setNbrMonthsDose(12);
+//
+//        vaccinDTOList.add(meningocoqueb3);
+//
+////        MENINGOCOQUE_ACWY 1 (13 mois)
+//        VaccinDTO meningocoque_acwy1 = new VaccinDTO();
+//        meningocoque_acwy1.setVaccinDescription(" Méningocoques ACWY (1ère dose) : vaccination contre les infections invasives à méningocoques A, C, W et Y. ");
+//        meningocoque_acwy1.setTypeVaccin(TypeVaccinEnum.MENINGOCOQUE_ACWY);
+//        meningocoque_acwy1.setNumDose(1);
+//        meningocoque_acwy1.setNbrMonthsDose(13);
+//
+//        vaccinDTOList.add(meningocoque_acwy1);
+//
+//        try {
+//            for (VaccinDTO vaccinDTO: vaccinDTOList){
+////                if (vFacade.findVaccinByTypeAndDose(vaccinDTO.getTypeVaccin().name(),vaccinDTO.getNumDose())==null){
+//                    vFacade.createVaccin(vaccinDTO);
+////                }
+//            }
+//        } catch (CarnetException e) {
+//            Notification.show("An error occurs loading vaccin", Notification.Type.ERROR_MESSAGE);
+//        }
+//        for (VaccinDTO vaccinDTO: vaccinDTOList){
+//           if (vFacade.findVaccinByTypeAndDose(vaccinDTO.getTypeVaccin().name(),vaccinDTO.getNumDose())!=null){
+//                vFacade.create(vaccinDTO);
+//           }
+//        }
+
+//        //    RSV,
+        ////    COMBINE,
+        ////    ROTAROVIRUS,
+        ////    PNEUMONOCOQUES,
+        ////    MENINGOCOQUE_B,
+        ////    COMBINE_RORV,
+        ////    MENINGOCOQUE_ACWY
+        ////}
+//    }
+
 
     }
 

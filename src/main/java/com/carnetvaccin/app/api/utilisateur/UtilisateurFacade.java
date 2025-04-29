@@ -4,6 +4,7 @@ import com.carnetvaccin.app.api.commons.AbstractFacade;
 import com.carnetvaccin.app.backend.exceptions.CarnetException;
 import com.carnetvaccin.app.backend.utilisateur.Utilisateur;
 import com.carnetvaccin.app.backend.utilisateur.UtilisateurService;
+import com.carnetvaccin.app.frontend.utilisateur.UserInfo;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -17,6 +18,9 @@ public class UtilisateurFacade extends AbstractFacade<Utilisateur,UtilisateurDTO
 
     @Inject
     private UtilisateurService service;
+
+    @Inject
+    private UserInfo userInfo;
 
     public UtilisateurFacade() {
         super(UtilisateurDTO.class, Utilisateur.class);
@@ -59,8 +63,15 @@ public class UtilisateurFacade extends AbstractFacade<Utilisateur,UtilisateurDTO
     }
 
     //    Login a user
-public String loginUser(String username, String plainPassword) {
-        return getService().loginUser(username,plainPassword);
+public UtilisateurDTO loginUser(String username, String plainPassword) {
+//        String token = getService().loginUser(username,plainPassword);
+        UtilisateurDTO utilisateurDTO = mapper.toDto(getService().loginUser(username,plainPassword));
+        if (utilisateurDTO != null){
+            UserInfo userInfo1 = new UserInfo();
+            userInfo.setUser(utilisateurDTO);
+            userInfo.setCurrentToken(utilisateurDTO.getToken());
+        }
+        return utilisateurDTO;
 }
 //    Register a new User
     public String registerUtilisateur(UtilisateurDTO utilisateurDTO){

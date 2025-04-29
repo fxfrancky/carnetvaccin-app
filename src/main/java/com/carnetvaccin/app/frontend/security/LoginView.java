@@ -1,5 +1,7 @@
 package com.carnetvaccin.app.frontend.security;
 
+import com.carnetvaccin.app.api.utilisateur.UtilisateurFacade;
+import com.carnetvaccin.app.frontend.HomeView;
 import com.carnetvaccin.app.frontend.navigation.NavigationEvent;
 import com.carnetvaccin.app.frontend.utilisateur.UserInfo;
 import com.vaadin.cdi.CDIView;
@@ -11,24 +13,31 @@ import com.vaadin.ui.themes.ValoTheme;
 import javax.inject.Inject;
 
 @CDIView(LoginView.LOGIN)
-//public class LoginView extends CustomComponent implements View, Button.ClickListener {
 public class LoginView extends VerticalLayout implements View {
 
     public static final String LOGIN = "login";
 
     @Inject
-    private UserInfo user;
-
-//    @Inject
-//    private UtilisateurFacade userFacade;
+    private UserInfo userInfo;
+    @Inject
+    private UtilisateurFacade userFacade;
     @Inject
     private CustomAccessControl accessControl;
+
+//    @Inject
+//    private VaccinFacade vFacade;
+
+//    private final VaccinFacade vFacade;
 
     @Inject
     private javax.enterprise.event.Event<NavigationEvent> navigationEvent;
 
+    @Inject
     public LoginView() {
+//    public LoginView(VaccinFacade vFacade) {
+//        this.vFacade = vFacade;
 //        setSizeFull(); // Full-screen layout
+//        initVaccin();
         setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
         VerticalLayout loginForm = new VerticalLayout();
         loginForm.setWidth("450px");
@@ -63,7 +72,6 @@ public class LoginView extends VerticalLayout implements View {
         Label registerPrompt = new Label("Don't have an account yet ?");
         Button registerButton = new Button("Click Here to Register", event -> {
             navigationEvent.fire(new NavigationEvent(RegistrationView.REGISTER)); // Navigate to the regristration page
-//            getUI().getNavigator().navigateTo("register");
         });
         registerButton.setStyleName(ValoTheme.LINK_SMALL);//link
 //        registerButton.setStyleName(ValoTheme.LINK_SMALL);//link
@@ -72,10 +80,11 @@ public class LoginView extends VerticalLayout implements View {
         // Login logic
         loginButton.addClickListener(event -> {
             try {
-                accessControl.signIn(usernameField.getValue(), passwordField.getValue());
-                Notification.show("Login Successful", Notification.Type.HUMANIZED_MESSAGE);
+                userFacade.loginUser(usernameField.getValue(), passwordField.getValue());
+                Notification.show("Login Successful for user " + userInfo.getName() , Notification.Type.ASSISTIVE_NOTIFICATION);
+                navigationEvent.fire(new NavigationEvent(HomeView.HOME)); // Navigate to the home page
             } catch (RuntimeException e) {
-                Notification.show(e.getMessage(), Notification.Type.HUMANIZED_MESSAGE);
+                Notification.show(e.getMessage(), Notification.Type.WARNING_MESSAGE);
             }
         });
 
@@ -86,6 +95,8 @@ public class LoginView extends VerticalLayout implements View {
         centeredLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
         addComponent(centeredLayout);
     }
+
+
 
     @Override
     public void enter(ViewChangeEvent event) {
