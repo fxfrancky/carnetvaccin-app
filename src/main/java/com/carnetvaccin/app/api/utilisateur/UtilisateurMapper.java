@@ -8,7 +8,10 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,7 +36,7 @@ public class UtilisateurMapper extends AbstractMapper<Utilisateur, UtilisateurDT
         uDTO.setLastName(uEntity.getLastName());
         uDTO.setEmail(uEntity.getEmail());
         uDTO.setDateNaissance(uEntity.getDateNaissance());
-        uDTO.setPassword(uEntity.getPassword());
+        uDTO.setPlainPassword(null); // we dont return a password
         uDTO.setUserName(uEntity.getUserName());
 //        uDTO.setVaccinUtilisateurDTOList(vaccinUtilisateurMapper.toDtoList(uEntity.getVaccinUtilisateurList()));
 //        uDTO.setNotificationDTOList(notificationMapper.toDtoList(uEntity.getNotificationList()));
@@ -49,7 +52,7 @@ public class UtilisateurMapper extends AbstractMapper<Utilisateur, UtilisateurDT
         uEntity.setLastName(uDTO.getLastName());
         uEntity.setEmail(uDTO.getEmail());
         uEntity.setDateNaissance(uDTO.getDateNaissance());
-        uEntity.setPassword(uDTO.getPassword());
+        uEntity.setEncryptedPassword(encryptPassword(uDTO.getPlainPassword()));
         uEntity.setUserName(uDTO.getUserName());
         uEntity.setVaccinUtilisateurList(vaccinUtilisateurMapper.toEntityList(uDTO.getVaccinUtilisateurDTOList()));
         uEntity.setNotificationList(notificationMapper.toEntityList(uDTO.getNotificationDTOList()));
@@ -82,6 +85,17 @@ public class UtilisateurMapper extends AbstractMapper<Utilisateur, UtilisateurDT
                     .map(this::toDto).collect(Collectors.toList());
         }
         return utilisateurDTOList;
+    }
+
+
+    public static String encryptPassword(String plainPassword) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(plainPassword.getBytes());
+            return Base64.getEncoder().encodeToString(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Password encryption failed", e);
+        }
     }
 
 }

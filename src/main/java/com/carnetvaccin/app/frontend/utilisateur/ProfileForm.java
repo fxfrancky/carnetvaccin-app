@@ -6,6 +6,9 @@ import com.carnetvaccin.app.backend.exceptions.CarnetException;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 public class ProfileForm extends FormLayout {
 
 
@@ -47,8 +50,8 @@ public class ProfileForm extends FormLayout {
         email.setValue(userInfo.getUser().getEmail());
         email.setEnabled(false);
         layout.addComponent(email);
-
-        dateNaissance.setValue(userInfo.getUser().getDateNaissance());
+        LocalDate parsedAtServer = LocalDate.parse(userInfo.getUser().getDateNaissance(), DateTimeFormatter.ISO_DATE);
+        dateNaissance.setValue(parsedAtServer);
         dateNaissance.setEnabled(false);
         layout.addComponent(dateNaissance);
 

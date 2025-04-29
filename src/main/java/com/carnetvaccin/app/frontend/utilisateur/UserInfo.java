@@ -3,6 +3,7 @@ package com.carnetvaccin.app.frontend.utilisateur;
 import com.carnetvaccin.app.api.roles.Role;
 import com.carnetvaccin.app.api.utilisateur.UtilisateurDTO;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.ejb.Singleton;
 import javax.enterprise.context.ApplicationScoped;
@@ -16,6 +17,10 @@ public class UserInfo implements Serializable {
 
     @Getter
     private UtilisateurDTO user;
+
+    @Getter
+    @Setter
+    private String currentToken;
 
     private List<String> roles = new ArrayList<String>();
 

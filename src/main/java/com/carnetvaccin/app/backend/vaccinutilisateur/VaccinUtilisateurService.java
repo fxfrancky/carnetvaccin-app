@@ -35,7 +35,7 @@ public VaccinUtilisateur findByUtilisaterIDAndVaccinId(Long vaccinId, Long utili
     try {
         return query.getSingleResult();
     } catch (Exception ex){
-        throw new CarnetException("An error occurss",ex);
+        throw new CarnetException("An error occurss");
     }
 }
 
@@ -46,7 +46,7 @@ public List<VaccinUtilisateur> findAllVaccinUtilisateurByUserId(Long utilisateur
     try {
         return query.getResultList();
     } catch (Exception ex){
-        throw new CarnetException("An error occurss",ex);
+        throw new CarnetException("An error occurss");
     }
 }
 
@@ -67,7 +67,7 @@ public List<VaccinUtilisateur> findrByTerms(String searchTerm, Long utilisateurI
         vaccinUtilisateurList = query.getResultList();
 //            return query.getResultList();
     } catch (Exception ex) {
-        throw new CarnetException("An error occurss",ex);
+        throw new CarnetException("An error occurs");
     }
     return vaccinUtilisateurList;
 }
@@ -86,7 +86,7 @@ public List<VaccinUtilisateur> findrByTerms(String searchTerm, Long utilisateurI
                 create(vaccinUtilisateur);
             }
         } catch (Exception e) {
-            throw new CarnetException("An error occurs while saving a vaccin ", e);
+            throw new CarnetException("An error occurs while saving a vaccin ");
         }
     }
 
@@ -100,7 +100,7 @@ public List<VaccinUtilisateur> findrByTerms(String searchTerm, Long utilisateurI
         try{
             remove(vaccinUtilisateur);
         } catch (Exception e) {
-            throw new CarnetException("An error occurs while deleting a vaccin ", e);
+            throw new CarnetException("An error occurs while deleting a vaccin ");
         }
     }
 

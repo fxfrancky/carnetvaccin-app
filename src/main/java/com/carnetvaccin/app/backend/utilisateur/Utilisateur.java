@@ -7,19 +7,25 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "utilisateur")
+@Table(name = "utilisateur",uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"username"}),
+        @UniqueConstraint(columnNames = {"email"})
+})
 @Getter
 @Setter
 @NamedQueries({
    @NamedQuery(name = "Utilisateur.getUserByEmail", query = "from Utilisateur u where u.email = :email"),
    @NamedQuery(name = "Utilisateur.getUserByUserName", query = "from Utilisateur u where u.userName = :userName"),
-   @NamedQuery(name = "Utilisateur.getUserByUserNameAndPassword", query = "from Utilisateur u where u.userName = :userName and u.password = :password")
+   @NamedQuery(name = "Utilisateur.getUserByToken", query = "from Utilisateur u where u.token = :token"),
+   @NamedQuery(name = "Utilisateur.getUserByUserNameAndPassword", query = "from Utilisateur u where u.userName = :userName and u.encryptedPassword = :encryptedPassword")
+
 })
 public class Utilisateur extends BaseEntity implements Serializable {
 
@@ -29,36 +35,48 @@ public class Utilisateur extends BaseEntity implements Serializable {
     private Long utilisateurId;
 
     @Column(name = "first_name")
+    @NotNull
     private String firstName;
 
     @Column(name = "last_name")
+    @NotNull
     private String lastName;
 
     @Column(name = "email", unique = true)
+    @NotNull
+    @Email
     private String email;
 
     @Column(name = "date_naiss")
-    private LocalDate dateNaissance;
+    @NotNull
+    private String dateNaissance;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "utilisateur")
-    private List<VaccinUtilisateur> vaccinUtilisateurList;
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "utilisateur")
-    private List<Notification> notificationList;
-
-    @Column(name = "user_name" , unique = true)
+    @Column(name = "username" , unique = true)
+    @NotNull
     private String userName;
 
+
+    @NotNull
+    @NotNull
     @Column(name = "password")
-    private String password;
+    private String encryptedPassword;
+
+    @Column(name = "token")
+    private String token;
 
     @Column(name = "is_admin")
     private boolean isAdmin = false;
 
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "utilisateur")
+    private List<VaccinUtilisateur> vaccinUtilisateurList;
+
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "utilisateur")
+    private List<Notification> notificationList;
+
     public Utilisateur() {
     }
 
-    public Utilisateur(List<Notification> notificationList, Long utilisateurId, String firstName, String lastName, String email, LocalDate dateNaissance, List<VaccinUtilisateur> vaccinUtilisateurList, String userName, String password, Boolean isAdmin) {
+    public Utilisateur(List<Notification> notificationList, Long utilisateurId, String firstName, String lastName, String email, String dateNaissance, List<VaccinUtilisateur> vaccinUtilisateurList, String userName, String password, Boolean isAdmin) {
         this.notificationList = notificationList;
         this.utilisateurId = utilisateurId;
         this.firstName = firstName;
@@ -67,12 +85,12 @@ public class Utilisateur extends BaseEntity implements Serializable {
         this.dateNaissance = dateNaissance;
         this.vaccinUtilisateurList = vaccinUtilisateurList;
         this.userName = userName;
-        this.password = password;
+        this.encryptedPassword = encryptedPassword;
         this.isAdmin = isAdmin;
 
     }
 
-    public Utilisateur(String firstName, String lastName, String email, LocalDate dateNaissance, List<VaccinUtilisateur> vaccinUtilisateurList, List<Notification> notificationList, String userName, String password, Boolean isAdmin) {
+    public Utilisateur(String firstName, String lastName, String email, String dateNaissance, List<VaccinUtilisateur> vaccinUtilisateurList, List<Notification> notificationList, String userName, String encryptedPassword, Boolean isAdmin) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -80,7 +98,7 @@ public class Utilisateur extends BaseEntity implements Serializable {
         this.vaccinUtilisateurList = vaccinUtilisateurList;
         this.notificationList = notificationList;
         this.userName = userName;
-        this.password = password;
+        this.encryptedPassword = encryptedPassword;
         this.isAdmin = isAdmin;
     }
 

@@ -36,7 +36,7 @@ public class VaccinService  extends AbstractService<Vaccin> {
             return query.getSingleResult();
 //            return query.getResultStream().findFirst().orElse(null);
     } catch (Exception ex) {
-        throw new CarnetException("An error occurss",ex);
+        throw new CarnetException("An error occurss");
     }
 
     }
@@ -50,7 +50,7 @@ public class VaccinService  extends AbstractService<Vaccin> {
         try {
             create(vaccin);
         } catch (Exception ex) {
-            throw new CarnetException("An error occurs while creating a vaccin",ex);
+            throw new CarnetException("An error occurs while creating a vaccin");
         }
 
     }
@@ -65,7 +65,7 @@ public class VaccinService  extends AbstractService<Vaccin> {
         try{
             return super.findAll();
         } catch (Exception ex) {
-            throw new CarnetException("An error occurs while creating a vaccin",ex);
+            throw new CarnetException("An error occurs while creating a vaccin");
         }
     }
 }
