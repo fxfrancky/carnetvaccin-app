@@ -4,12 +4,16 @@ import com.carnetvaccin.app.api.commons.AbstractFacade;
 import com.carnetvaccin.app.backend.exceptions.CarnetException;
 import com.carnetvaccin.app.backend.utilisateur.Utilisateur;
 import com.carnetvaccin.app.backend.utilisateur.UtilisateurService;
-import com.carnetvaccin.app.frontend.utilisateur.UserInfo;
+import lombok.extern.slf4j.Slf4j;
+import org.mindrot.jbcrypt.BCrypt;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.logging.Logger;
+import javax.transaction.Transactional;
+import java.util.Optional;
+import java.util.UUID;
 
+@Slf4j
 @Stateless
 public class UtilisateurFacade extends AbstractFacade<Utilisateur,UtilisateurDTO, UtilisateurService,UtilisateurMapper> {
 
@@ -18,9 +22,6 @@ public class UtilisateurFacade extends AbstractFacade<Utilisateur,UtilisateurDTO
 
     @Inject
     private UtilisateurService service;
-
-    @Inject
-    private UserInfo userInfo;
 
     public UtilisateurFacade() {
         super(UtilisateurDTO.class, Utilisateur.class);
@@ -36,49 +37,43 @@ public class UtilisateurFacade extends AbstractFacade<Utilisateur,UtilisateurDTO
         return mapper;
     }
 
-    @Override
-    protected Logger getLogger() {
-        return Logger.getLogger(this.getClass().getSimpleName());
-    }
-
     public UtilisateurDTO getUserByEmail(String email){
-            return mapper.toDto(getService().getUserByEmail(email));
-    }
-
-    public UtilisateurDTO getUserByUserNameAndPassword(String userName, String password) throws CarnetException {
-            return  mapper.toDto(getService().getUserByUserNameAndPassword(userName,password));
+        Optional<Utilisateur> utilisateur = getService().getUserByEmail(email);
+        if (utilisateur.isPresent()){
+            Utilisateur foundUser = utilisateur.get();
+            return mapper.toDto(foundUser);
+        } else {
+            return null;
+        }
     }
 
     public UtilisateurDTO getUserByUserName(String userName){
-            return mapper.toDto(getService().getUserByUserName(userName));
-
+            Optional<Utilisateur> utilisateur = getService().getUserByUserName(userName);
+            if (utilisateur.isPresent()){
+                Utilisateur foundUser = utilisateur.get();
+                return mapper.toDto(foundUser);
+            } else {
+                return null;
+            }
     }
 
     public void deleteUserAccount(UtilisateurDTO utilisateurDTO) throws CarnetException {
          getService().deleteUserAccount(mapper.toEntity(utilisateurDTO));
     }
 
-    public UtilisateurDTO validateToken(String token){
-        return mapper.toDto(getService().validateToken(token));
-    }
-
     //    Login a user
 public UtilisateurDTO loginUser(String username, String plainPassword) {
-//        String token = getService().loginUser(username,plainPassword);
-        UtilisateurDTO utilisateurDTO = mapper.toDto(getService().loginUser(username,plainPassword));
-        if (utilisateurDTO != null){
-            UserInfo userInfo1 = new UserInfo();
-            userInfo.setUser(utilisateurDTO);
-            userInfo.setCurrentToken(utilisateurDTO.getToken());
-        }
-        return utilisateurDTO;
+    return mapper.toDto(getService().loginUser(username,plainPassword));
 }
 //    Register a new User
-    public String registerUtilisateur(UtilisateurDTO utilisateurDTO){
+    @Transactional
+    public UtilisateurDTO registerUtilisateur(UtilisateurDTO utilisateurDTO){
         validateFields(utilisateurDTO);
-        return getService().registerUser(mapper.toEntity(utilisateurDTO));
+        Utilisateur utilisateur = mapper.toEntity(utilisateurDTO);
+        utilisateur.setEncryptedPassword(hashPassword(utilisateurDTO.getPlainPassword()));
+        utilisateur.setToken(UUID.randomUUID().toString());
+        return mapper.toDto(getService().registerUser(utilisateur));
     }
-
 
     private void validateFields(UtilisateurDTO dto) {
         if (dto.getFirstName() == null || dto.getFirstName().length() < 3) {
@@ -100,9 +95,29 @@ public UtilisateurDTO loginUser(String username, String plainPassword) {
             throw new CarnetException("Invalid password. It must be at least 6 characters long and contain a special character.");
         }
     }
-//    public Utilisateur getUserByUserNameAndPassword(String userName, String password){
-//    public UtilisateurDTO getUserByUserNameAndPassword(String userName, String password)
-//    public UtilisateurDTO getUserById(Long IdUtilisateur)
-//    public void saveUser(Utilisateur user)
-//    public List<UtilisateurDTO> getAllUsers();
+    public String hashPassword(String password) {
+        return BCrypt.hashpw(password, BCrypt.gensalt());
+    }
+//
+//    public boolean checkPassword(String password, String storedHash) {
+//        try {
+//            return BCrypt.checkpw(password, storedHash);
+//        } catch (Exception e) {
+//            log.error("Error checking password: {}", e.getMessage());
+//            e.printStackTrace();
+//            throw new CarnetException("Error checking password: in UserFacade");
+//        }
+//    }
+
+    @Transactional
+    public UtilisateurDTO loginWithToken(String token) {
+        Optional<Utilisateur> user = getService().findByToken(token);
+        return user.map(utilisateur -> mapper.toDto(utilisateur)).orElse(null);
+    }
+
+//    @Transactional
+//    public UtilisateurDTO getCurrentUser(String userName) {
+//        Optional<Utilisateur> user = getService().getUserByUserName(userName);
+//        return user.map(utilisateur -> mapper.toDto(utilisateur)).orElse(null);
+//    }
 }

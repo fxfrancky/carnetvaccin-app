@@ -10,12 +10,21 @@
         <properties>
             <property name="hibernate.dialect" value="org.sqlite.hibernate.dialect.SQLiteDialect" />
             <property name="hibernate.connection.driver_class" value="org.sqlite.JDBC" />
-            <property name="hibernate.connection.url" value="jdbc:sqlite:C:\\Users\\fxfra\\OneDrive\\Bureau\\Projet Java Vaadin\\carnetvaccin-app\\carnetvaccindb.db" />
+            <property name="javax.persistence.jdbc.url" value="jdbc:sqlite:C:/Users/fxfra/OneDrive/Bureau/Projet Java Vaadin/carnetvaccin-app/carnetvaccindb.db"/>
+<!--            <property name="hibernate.connection.url" value="jdbc:sqlite:C:\\Users\\fxfra\\OneDrive\\Bureau\\Projet Java Vaadin\\carnetvaccin-app\\carnetvaccindb.db" />-->
             <property name="eclipselink.orm.throw.exceptions" value="true"/>
             <property name="eclipselink.ddl-generation" value="create-or-extend-tables"/>
 <!--            <property name="eclipselink.persistence-context.flush-mode" value="AUTO" />-->
-            <property name="eclipselink.logging.logger" value="org.eclipse.persistence.logging.DefaultSessionLog"/>
-            <property name="eclipselink.logging.level" value="INFO"/>
+<!--            <property name="eclipselink.logging.logger" value="org.eclipse.persistence.logging.DefaultSessionLog"/>-->
+            <property name="eclipselink.logging.level" value="FINE"/>
+            <!-- Enable Foreign Keys Automatically -->
+            <property name="eclipselink.jdbc.property.PRAGMA foreign_keys" value="ON"/>
+            <!-- Enable EclipseLink DDL Schema Updates (Preserve Data) -->
+<!--            <property name="eclipselink.ddl-generation" value="update-tables"/>-->
+            <property name="eclipselink.ddl-generation.output-mode" value="database"/>
+            <!-- Ensure UTF-8 encoding -->
+            <property name="javax.persistence.jdbc.connection.characterEncoding" value="UTF-8"/>
+            <property name="javax.persistence.jdbc.connection.useUnicode" value="true"/>
         </properties>
 
     </persistence-unit>

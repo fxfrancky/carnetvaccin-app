@@ -30,34 +30,44 @@ public class UtilisateurMapper extends AbstractMapper<Utilisateur, UtilisateurDT
 
     @Override
     public UtilisateurDTO toDto(Utilisateur uEntity) {
+        if (uEntity == null){
+            return null;
+        }
         UtilisateurDTO uDTO = new UtilisateurDTO();
-        uDTO.setId(uEntity.getUtilisateurId());
-        uDTO.setFirstName(uEntity.getFirstName());
-        uDTO.setLastName(uEntity.getLastName());
-        uDTO.setEmail(uEntity.getEmail());
-        uDTO.setDateNaissance(uEntity.getDateNaissance());
-        uDTO.setPlainPassword(null); // we dont return a password
-        uDTO.setUserName(uEntity.getUserName());
-        uDTO.setToken(uEntity.getToken());
+            uDTO.setId(uEntity.getUtilisateurId());
+            uDTO.setFirstName(uEntity.getFirstName());
+            uDTO.setLastName(uEntity.getLastName());
+            uDTO.setEmail(uEntity.getEmail());
+            uDTO.setDateNaissance(uEntity.getDateNaissance());
+            uDTO.setUserName(uEntity.getUserName());
+            uDTO.setToken(uEntity.getToken());
+            uDTO.setRoles(uEntity.getRoles());
 //        uDTO.setVaccinUtilisateurDTOList(vaccinUtilisateurMapper.toDtoList(uEntity.getVaccinUtilisateurList()));
 //        uDTO.setNotificationDTOList(notificationMapper.toDtoList(uEntity.getNotificationList()));
-        uDTO.setAdmin(uEntity.isAdmin());
+            uDTO.setAdmin(uEntity.isAdmin());
+
         return uDTO;
     }
 
     @Override
     public Utilisateur toEntity(UtilisateurDTO uDTO) {
+        if (uDTO == null){
+            return null;
+        }
         Utilisateur uEntity = new Utilisateur();
-        uEntity.setUtilisateurId(uDTO.getId());
+        if(uDTO.isPersisted()){
+            uEntity.setUtilisateurId(uDTO.getId());
+        }
         uEntity.setFirstName(uDTO.getFirstName());
         uEntity.setLastName(uDTO.getLastName());
         uEntity.setEmail(uDTO.getEmail());
         uEntity.setDateNaissance(uDTO.getDateNaissance());
-        uEntity.setEncryptedPassword(encryptPassword(uDTO.getPlainPassword()));
         uEntity.setUserName(uDTO.getUserName());
         uEntity.setVaccinUtilisateurList(vaccinUtilisateurMapper.toEntityList(uDTO.getVaccinUtilisateurDTOList()));
         uEntity.setNotificationList(notificationMapper.toEntityList(uDTO.getNotificationDTOList()));
         uEntity.setAdmin(uDTO.isAdmin());
+        uEntity.setToken(uDTO.getToken());
+        uEntity.setRoles(uDTO.getRoles());
         return uEntity;
     }
 

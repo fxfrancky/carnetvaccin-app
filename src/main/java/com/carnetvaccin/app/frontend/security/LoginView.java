@@ -1,226 +1,189 @@
 package com.carnetvaccin.app.frontend.security;
 
 import com.carnetvaccin.app.api.utilisateur.UtilisateurFacade;
+import com.carnetvaccin.app.backend.exceptions.CarnetException;
 import com.carnetvaccin.app.frontend.HomeView;
-import com.carnetvaccin.app.frontend.navigation.NavigationEvent;
-import com.carnetvaccin.app.frontend.utilisateur.UserInfo;
 import com.vaadin.cdi.CDIView;
+import com.vaadin.cdi.CDIViewProvider;
+import com.vaadin.cdi.access.AccessControl;
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.server.Page;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
 import javax.inject.Inject;
 
-@CDIView(LoginView.LOGIN)
+@CDIView(LoginView.NAME)
 public class LoginView extends VerticalLayout implements View {
 
-    public static final String LOGIN = "login";
+    public static final String NAME = "login";
 
     @Inject
-    private UserInfo userInfo;
+    private CDIViewProvider viewProvider;
+
+    @Inject
+    private UI ui;
+
     @Inject
     private UtilisateurFacade userFacade;
-    @Inject
-    private CustomAccessControl accessControl;
-
-//    @Inject
-//    private VaccinFacade vFacade;
-
-//    private final VaccinFacade vFacade;
 
     @Inject
-    private javax.enterprise.event.Event<NavigationEvent> navigationEvent;
+    private AccessControl accessControl;
 
-    @Inject
-    public LoginView() {
-//    public LoginView(VaccinFacade vFacade) {
-//        this.vFacade = vFacade;
-//        setSizeFull(); // Full-screen layout
-//        initVaccin();
+    // Fields
+    private TextField usernameField;
+    private PasswordField passwordField;
+
+
+    @Override
+    public void enter(ViewChangeEvent event) {
+        buildView();
+        setSizeFull();
         setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-        VerticalLayout loginForm = new VerticalLayout();
-        loginForm.setWidth("450px");
-        loginForm.setSpacing(true);
-        loginForm.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+    }
+
+    private void buildView() {
+        removeAllComponents();
+        VerticalLayout mainLayout = createMainLayout();
+        Panel loginPanel = createCenterLoginPanel();
+        VerticalLayout loginForm = createInnerLoginLayout();
 
         // Title
         Label title = new Label("Login");
         title.setStyleName(ValoTheme.LABEL_H1);
 
         // Username field
-        TextField usernameField = new TextField("Username");
+        usernameField = new TextField("Username");
         usernameField.setPlaceholder("Enter your username");
         usernameField.setWidth("100%");
-        usernameField.addStyleName(ValoTheme.TEXTFIELD_LARGE);
+        usernameField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+//        usernameField.addStyleName(ValoTheme.TEXTFIELD_LARGE);
 
         // Password field
-        PasswordField passwordField = new PasswordField("Password");
+        passwordField = new PasswordField("Password");
         passwordField.setPlaceholder("Enter your password");
         passwordField.setWidth("100%");
-        passwordField.addStyleName(ValoTheme.TEXTFIELD_LARGE);
+//        passwordField.addStyleName(ValoTheme.TEXTFIELD_LARGE);
+        passwordField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+//
+//        usernameField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+//        passwordField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
 
         // Login button
-        Button loginButton = new Button("Login");
-        loginButton.setWidth("100%");
-        loginButton.setStyleName(ValoTheme.BUTTON_PRIMARY);
-
+        Button loginButton = createLoginButton();
+        loginButton.addClickListener(this::login);
 
         // Register link
         HorizontalLayout registerLayout = new HorizontalLayout();
         registerLayout.setSpacing(true);
         Label registerPrompt = new Label("Don't have an account yet ?");
         Button registerButton = new Button("Click Here to Register", event -> {
-            navigationEvent.fire(new NavigationEvent(RegistrationView.REGISTER)); // Navigate to the regristration page
+            ui.getNavigator().navigateTo(RegistrationView.NAME);
+
         });
         registerButton.setStyleName(ValoTheme.LINK_SMALL);//link
 //        registerButton.setStyleName(ValoTheme.LINK_SMALL);//link
         registerLayout.addComponents(registerPrompt, registerButton);
 
-        // Login logic
-        loginButton.addClickListener(event -> {
-            try {
-                userFacade.loginUser(usernameField.getValue(), passwordField.getValue());
-                Notification.show("Login Successful for user " + userInfo.getName() , Notification.Type.ASSISTIVE_NOTIFICATION);
-                navigationEvent.fire(new NavigationEvent(HomeView.HOME)); // Navigate to the home page
-            } catch (RuntimeException e) {
-                Notification.show(e.getMessage(), Notification.Type.WARNING_MESSAGE);
-            }
-        });
-
         loginForm.addComponents(title, usernameField, passwordField, loginButton, registerLayout);
+        loginForm.addStyleName("login-form-container");
+        loginPanel.setContent(loginForm);
 
-        VerticalLayout centeredLayout = new VerticalLayout(loginForm);
-        centeredLayout.setSizeFull();
-        centeredLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-        addComponent(centeredLayout);
+        mainLayout.addComponent(loginPanel);
+        mainLayout.setComponentAlignment(loginPanel, Alignment.MIDDLE_CENTER);
+        addComponent(mainLayout);
+
+        // Check for token in URL
+        String token = Page.getCurrent().getUriFragment();
+        if (token != null && token.startsWith("token=")) {
+            String actualToken = token.substring(6); // Remove "token="
+            if (((CustomAccessControl) accessControl).signInWithToken(actualToken)) {
+                ui.getNavigator().navigateTo(HomeView.NAME);
+            } else {
+                Notification.show("Invalid token. Please log in.", Notification.Type.HUMANIZED_MESSAGE);
+            }
+        }
+    }
+
+    /**
+     * Create main layout
+     *
+     * @return
+     */
+    public VerticalLayout createMainLayout() {
+        // Main layout that fills the browser window.
+//        VerticalLayout mainLayout = new VerticalLayout();
+        VerticalLayout mainLayout = new VerticalLayout();
+        mainLayout.setSizeFull();
+//        mainLayout.setStyleName("login-view");
+//        mainLayout.setSizeFull();
+        mainLayout.setMargin(false);
+        mainLayout.setSpacing(false);
+        // Center the whole layout.
+//        mainLayout.addComponent(new Label("<div style='width:100%; height: 100%; display:flex; justify-content:center; align-items:center;'></div>", ContentMode.HTML));
+
+
+//        setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+        // You can define a background style in your SCSS/CSS.
+//        mainLayout.addStyleName("login-background");
+        return mainLayout;
+    }
+
+    /**
+     * Create a centered login panel
+     *
+     * @return
+     */
+    public Panel createCenterLoginPanel() {
+        Panel loginPanel = new Panel();
+        loginPanel.setWidth("500px");
+        loginPanel.setHeight("500px");
+        loginPanel.addStyleName(ValoTheme.PANEL_WELL);
+        return loginPanel;
+    }
+
+    public VerticalLayout createInnerLoginLayout() {
+        VerticalLayout panelLayout = new VerticalLayout();
+        panelLayout.setMargin(true);
+        panelLayout.setSpacing(true);
+        panelLayout.setWidth("100%");
+        return panelLayout;
+    }
+
+    public Button createLoginButton() {
+        // Login button with primary style.
+        Button loginButton = new Button("Login");
+        loginButton.setWidth("100%");
+        loginButton.addStyleName(ValoTheme.BUTTON_PRIMARY);
+        // Set Enter key as a shortcut for login.
+        loginButton.setClickShortcut(KeyCode.ENTER);
+        // Add a click listener for the login button.
+        loginButton.addClickListener(this::login);
+        return loginButton;
     }
 
 
+    private void login(Button.ClickEvent event) {
+        {
+            String username = usernameField.getValue();
+            String password = passwordField.getValue();
+            try {
+                if (((CustomAccessControl) accessControl).signIn(username, password)) {
+                    UI currentUI = UI.getCurrent();
+                    if (currentUI != null) {
+                        ui.getNavigator().navigateTo(HomeView.NAME);
+                    }
+                } else {
+                    Notification.show("Invalid username or password", Notification.Type.ERROR_MESSAGE);
+                    passwordField.clear();
+                }
+            } catch (CarnetException e) {
+                Notification.show(e.getMessage(), Notification.Type.ERROR_MESSAGE);
+                passwordField.clear();
+            }
 
-    @Override
-    public void enter(ViewChangeEvent event) {
-        // Logic for entering the view
+        }
     }
 }
-
-//    private TextField userNameField;
-//    private PasswordField passwordField;
-//    private Button loginButton;
-//
-//    @Override
-//    public void enter(ViewChangeListener.ViewChangeEvent event) {
-//        VerticalLayout mainLayout = createMainLayout();
-//        Panel loginPanel = createCenterLoginPanel();
-//        VerticalLayout panelLayout = createInnerLoginLayout();
-//
-//        // Header caption for the login form.
-//        Label caption = new Label("Please Login");
-////        caption.addStyleName("login-caption");
-//        caption.addStyleName("h3");
-//        caption.setWidth("100%");
-//
-//        // Username field.
-//        userNameField = new TextField("Username");
-//        userNameField.setWidth("100%");
-//
-//        // Password field.
-//        passwordField = new PasswordField("Password");
-//        passwordField.setWidth("100%");
-//
-//        loginButton = createLoginButton();
-//
-//        // Assemble the form components.
-//        panelLayout.addComponents(caption, userNameField, passwordField, loginButton);
-//        loginPanel.setContent(panelLayout);
-//
-//        // Center the login panel in the main layout.
-//        mainLayout.addComponent(loginPanel);
-//        mainLayout.setComponentAlignment(loginPanel, Alignment.MIDDLE_CENTER);
-//
-//        // Set the main layout as the content of the UI.
-//        setCompositionRoot(mainLayout);
-//
-//    }
-//
-//    @Override
-//    public void buttonClick(Button.ClickEvent event) {
-//        String username = userNameField.getValue();
-//        String password = passwordField.getValue();
-//        UtilisateurDTO loginUser = null;
-//        try {
-//            loginUser = userFacade.getUserByUserNameAndPassword(username, password);
-//        } catch (CarnetException e) {
-//            Notification.show("Login failed. Please check your credentials.", Notification.Type.WARNING_MESSAGE);
-//            return;
-//        }
-//        if (loginUser != null) {
-//            Notification.show("Login successful", Notification.Type.TRAY_NOTIFICATION);
-//        }
-//
-//        user.setUser(loginUser);
-//
-//        navigationEvent.fire(new NavigationEvent(HomeView.HOME));
-//    }
-//
-//
-//    /**
-//     * Create main layout
-//     *
-//     * @return
-//     */
-//    public VerticalLayout createMainLayout() {
-//        // Main layout that fills the browser window.
-//        VerticalLayout mainLayout = new VerticalLayout();
-//        mainLayout.setSizeFull();
-//        mainLayout.setMargin(false);
-//        mainLayout.setSpacing(false);
-//        // You can define a background style in your SCSS/CSS.
-//        mainLayout.addStyleName("login-background");
-//        return mainLayout;
-//    }
-//
-//    /**
-//     * Create a centered login panel
-//     *
-//     * @return
-//     */
-//    public Panel createCenterLoginPanel() {
-//        Panel loginPanel = new Panel();
-//        loginPanel.setWidth("350px");
-//        loginPanel.setHeight("300px");
-//        loginPanel.addStyleName("login-panel");
-//        return loginPanel;
-//    }
-//
-//    /**
-//     * Create Inner Layout
-//     * @return
-//     */
-//    public VerticalLayout createInnerLoginLayout() {
-//        VerticalLayout panelLayout = new VerticalLayout();
-//        panelLayout.setMargin(true);
-//        panelLayout.setSpacing(true);
-//        panelLayout.setWidth("100%");
-//        return panelLayout;
-//    }
-//
-//
-//    /**
-//     * Create Login Button
-//     * @return
-//     */
-//    public Button createLoginButton() {
-//        // Login button with primary style.
-//        Button loginButton = new Button("Login");
-//        loginButton.setWidth("100%");
-//        loginButton.addStyleName(ValoTheme.BUTTON_PRIMARY);
-//        // Set Enter key as a shortcut for login.
-//        loginButton.setClickShortcut(KeyCode.ENTER);
-//
-//        // Add a click listener for the login button.
-//        loginButton.addClickListener(this);
-//        return loginButton;
-//    }
-//
-//}

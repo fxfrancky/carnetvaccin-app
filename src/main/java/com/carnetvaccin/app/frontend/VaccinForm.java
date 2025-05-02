@@ -6,7 +6,8 @@ import com.carnetvaccin.app.api.vaccin.VaccinFacade;
 import com.carnetvaccin.app.api.vaccinutilisateur.VaccinUtilisateurDTO;
 import com.carnetvaccin.app.api.vaccinutilisateur.VaccinUtilisateurFacade;
 import com.carnetvaccin.app.backend.exceptions.CarnetException;
-import com.carnetvaccin.app.frontend.utilisateur.UserInfo;
+import com.carnetvaccin.app.frontend.security.CustomAccessControl;
+import com.vaadin.cdi.access.AccessControl;
 import com.vaadin.data.Binder;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.ui.*;
@@ -18,9 +19,11 @@ import java.util.List;
 public class VaccinForm extends FormLayout {
 
 
+//    @Named("customAccessControl")
+    private AccessControl accessControl;
+
     private VaccinFacade vaccinFacade;
     private VaccinUtilisateurFacade vaccinUtilisateurFacade;
-    private UserInfo userInfo;
 
     private VaccinUtilisateurDTO vaccinUtilisateurDTO;
 
@@ -46,11 +49,11 @@ public class VaccinForm extends FormLayout {
     // Bind the form to the Vaccin
     private Binder<VaccinUtilisateurDTO> binder = new Binder<>(VaccinUtilisateurDTO.class);
 
-    public VaccinForm(HomeView homeView, VaccinFacade vaccinFacade, VaccinUtilisateurFacade vaccinUtilisateurFacade, UserInfo userInfo) {
+    public VaccinForm(HomeView homeView, VaccinFacade vaccinFacade, VaccinUtilisateurFacade vaccinUtilisateurFacade, AccessControl accessControl) {
         this.homeView = homeView;
         this.vaccinFacade = vaccinFacade;
         this.vaccinUtilisateurFacade = vaccinUtilisateurFacade;
-        this.userInfo = userInfo;
+        this.accessControl = accessControl;
         setSizeUndefined();
 
         //  Add save and delete buttons
@@ -150,9 +153,16 @@ public void setVaccinUtilisateurDTO(VaccinUtilisateurDTO vaccinUtilisateurDTO) {
 
         private void save(){
             try {
-                UtilisateurDTO utilisateurDTO = userInfo.getUser();
-                vaccinUtilisateurFacade.saveOrUpdate(vaccinUtilisateurDTO);
+                if(((CustomAccessControl)accessControl).isUserSignedIn()){
+                    UtilisateurDTO utilisateurDTO = ((CustomAccessControl)accessControl).getCurrentUser();
+                    vaccinUtilisateurFacade.saveOrUpdate(vaccinUtilisateurDTO);
+                }else {
+                    System.out.println("********** An error occurs while saving vaccin . The user is not connected");
+                    Notification.show("An error occurs while saving vaccin. The user is not connected", Notification.Type.ERROR_MESSAGE);
+                }
+
             } catch (CarnetException e) {
+                System.out.println("********** An error occurs while saving vaccin "+e.getMessage());
                 Notification.show("An error occurs while saving vaccin", Notification.Type.ERROR_MESSAGE);
             }
             homeView.updateVaccinUtilisateurList();

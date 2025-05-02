@@ -10,6 +10,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.util.List;
+import java.util.Optional;
 
 @Stateless
 @LocalBean
@@ -28,19 +29,18 @@ public class VaccinService  extends AbstractService<Vaccin> {
     }
 
 
-    public Vaccin findVaccinByTypeAndDose(String typeVaccin, Integer numDose) throws CarnetException {
-        TypedQuery<Vaccin> query = em.createNamedQuery("Vaccin.findVaccinByTypeAndDose", Vaccin.class);
-        query.setParameter("typeVaccin", TypeVaccinEnum.valueOf(typeVaccin) );
-        query.setParameter("numDose",numDose);
+    public Optional<Vaccin> findVaccinByTypeAndDose(String typeVaccin, Integer numDose) throws CarnetException {
+
         try {
-            return query.getSingleResult();
-//            return query.getResultStream().findFirst().orElse(null);
-    } catch (Exception ex) {
-        throw new CarnetException("An error occurss");
-    }
+            TypedQuery<Vaccin> query = em.createNamedQuery("Vaccin.findVaccinByTypeAndDose", Vaccin.class);
+            query.setParameter("typeVaccin", TypeVaccinEnum.valueOf(typeVaccin) );
+            query.setParameter("numDose",numDose);
+            return Optional.ofNullable(query.getSingleResult()); // Use Optional.ofNullable
 
+        } catch (Exception ex){
+            throw new CarnetException("Error finding vaccin by dose and typeVaccin");
+        }
     }
-
     /**
      * Create a vaccin
      * @param vaccin
@@ -52,7 +52,6 @@ public class VaccinService  extends AbstractService<Vaccin> {
         } catch (Exception ex) {
             throw new CarnetException("An error occurs while creating a vaccin");
         }
-
     }
 
     /**

@@ -1,13 +1,14 @@
 package com.carnetvaccin.app.frontend;
 
+import com.carnetvaccin.app.api.utilisateur.UtilisateurDTO;
 import com.carnetvaccin.app.api.utilisateur.UtilisateurFacade;
 import com.carnetvaccin.app.api.vaccin.VaccinFacade;
 import com.carnetvaccin.app.api.vaccinutilisateur.VaccinUtilisateurDTO;
 import com.carnetvaccin.app.api.vaccinutilisateur.VaccinUtilisateurFacade;
 import com.carnetvaccin.app.backend.exceptions.CarnetException;
 import com.carnetvaccin.app.frontend.security.CustomAccessControl;
-import com.carnetvaccin.app.frontend.utilisateur.UserInfo;
 import com.vaadin.cdi.UIScoped;
+import com.vaadin.cdi.access.AccessControl;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ValueChangeMode;
@@ -24,11 +25,9 @@ import java.util.stream.Collectors;
 public class CarnetForm extends FormLayout {
 
 
-    @Inject
-    private UserInfo loggedInUser;
 
     @Inject
-    private CustomAccessControl customAccessControl;
+    private AccessControl accessControl;
 
     @Inject
     private VaccinUtilisateurFacade vUtilisateurFacade;
@@ -133,8 +132,9 @@ public class CarnetForm extends FormLayout {
     public List<VaccinUtilisateurDTO> getVaccinUtilisateurDTOList(){
         List<VaccinUtilisateurDTO> vUtilisateursDTOList = new ArrayList<>();
         try {
-            if (customAccessControl.isUserSignedIn() && loggedInUser.getUser().getId() != null){
-                vUtilisateursDTOList = vUtilisateurFacade.findrByTerms(searchField.getValue(), loggedInUser.getUser().getId());
+            if (((CustomAccessControl)accessControl).isUserSignedIn()){
+                UtilisateurDTO loggedInUser = ((CustomAccessControl)accessControl).getCurrentUser();
+                vUtilisateursDTOList = vUtilisateurFacade.findrByTerms(searchField.getValue(), loggedInUser.getId());
             }
         } catch (CarnetException e) {
             Notification.show("An error occurs while retrieving List Vaccin", Notification.Type.ERROR_MESSAGE);

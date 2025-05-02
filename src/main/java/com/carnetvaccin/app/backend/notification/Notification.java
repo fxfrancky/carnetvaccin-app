@@ -26,7 +26,7 @@ public class Notification extends BaseEntity implements Serializable {
     @ManyToOne(optional = false)
     private Utilisateur utilisateur;
 
-    @JoinColumn(name = "vaccin_id", referencedColumnName = "vaccin_id")
+    @JoinColumn(name = "vaccin_id")
     @ManyToOne(optional = false)
     private Vaccin vaccin;
 

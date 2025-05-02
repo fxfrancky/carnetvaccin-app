@@ -30,10 +30,9 @@
 		<maven-clean-plugin.version>3.4.1</maven-clean-plugin.version>
 		<maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
 		<maven-war-plugin.version>3.2.3</maven-war-plugin.version>
-		<!--		<maven-war-plugin.version>3.4.0</maven-war-plugin.version>-->
 		<!-- Persistence  -->
 		<hibernate-core.version>5.6.15.Final</hibernate-core.version>
-		<eclipselink.version>2.5.2</eclipselink.version>
+		<eclipselink.version>2.7.11</eclipselink.version>
 		<sqlite-jdbc.version>3.49.1.0</sqlite-jdbc.version>
 		<sqlite-dialect.version>0.1.4</sqlite-dialect.version>
 		<!-- Tests 		-->
@@ -41,14 +40,14 @@
 		<junit.version>4.13.2</junit.version>
 		<commons-collections4.version>4.4</commons-collections4.version>
 		<vaadin-confirm-dialog-flow.version>4.0.2</vaadin-confirm-dialog-flow.version>
-		<!--		<tomee.version>8.0.7</tomee.version>-->
+		<jbcrypt.version>0.4</jbcrypt.version>
 
 	</properties>
 
 	<repositories>
 		<repository>
 			<id>vaadin-addons</id>
-			<url>http://maven.vaadin.com/vaadin-addons</url>
+			<url>https://maven.vaadin.com/vaadin-addons</url>
 		</repository>
 	</repositories>
 
@@ -59,13 +58,6 @@
 				<artifactId>validation-api</artifactId>
 				<version>${validation-api.version}</version>
 			</dependency>
-
-			<!-- https://mvnrepository.com/artifact/com.vaadin/vaadin-confirm-dialog-flow -->
-			<!--			<dependency>-->
-			<!--				<groupId>com.vaadin</groupId>-->
-			<!--				<artifactId>vaadin-confirm-dialog-flow</artifactId>-->
-			<!--				<version>1.2.1</version>-->
-			<!--			</dependency>-->
 
 			<dependency>
 				<groupId>com.vaadin</groupId>
@@ -79,17 +71,11 @@
 	</dependencyManagement>
 
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/com.vaadin/vaadin-confirm-dialog-flow -->
-		<!--		<dependency>-->
-		<!--			<groupId>com.vaadin</groupId>-->
-		<!--			<artifactId>vaadin-confirm-dialog-flow</artifactId>-->
-		<!--			<version>${vaadin-confirm-dialog-flow.version}</version>-->
-		<!--		</dependency>-->
-
 		<!---*************************** Vaadin ***************************************-->
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-server</artifactId>
+			<version>${vaadin.version}</version>
 		</dependency>
 
 		<dependency>
@@ -109,18 +95,6 @@
 			<artifactId>vaadin-cdi</artifactId>
 		</dependency>
 
-		<!--		<dependency>-->
-		<!--			<groupId>javax.enterprise</groupId>-->
-		<!--			<artifactId>cdi-api</artifactId>-->
-		<!--			<version>1.2</version>-->
-		<!--			<scope>provided</scope>-->
-		<!--		</dependency>-->
-		<!--		<dependency>-->
-		<!--			<groupId>javax.annotation</groupId>-->
-		<!--			<artifactId>javax.annotation-api</artifactId>-->
-		<!--			<version>1.2-b01</version>-->
-		<!--			<scope>provided</scope>-->
-		<!--		</dependency>-->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
@@ -128,13 +102,6 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<!--	</dependencies>-->
-		<!-- https://mvnrepository.com/artifact/org.apache.tomee.maven/tomee-maven-plugin -->
-		<!--		<dependency>-->
-		<!--			<groupId>org.apache.tomee.maven</groupId>-->
-		<!--			<artifactId>tomee-maven-plugin</artifactId>-->
-		<!--			<version>${tomee.version}</version>-->
-		<!--		</dependency>-->
 		<!---*************************** Others  ***************************************-->
 		<dependency>
 			<groupId>javax</groupId>
@@ -142,10 +109,23 @@
 			<version>${javaee-api.version}</version>
 			<scope>provided</scope>
 		</dependency>
+<!--		Bcrypt -->
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-email</artifactId>
-			<version>${commons-email.version}</version>
+			<groupId>org.mindrot</groupId>
+			<artifactId>jbcrypt</artifactId>
+			<version>${jbcrypt.version}</version>
+		</dependency>
+
+		<!-- JavaMail for email functionalities -->
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>javax.mail-api</artifactId>
+			<version>1.6.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>javax.mail</artifactId>
+			<version>1.6.2</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
@@ -160,6 +140,18 @@
 			<version>${slf4j-simple.version}</version>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j-simple.version}</version>
+		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.slf4j</groupId>-->
+<!--			<artifactId>slf4j-simple</artifactId>-->
+<!--			<version>${slf4j-simple.version}</version>-->
+<!--			<scope>runtime</scope>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>

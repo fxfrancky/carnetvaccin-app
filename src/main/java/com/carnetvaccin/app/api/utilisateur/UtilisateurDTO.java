@@ -32,6 +32,8 @@ public class UtilisateurDTO extends BaseDto implements Serializable {
 
     private List<NotificationDTO> notificationDTOList;
 
+    private List<String> roles;
+
     private boolean isAdmin;
 
     public UtilisateurDTO(String firstName, String lastName, String email, String dateNaissance, List<VaccinUtilisateurDTO> vaccinUtilisateurDTOList, List<NotificationDTO> notificationDTOList, String userName, String plainPassword, Boolean isAdmin) {
@@ -58,4 +60,9 @@ public class UtilisateurDTO extends BaseDto implements Serializable {
     }
 
 
+    public void addRole(String role) {
+        if (!this.roles.contains(role)) {
+            this.roles.add(role);
+        }
+    }
 }

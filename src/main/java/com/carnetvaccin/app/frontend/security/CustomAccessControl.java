@@ -1,89 +1,180 @@
 package com.carnetvaccin.app.frontend.security;
 
+import com.carnetvaccin.app.api.roles.Role;
+import com.carnetvaccin.app.api.utilisateur.UtilisateurDTO;
 import com.carnetvaccin.app.api.utilisateur.UtilisateurFacade;
 import com.carnetvaccin.app.backend.exceptions.CarnetException;
-import com.carnetvaccin.app.frontend.utilisateur.UserInfo;
 import com.vaadin.cdi.access.AccessControl;
+import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinSession;
+import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.Priority;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
-import javax.interceptor.Interceptor;
+import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 import java.io.Serializable;
 
+
+@Slf4j
+@ApplicationScoped
 @Alternative
-@Priority(Interceptor.Priority.APPLICATION)
 public class CustomAccessControl extends AccessControl implements Serializable {
 
-    @Inject
-    private UserInfo userInfo;
 
+
+    private static final String SESSION_USER_KEY = "currentUser";
+
+    @Inject
     private UtilisateurFacade utilisateurFacade;
 
-    public String getCurrentToken(){
-        String token = null;
-        if (userInfo!= null && userInfo.getCurrentToken()!=null){
-            token = userInfo.getCurrentToken();
-        }
-        return token;
+    public CustomAccessControl() {
     }
 
     @Override
     public boolean isUserSignedIn() {
-        // Check if the current token is valid and associated with a user
-        return getCurrentToken() != null && utilisateurFacade.validateToken(getCurrentToken()) != null;
-//        return userInfo.getUser() != null;
+        if (VaadinSession.getCurrent() == null) {
+            return false;
+        }
+        return VaadinSession.getCurrent().getAttribute(SESSION_USER_KEY) != null;
     }
+
+
 
     @Override
     public boolean isUserInRole(String role) {
-        if (isUserSignedIn()){
-            for (String userRole: userInfo.getRoles()){
-                if (role.equals(userRole)){
-                    return true;
-                }
+        if (VaadinSession.getCurrent() == null) {
+            return false;
+        }
+        if (!isUserSignedIn()) {
+            return false;
+        }
+        UtilisateurDTO user = getCurrentUser();
+        if (user == null) {
+            return false;
+        }
+        return user.getRoles().contains(role);
+    }
+
+    @Override
+    public boolean isUserInSomeRole(String... roles) {
+        if (VaadinSession.getCurrent() == null) {
+            return false;
+        }
+        for (String role : roles) {
+            if (isUserInRole(role)) {
+                return true;
             }
         }
         return false;
     }
 
+
     @Override
     public String getPrincipalName() {
-        if (isUserSignedIn()){
-            return userInfo.getName();
+        if (isUserSignedIn()) {
+            return getCurrentUser().getFirstName() + "  -  " + getCurrentUser().getLastName();
+        } else {
+            return "anonymous user";
         }
-        return null;
     }
 
-    public void signIn(String username, String plainPassword) {
+    /**
+     * Sign In User
+     * @param username
+     * @param password
+     * @return
+     */
+    public boolean signIn(String username, String password) {
+
         try {
             // Authenticate the user and assign a bearer token
+            UtilisateurDTO foundUser = utilisateurFacade.loginUser(username, password);
+            if (foundUser != null) {
+                log.info("********************* The user was even found in the controller");
+                if (VaadinSession.getCurrent() != null) {
+                    log.info("************* user found and vaadin session is correct");
+                    foundUser.addRole(Role.User);
+                    if (foundUser.isAdmin()){
+                        foundUser.addRole(Role.ADMIN);
+                    }
+                    VaadinSession.getCurrent().setAttribute(SESSION_USER_KEY,foundUser);
+                    HttpServletRequest request = (HttpServletRequest) VaadinService.getCurrentRequest();
 
-                if (userInfo == null){
-//                    userInfo = new UserInfo();
-                    throw new CarnetException("Oups Customer Info its actually Null ! ");
+                    request.setAttribute(username,password);
+                    log.info("User " + username + " logged in successfully via HttpServletRequest.login()");
+
+                    VaadinSession.getCurrent().setAttribute(SESSION_USER_KEY, foundUser);
+
+                    return true;
+
                 }
-//                this.userInfo.setCurrentToken(utilisateurFacade.loginUser(username, plainPassword));
-//                this.userInfo.setUser(utilisateurFacade.getUserByUserName(username));
-//            }
-
+            } else {
+                System.out.println("---------------------------  User Not even found but in Vaadin : is null  ---------------------------------------------------------");
+            }
+            return false;
+        }catch (CarnetException e) {
+//            System.out.println("---------------------------  Invalid Credentials !   ---------------------------------------------------------");
+            System.out.println("Invalid Credentials !  **************" + e.getMessage());
+            throw new CarnetException("Invalid Credentials !          **************" + e.getMessage());
         } catch (Exception e) {
-            throw new CarnetException("Invalid Credentials ! ");
+            throw new RuntimeException(e);
+        }
+    }
+//
+//    public void signOut() {
+//        if (VaadinSession.getCurrent() != null) {
+//            VaadinSession.getCurrent().setAttribute(SESSION_USER_KEY, null);
+//        }
+//    }
+
+
+    public UtilisateurDTO getCurrentUser() {
+
+        if (VaadinSession.getCurrent() == null) {
+            return null;
+        }
+        return (UtilisateurDTO) VaadinSession.getCurrent().getAttribute(SESSION_USER_KEY);
+    }
+
+    public UtilisateurDTO getLoggedInUser() {
+        if (VaadinSession.getCurrent() == null) {
+            return null;
+        }
+        return (UtilisateurDTO) VaadinSession.getCurrent().getAttribute(SESSION_USER_KEY);
+    }
+
+    @Transactional
+    public boolean signInWithToken(String token) {
+        UtilisateurDTO userDTO = utilisateurFacade.loginWithToken(token);
+        if (userDTO != null) {
+            if (VaadinSession.getCurrent() != null) {
+                VaadinSession.getCurrent().setAttribute(SESSION_USER_KEY, userDTO);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void signOut() {
+        if (VaadinSession.getCurrent() != null) {
+            VaadinSession.getCurrent().setAttribute(SESSION_USER_KEY, null);
+            HttpServletRequest request = (HttpServletRequest) VaadinService.getCurrentRequest();
+            if (request != null) {
+                try {
+                    request.logout();
+                    log.info("User logged out successfully via HttpServletRequest.logout()");
+                } catch (Exception e) {
+                    log.warn("ServletException during request.logout(): " + e.getMessage());
+                    throw new CarnetException("ServletException during request.logout():");
+                }
+            }
         }
     }
 
-    public void logout(){
-        userInfo.setUser(null);
-        userInfo.setCurrentToken(null);
-
-        // Invalidate the underlying HTTP session
-        VaadinSession currentVaadinSession = VaadinSession.getCurrent();
-        if (currentVaadinSession != null && currentVaadinSession.getSession()!= null) {
-            currentVaadinSession.getSession().invalidate();
-        }
-        currentVaadinSession.close();
-
-//        Page.getCurrent().reload();
+    @Alternative
+    public AccessControl accessControl() {
+        return this;
     }
 }

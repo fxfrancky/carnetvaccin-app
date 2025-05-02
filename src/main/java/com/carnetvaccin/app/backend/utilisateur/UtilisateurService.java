@@ -1,33 +1,34 @@
 package com.carnetvaccin.app.backend.utilisateur;
 
-import com.carnetvaccin.app.api.utilisateur.UtilisateurMapper;
 import com.carnetvaccin.app.backend.commons.AbstractService;
 import com.carnetvaccin.app.backend.exceptions.CarnetException;
-import com.carnetvaccin.app.frontend.utilisateur.UserInfo;
+import org.mindrot.jbcrypt.BCrypt;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import javax.transaction.Transactional;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Stateless
 @LocalBean
 public class UtilisateurService extends AbstractService<Utilisateur> {
 
-    @PersistenceContext(unitName="carnetvaccin-PU")
+    @PersistenceContext(unitName = "carnetvaccin-PU")
     private EntityManager em;
+
+    private static final Logger logger = Logger.getLogger(UtilisateurService.class.getName());
 
     @Override
     protected EntityManager getEntityManager() {
         return em;
     }
-
-    @Inject
-    private UserInfo userInfo;
 
     public UtilisateurService() {
         super(Utilisateur.class);
@@ -35,54 +36,49 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
 
     /**
      * Get User By Email
+     *
      * @param email
      * @return
      */
-    public Utilisateur getUserByEmail(String email){
-        TypedQuery<Utilisateur> query = em.createNamedQuery("Utilisateur.getUserByEmail", Utilisateur.class);
-        query.setParameter("email",email);
-        return query.getSingleResult();
-
+    public Optional<Utilisateur> getUserByEmail(String email) {
+        try {
+            TypedQuery<Utilisateur> query = em.createNamedQuery("Utilisateur.getUserByEmail", Utilisateur.class);
+            query.setParameter("email", email);
+            return Optional.ofNullable(query.getSingleResult()); // Use Optional.ofNullable
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Error finding user by email", e);
+            return Optional.empty();
+        }
     }
 
     /**
-     * Get User By UserName and Password
+     * Get User By UserName
+     *
      * @param userName
-     * @param password
      * @return
      */
-    public Utilisateur getUserByUserNameAndPassword(String userName, String password) throws CarnetException {
-        TypedQuery<Utilisateur> query = em.createNamedQuery("Utilisateur.getUserByUserNameAndPassword", Utilisateur.class);
-        query.setParameter("userName",userName);
-        query.setParameter("password",password);
+    public Optional<Utilisateur> getUserByUserName(String userName) {
         try {
-            return query.getSingleResult();
-        } catch (Exception ex){
-            throw new CarnetException("wrong credentials");
+            TypedQuery<Utilisateur> query = em.createNamedQuery("Utilisateur.getUserByUserName", Utilisateur.class);
+            query.setParameter("userName", userName);
+            return Optional.ofNullable(query.getSingleResult()); // Use Optional.ofNullable
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Error finding user by email", e);
+            throw new CarnetException("Error finding user by email ");
         }
     }
 
 
     /**
-     * Get User By UserName
-     * @param userName
-     * @return
-     */
-    public Utilisateur getUserByUserName(String userName){
-        TypedQuery<Utilisateur> query = em.createNamedQuery("Utilisateur.getUserByUserName", Utilisateur.class);
-        query.setParameter("userName",userName);
-        return query.getSingleResult();
-    }
-
-
-    /**
      * Delete A user Account
+     *
      * @param utilisateur
      * @throws CarnetException
      */
-    public void deleteUserAccount(Utilisateur utilisateur) throws CarnetException{
+    @Transactional
+    public void deleteUserAccount(Utilisateur utilisateur) throws CarnetException {
 
-        try{
+        try {
             remove(utilisateur);
         } catch (Exception e) {
             throw new CarnetException("An error occurs while deleting a user ");
@@ -91,24 +87,28 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
 
 
     /**
-     *  Login a user
+     * Login a user
+     *
      * @param username
      * @param plainPassword
      * @return
      */
+    @Transactional
     public Utilisateur loginUser(String username, String plainPassword) {
         try {
-            Utilisateur user = getUserByUserName(username);
-
-//            if (user != null && user.getEncryptedPassword().equals(UtilisateurMapper.encryptPassword(plainPassword))){
-            if (user.getEncryptedPassword().equals(UtilisateurMapper.encryptPassword(plainPassword))){
-                String token = UUID.randomUUID().toString();
-                user.setToken(token);
-                update(user);
-                return user;
-            } else {
-                throw new CarnetException("Invalid password");
+            Optional<Utilisateur> user = getUserByUserName(username);
+            if (user.isPresent()) {
+                Utilisateur foundUser = user.get();
+                if (checkPassword(plainPassword, foundUser.getEncryptedPassword())) {
+                    String token = UUID.randomUUID().toString();
+                    foundUser.setToken(token);
+                    Utilisateur savedUser = update(foundUser);
+                    return foundUser;
+                } else {
+                    logger.info("********************** Password Not Checked correctly");
+                }
             }
+            return null;
         } catch (NoResultException e) {
             throw new CarnetException("Invalid username or password");
         } catch (Exception e) {
@@ -150,27 +150,33 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
 
     }
 
+
     /**
      *  Validate User Token
      * @param token
      * @return
      */
-    public Utilisateur validateToken(String token) {
+    public Optional<Utilisateur> findByToken(String token) throws CarnetException {
+
         try {
-            return em.createNamedQuery("Utilisateur.getUserByToken", Utilisateur.class)
-                    .setParameter("token", token)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
+        TypedQuery<Utilisateur> query = em.createNamedQuery("Utilisateur.getUserByToken", Utilisateur.class);
+        query.setParameter("token", token);
+        return Optional.ofNullable(query.getSingleResult()); // Use Optional.ofNullable
+
+        } catch (Exception ex){
+            logger.log(Level.WARNING, "Error finding user by token", ex);
+            throw new CarnetException("A Issue Occurs validating Token");
         }
     }
+
 
     /**
      * Register a new user
      * @param userEntity
      * @return
      */
-    public String registerUser(Utilisateur userEntity) {
+    @Transactional
+    public Utilisateur registerUser(Utilisateur userEntity) {
         try {
 
             if (isUserNameTaken(userEntity.getUserName())) {
@@ -183,11 +189,24 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
 
             // Send email
 //            emailService.sendEmail(email, "Welcome!", "Hi " + firstName + ", your registration was successful!");
-            return "Registration Successful";
+            return userEntity;
         } catch (Exception e) {
             throw new CarnetException("Error during registration: " + e.getMessage());
         }
     }
 
+
+    public String hashPassword(String password) {
+        return BCrypt.hashpw(password, BCrypt.gensalt());
+    }
+
+    public boolean checkPassword(String password, String storedHash) {
+        try {
+            return BCrypt.checkpw(password, storedHash);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new CarnetException("Error checking password: in password Service ");
+        }
+    }
 
 }

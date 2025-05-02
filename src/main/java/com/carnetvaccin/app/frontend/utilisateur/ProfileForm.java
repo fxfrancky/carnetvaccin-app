@@ -3,6 +3,8 @@ package com.carnetvaccin.app.frontend.utilisateur;
 import com.carnetvaccin.app.api.utilisateur.UtilisateurDTO;
 import com.carnetvaccin.app.api.utilisateur.UtilisateurFacade;
 import com.carnetvaccin.app.backend.exceptions.CarnetException;
+import com.carnetvaccin.app.frontend.security.CustomAccessControl;
+import com.vaadin.cdi.access.AccessControl;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -14,7 +16,8 @@ public class ProfileForm extends FormLayout {
 
     private UtilisateurFacade userFacade;
 
-    private UserInfo userInfo;
+
+    private AccessControl accessControl;
 
     private TextField firstName = new TextField("First name");
     private TextField lastName = new TextField("Last Name");
@@ -26,9 +29,15 @@ public class ProfileForm extends FormLayout {
     private Button createButton = new Button("Create User");
     private Button deleteButton = new Button("Delete Account");
 
-    public ProfileForm(UtilisateurFacade userFacade, UserInfo userInfo) {
+    public ProfileForm(UtilisateurFacade userFacade, AccessControl accessControl ) {
         this.userFacade = userFacade;
-        this.userInfo = userInfo;
+        this.accessControl = accessControl;
+        UtilisateurDTO loggedInUser = new UtilisateurDTO();
+        if(((CustomAccessControl)accessControl).isUserSignedIn()){
+            loggedInUser =  ((CustomAccessControl)accessControl).getCurrentUser();
+        }else {
+            Notification.show("An error occur The user is not connected", Notification.Type.ERROR_MESSAGE);
+        }
         setSizeUndefined();
 
         Label title = new Label("Profil Utilisateur");
@@ -36,32 +45,32 @@ public class ProfileForm extends FormLayout {
         addComponent(title);
 
         final VerticalLayout layout = new VerticalLayout();
-        layout.addComponent(new Label("Profil utilisateur"));
 
-        firstName.setValue(userInfo.getUser().getFirstName());
+
+        firstName.setValue(loggedInUser.getFirstName());
         firstName.setEnabled(false);
         layout.addComponent(firstName);
 
-        lastName.setValue(userInfo.getUser().getLastName());
+        lastName.setValue(loggedInUser.getLastName());
         lastName.setEnabled(false);
         layout.addComponent(lastName);
 
 
-        email.setValue(userInfo.getUser().getEmail());
+        email.setValue(loggedInUser.getEmail());
         email.setEnabled(false);
         layout.addComponent(email);
-        LocalDate parsedAtServer = LocalDate.parse(userInfo.getUser().getDateNaissance(), DateTimeFormatter.ISO_DATE);
+        LocalDate parsedAtServer = LocalDate.parse(loggedInUser.getDateNaissance(), DateTimeFormatter.ISO_DATE);
         dateNaissance.setValue(parsedAtServer);
         dateNaissance.setEnabled(false);
         layout.addComponent(dateNaissance);
 
-        userName.setValue(userInfo.getUser().getUserName());
+        userName.setValue(loggedInUser.getUserName());
         userName.setEnabled(false);
         layout.addComponent(userName);
 
 //        layout.addComponent(password);
-        userName.setValue(userInfo.getUser().getUserName());
-        userName.setEnabled(false);
+        isAdmin.setValue(loggedInUser.isAdmin());
+        isAdmin.setEnabled(false);
         layout.addComponent(isAdmin);
 
         addComponents(firstName,lastName,email,dateNaissance,userName,isAdmin);
@@ -77,14 +86,13 @@ public class ProfileForm extends FormLayout {
     private void delete(){
 
         showConfirmationDialog("Are you sure you want to delete your account ? You Will be disconnected", () -> {
-                    UtilisateurDTO loggedUser = userInfo.getUser();
+                    UtilisateurDTO loggedUser = ((CustomAccessControl)accessControl).getCurrentUser();
             try {
                     userFacade.deleteUserAccount(loggedUser);
                      Notification.show("Account  Deleted");
                  } catch (CarnetException e) {
                     Notification.show("An error occurs while deletinG a user", Notification.Type.ERROR_MESSAGE);
               }
-
          });
     }
 

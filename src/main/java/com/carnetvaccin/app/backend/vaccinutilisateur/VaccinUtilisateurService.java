@@ -10,6 +10,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Stateless
 @LocalBean
@@ -27,17 +28,20 @@ public class VaccinUtilisateurService extends AbstractService<VaccinUtilisateur>
         super(VaccinUtilisateur.class);
     }
 
-public VaccinUtilisateur findByUtilisaterIDAndVaccinId(Long vaccinId, Long utilisateurId) throws CarnetException {
-    TypedQuery<VaccinUtilisateur> query = em.createNamedQuery("VaccinUtilisateur.findByUtilisaterIDAndVaccinId", VaccinUtilisateur.class);
-    query.setParameter("vaccinId", vaccinId );
-    query.setParameter("utilisateurId",utilisateurId);
-//    return query.getResultStream().findFirst().orElse(null);
-    try {
-        return query.getSingleResult();
-    } catch (Exception ex){
-        throw new CarnetException("An error occurss");
+    public Optional<VaccinUtilisateur> findByUtilisaterIDAndVaccinId(Long vaccinId, Long utilisateurId) throws CarnetException {
+
+        try {
+            TypedQuery<VaccinUtilisateur> query = em.createNamedQuery("VaccinUtilisateur.findByUtilisaterIDAndVaccinId", VaccinUtilisateur.class);
+            query.setParameter("vaccinId", vaccinId );
+            query.setParameter("utilisateurId",utilisateurId);
+            return Optional.ofNullable(query.getSingleResult()); // Use Optional.ofNullable
+
+        } catch (Exception ex){
+            throw new CarnetException("Error finding vaccinutilisateur by VaccinId and utilisateurId");
+        }
     }
-}
+
+
 
 public List<VaccinUtilisateur> findAllVaccinUtilisateurByUserId(Long utilisateurId) throws CarnetException {
     TypedQuery<VaccinUtilisateur> query = em.createNamedQuery("VaccinUtilisateur.findAllVaccinUtilisateurByUserId", VaccinUtilisateur.class);
@@ -86,7 +90,7 @@ public List<VaccinUtilisateur> findrByTerms(String searchTerm, Long utilisateurI
                 create(vaccinUtilisateur);
             }
         } catch (Exception e) {
-            throw new CarnetException("An error occurs while saving a vaccin ");
+            throw new CarnetException("An error occurs while saving a vaccin " + e.getMessage());
         }
     }
 

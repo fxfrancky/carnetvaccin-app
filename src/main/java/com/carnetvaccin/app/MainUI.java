@@ -1,11 +1,15 @@
 package com.carnetvaccin.app;
 
-import com.carnetvaccin.app.frontend.navigation.NavigationEvent;
+import com.carnetvaccin.app.frontend.HomeView;
+import com.carnetvaccin.app.frontend.security.ErrorView;
 import com.carnetvaccin.app.frontend.security.LoginView;
+import com.carnetvaccin.app.frontend.security.RegistrationView;
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.cdi.CDIUI;
+import com.vaadin.cdi.CDIViewProvider;
+import com.vaadin.navigator.Navigator;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.UI;
 
@@ -27,11 +31,29 @@ public class MainUI extends UI {
     public static final String MAIN = "";
 
     @Inject
-    private javax.enterprise.event.Event<NavigationEvent> navigationEvent;
+    private CDIViewProvider viewProvider;
+//    @Inject
+//    @Named
+//    private CDIViewProvider viewProvider;
+
+//    @Inject
+//    private UI ui;
+
+//    @Inject
+//    private javax.enterprise.event.Event<NavigationEvent> navigationEvent;
 
     @Override
     protected void init(VaadinRequest request) {
-        navigationEvent.fire(new NavigationEvent(LoginView.LOGIN));
+        //Initialize your views here
+        Navigator navigator = new Navigator(this, this);
+        navigator.addProvider(viewProvider);
+        navigator.addView(LoginView.NAME, LoginView.class);
+        navigator.addView(HomeView.NAME, HomeView.class);
+        navigator.addView(RegistrationView.NAME, RegistrationView.class);
+        navigator.setErrorView(ErrorView.class);
+        navigator.navigateTo(LoginView.NAME);
+
+//        navigationEvent.fire(new NavigationEvent(LoginView.LOGIN));
     }
 
 }

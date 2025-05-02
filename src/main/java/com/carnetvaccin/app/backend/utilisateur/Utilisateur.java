@@ -8,8 +8,9 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,37 +33,39 @@ public class Utilisateur extends BaseEntity implements Serializable {
     private Long utilisateurId;
 
     @Column(name = "first_name")
-    @NotNull
+//    @NotNull
     private String firstName;
 
     @Column(name = "last_name")
-    @NotNull
+//    @NotNull
     private String lastName;
 
     @Column(name = "email", unique = true)
-    @NotNull
+//    @NotNull
     @Email
     private String email;
 
     @Column(name = "date_naiss")
-    @NotNull
+//    @NotNull
     private String dateNaissance;
 
     @Column(name = "user_name" , unique = true)
-    @NotNull
+//    @NotNull
     private String userName;
 
-
-    @NotNull
-    @NotNull
+//    @NotNull
     @Column(name = "password")
     private String encryptedPassword;
 
-    @Column(name = "token")
-    private String token;
-
     @Column(name = "is_admin")
     private boolean isAdmin = false;
+
+    @Column(name = "token")
+    private String token; // Added for Bearer Token
+
+    // No need for @Transient, roles should be persisted.  Simplest approach is a comma-separated string.
+    @Column(name = "roles")
+    private String roles;  // Store roles as a comma-separated string
 
     @OneToMany(mappedBy = "utilisateur")
     private List<VaccinUtilisateur> vaccinUtilisateurList;
@@ -71,6 +74,8 @@ public class Utilisateur extends BaseEntity implements Serializable {
     private List<Notification> notificationList;
 
     public Utilisateur() {
+        this.roles = ""; // Initialize to empty string
+
     }
 
     public Utilisateur(List<Notification> notificationList, Long utilisateurId, String firstName, String lastName, String email, String dateNaissance, List<VaccinUtilisateur> vaccinUtilisateurList, String userName, String password, Boolean isAdmin) {
@@ -110,5 +115,29 @@ public class Utilisateur extends BaseEntity implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(utilisateurId, email);
+    }
+
+    public List<String> getRoles() {
+        if (roles == null || roles.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return Arrays.asList(roles.split(","));
+    }
+
+    public void setRoles(List<String> roles) {
+        if (roles == null || roles.isEmpty()) {
+            this.roles = "";
+        } else {
+            this.roles = String.join(",", roles);
+        }
+    }
+
+    public void addRole(String role) {
+        if (this.roles == null || this.roles.isEmpty()) {
+            this.roles = role;
+        }
+        else if (!this.roles.contains(role)) {
+            this.roles += "," + role;
+        }
     }
 }

@@ -27,6 +27,9 @@ public class NotificationMapper extends AbstractMapper<Notification, Notificatio
 
     @Override
     public NotificationDTO toDto(Notification notificationEntity) {
+        if (notificationEntity == null){
+            return null;
+        }
 
         NotificationDTO notificationDTO = new NotificationDTO();
         notificationDTO.setId(notificationEntity.getNotificationId());
@@ -39,6 +42,10 @@ public class NotificationMapper extends AbstractMapper<Notification, Notificatio
 
     @Override
     public Notification toEntity(NotificationDTO notificationDTO) {
+        
+        if(notificationDTO == null){
+            return null;
+        }
         Notification notificationEntity = new Notification();
         notificationEntity.setNotificationId(notificationDTO.getId());
         notificationEntity.setDateNotification(notificationDTO.getDateNotification());

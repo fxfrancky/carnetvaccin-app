@@ -19,8 +19,6 @@ public abstract class AbstractMapper<Entity extends BaseEntity, DTO extends Base
 
     public abstract Entity toEntity(DTO dto);
 
-//    public abstract Entity updateEntityFromDto(Entity entity, DTO dto);
-
     public abstract List<Entity> toEntityList(List<DTO> dtoList);
     public abstract List<DTO> toDtoList(List<Entity> entityList);
 }

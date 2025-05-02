@@ -3,8 +3,8 @@ package com.carnetvaccin.app.frontend.security;
 import com.carnetvaccin.app.api.utilisateur.UtilisateurDTO;
 import com.carnetvaccin.app.api.utilisateur.UtilisateurFacade;
 import com.carnetvaccin.app.backend.exceptions.CarnetException;
-import com.carnetvaccin.app.frontend.navigation.NavigationEvent;
 import com.vaadin.cdi.CDIView;
+import com.vaadin.cdi.CDIViewProvider;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.*;
@@ -13,16 +13,19 @@ import com.vaadin.ui.themes.ValoTheme;
 import javax.inject.Inject;
 import java.time.LocalDate;
 
-@CDIView(RegistrationView.REGISTER)
+@CDIView(RegistrationView.NAME)
 public class RegistrationView extends VerticalLayout implements View {
 
-    public static final String REGISTER = "register";
-
-    @Inject
-    private javax.enterprise.event.Event<NavigationEvent> navigationEvent;
+    public static final String NAME = "register";
 
     @Inject
     private UtilisateurFacade userService;
+
+    @Inject
+    private CDIViewProvider viewProvider;
+
+    @Inject
+    private UI ui;
 
     public RegistrationView() {
 //        setSizeFull(); // Ensure the view fills the entire screen
@@ -86,8 +89,8 @@ public class RegistrationView extends VerticalLayout implements View {
                 utilisateurDTO.setAdmin(isUserAdmin.getValue());
 
                 userService.registerUtilisateur(utilisateurDTO);
-                Notification.show("Registration successful! Please login.", Notification.Type.ASSISTIVE_NOTIFICATION);
-                navigationEvent.fire(new NavigationEvent(LoginView.LOGIN)); // Navigate to the login page
+                ui.getNavigator().navigateTo(LoginView.NAME);
+                Notification.show("Registration successful! Please login.", Notification.Type.HUMANIZED_MESSAGE);
             } catch (CarnetException e) {
                 Notification.show(e.getMessage(), Notification.Type.WARNING_MESSAGE);
             }

@@ -8,7 +8,7 @@ import com.carnetvaccin.app.backend.vaccin.VaccinService;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.List;
-import java.util.logging.Logger;
+import java.util.Optional;
 
 @Stateless
 public class VaccinFacade extends AbstractFacade<Vaccin,VaccinDTO, VaccinService,VaccinMapper> {
@@ -33,14 +33,9 @@ public class VaccinFacade extends AbstractFacade<Vaccin,VaccinDTO, VaccinService
         return mapper;
     }
 
-    @Override
-    protected Logger getLogger() {
-        return Logger.getLogger(this.getClass().getSimpleName());
-    }
-
-
     public VaccinDTO findVaccinByTypeAndDose(String typeVaccin, Integer numDose) throws CarnetException {
-        return mapper.toDto(getService().findVaccinByTypeAndDose(typeVaccin,numDose));
+        Optional<Vaccin> vaccin = getService().findVaccinByTypeAndDose(typeVaccin,numDose);
+        return vaccin.map(vacc -> mapper.toDto(vacc)).orElse(null);
     }
 
     public void createVaccin(VaccinDTO vaccinDTO) throws CarnetException {

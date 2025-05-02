@@ -5,7 +5,6 @@ import com.carnetvaccin.app.backend.commons.BaseEntity;
 
 import javax.persistence.criteria.Predicate;
 import java.util.List;
-import java.util.logging.Logger;
 
 public abstract class AbstractFacade<Entity extends BaseEntity, DTO extends BaseDto, Service extends AbstractService<Entity>, Mapper extends AbstractMapper<Entity, DTO>> {
 
@@ -59,5 +58,4 @@ public abstract class AbstractFacade<Entity extends BaseEntity, DTO extends Base
         return getService().count();
     }
 
-    protected abstract Logger getLogger();
 }

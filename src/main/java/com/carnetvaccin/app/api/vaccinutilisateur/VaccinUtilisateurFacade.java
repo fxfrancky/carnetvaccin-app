@@ -2,13 +2,14 @@ package com.carnetvaccin.app.api.vaccinutilisateur;
 
 import com.carnetvaccin.app.api.commons.AbstractFacade;
 import com.carnetvaccin.app.backend.exceptions.CarnetException;
+import com.carnetvaccin.app.backend.utilisateur.Utilisateur;
 import com.carnetvaccin.app.backend.vaccinutilisateur.VaccinUtilisateur;
 import com.carnetvaccin.app.backend.vaccinutilisateur.VaccinUtilisateurService;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.List;
-import java.util.logging.Logger;
+import java.util.Optional;
 
 @Stateless
 public class VaccinUtilisateurFacade extends AbstractFacade<VaccinUtilisateur,VaccinUtilisateurDTO, VaccinUtilisateurService,VaccinUtilisateurMapper> {
@@ -34,12 +35,10 @@ public class VaccinUtilisateurFacade extends AbstractFacade<VaccinUtilisateur,Va
         return mapper;
     }
 
-    @Override
-    protected Logger getLogger() {
-        return Logger.getLogger(this.getClass().getSimpleName());
-    }
     public VaccinUtilisateurDTO findByUtilisaterIDAndVaccinId(Long vaccinId, Long utilisateurId) throws CarnetException {
-        return mapper.toDto(getService().findByUtilisaterIDAndVaccinId(vaccinId,utilisateurId));
+
+        Optional<VaccinUtilisateur> vaccinUtilisateur = getService().findByUtilisaterIDAndVaccinId(vaccinId, utilisateurId);
+        return vaccinUtilisateur.map(vUtilisateur -> mapper.toDto(vUtilisateur)).orElse(null);
     }
 
     public List<VaccinUtilisateurDTO> findAllVaccinUtilisateur() {
