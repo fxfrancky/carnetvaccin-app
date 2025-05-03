@@ -42,6 +42,7 @@ public class UtilisateurMapper extends AbstractMapper<Utilisateur, UtilisateurDT
             uDTO.setUserName(uEntity.getUserName());
             uDTO.setToken(uEntity.getToken());
             uDTO.setRoles(uEntity.getRoles());
+            uDTO.setActive(uEntity.isActive());
 //        uDTO.setVaccinUtilisateurDTOList(vaccinUtilisateurMapper.toDtoList(uEntity.getVaccinUtilisateurList()));
 //        uDTO.setNotificationDTOList(notificationMapper.toDtoList(uEntity.getNotificationList()));
             uDTO.setAdmin(uEntity.isAdmin());
@@ -68,6 +69,7 @@ public class UtilisateurMapper extends AbstractMapper<Utilisateur, UtilisateurDT
         uEntity.setAdmin(uDTO.isAdmin());
         uEntity.setToken(uDTO.getToken());
         uEntity.setRoles(uDTO.getRoles());
+        uEntity.setActive(uEntity.isActive());
         return uEntity;
     }
 

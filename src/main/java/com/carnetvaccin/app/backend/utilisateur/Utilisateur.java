@@ -19,11 +19,11 @@ import java.util.Objects;
 @Getter
 @Setter
 @NamedQueries({
-   @NamedQuery(name = "Utilisateur.getUserByEmail", query = "from Utilisateur u where u.email = :email"),
-   @NamedQuery(name = "Utilisateur.getUserByUserName", query = "from Utilisateur u where u.userName = :userName"),
-   @NamedQuery(name = "Utilisateur.getUserByToken", query = "from Utilisateur u where u.token = :token"),
-   @NamedQuery(name = "Utilisateur.getUserByUserNameAndPassword", query = "from Utilisateur u where u.userName = :userName and u.encryptedPassword = :encryptedPassword")
-
+   @NamedQuery(name = "Utilisateur.getUserByEmail", query = "from Utilisateur u where u.email = :email and u.isActive = true"),
+   @NamedQuery(name = "Utilisateur.getUserByUserName", query = "from Utilisateur u where u.userName = :userName and u.isActive = true"),
+   @NamedQuery(name = "Utilisateur.getUserByToken", query = "from Utilisateur u where u.token = :token and u.isActive = true"),
+   @NamedQuery(name = "Utilisateur.getUserByUserNameAndPassword", query = "from Utilisateur u where u.userName = :userName and u.encryptedPassword = :encryptedPassword and u.isActive = true"),
+   @NamedQuery(name = "Utilisateur.deleteUtilisateur", query = "UPDATE Utilisateur u SET u.isActive = false where u.userName = :userName ")
 })
 public class Utilisateur extends BaseEntity implements Serializable {
 
@@ -63,9 +63,11 @@ public class Utilisateur extends BaseEntity implements Serializable {
     @Column(name = "token")
     private String token; // Added for Bearer Token
 
-    // No need for @Transient, roles should be persisted.  Simplest approach is a comma-separated string.
     @Column(name = "roles")
     private String roles;  // Store roles as a comma-separated string
+
+    @Column(name = "is_active")
+    private boolean isActive = true;
 
     @OneToMany(mappedBy = "utilisateur")
     private List<VaccinUtilisateur> vaccinUtilisateurList;
@@ -78,32 +80,37 @@ public class Utilisateur extends BaseEntity implements Serializable {
 
     }
 
-    public Utilisateur(List<Notification> notificationList, Long utilisateurId, String firstName, String lastName, String email, String dateNaissance, List<VaccinUtilisateur> vaccinUtilisateurList, String userName, String password, Boolean isAdmin) {
-        this.notificationList = notificationList;
+    public Utilisateur(Long utilisateurId, String firstName, String lastName, String email, String dateNaissance, String userName, String encryptedPassword, boolean isAdmin, String token, String roles, boolean isActive, List<VaccinUtilisateur> vaccinUtilisateurList, List<Notification> notificationList) {
         this.utilisateurId = utilisateurId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.dateNaissance = dateNaissance;
-        this.vaccinUtilisateurList = vaccinUtilisateurList;
         this.userName = userName;
         this.encryptedPassword = encryptedPassword;
         this.isAdmin = isAdmin;
-
+        this.token = token;
+        this.roles = roles;
+        this.isActive = isActive;
+        this.vaccinUtilisateurList = vaccinUtilisateurList;
+        this.notificationList = notificationList;
     }
 
-    public Utilisateur(String firstName, String lastName, String email, String dateNaissance, List<VaccinUtilisateur> vaccinUtilisateurList, List<Notification> notificationList, String userName, String encryptedPassword, Boolean isAdmin) {
+
+    public Utilisateur(String firstName, String lastName, String email, String dateNaissance, String userName, String encryptedPassword, boolean isAdmin, String token, String roles, boolean isActive, List<VaccinUtilisateur> vaccinUtilisateurList, List<Notification> notificationList) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.dateNaissance = dateNaissance;
-        this.vaccinUtilisateurList = vaccinUtilisateurList;
-        this.notificationList = notificationList;
         this.userName = userName;
         this.encryptedPassword = encryptedPassword;
         this.isAdmin = isAdmin;
+        this.token = token;
+        this.roles = roles;
+        this.isActive = isActive;
+        this.vaccinUtilisateurList = vaccinUtilisateurList;
+        this.notificationList = notificationList;
     }
-
 
     @Override
     public boolean equals(Object o) {

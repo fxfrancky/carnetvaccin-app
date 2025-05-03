@@ -4,6 +4,7 @@ import com.carnetvaccin.app.api.utilisateur.UtilisateurDTO;
 import com.carnetvaccin.app.api.utilisateur.UtilisateurFacade;
 import com.carnetvaccin.app.backend.exceptions.CarnetException;
 import com.carnetvaccin.app.frontend.security.CustomAccessControl;
+import com.carnetvaccin.app.frontend.security.LoginView;
 import com.vaadin.cdi.access.AccessControl;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
@@ -19,6 +20,8 @@ public class ProfileForm extends FormLayout {
 
     private AccessControl accessControl;
 
+    private  UI ui;
+
     private TextField firstName = new TextField("First name");
     private TextField lastName = new TextField("Last Name");
     private TextField email = new TextField("Email");
@@ -29,9 +32,10 @@ public class ProfileForm extends FormLayout {
     private Button createButton = new Button("Create User");
     private Button deleteButton = new Button("Delete Account");
 
-    public ProfileForm(UtilisateurFacade userFacade, AccessControl accessControl ) {
+    public ProfileForm(UtilisateurFacade userFacade, AccessControl accessControl,  UI ui ) {
         this.userFacade = userFacade;
         this.accessControl = accessControl;
+        this.ui = ui;
         UtilisateurDTO loggedInUser = new UtilisateurDTO();
         if(((CustomAccessControl)accessControl).isUserSignedIn()){
             loggedInUser =  ((CustomAccessControl)accessControl).getCurrentUser();
@@ -89,9 +93,10 @@ public class ProfileForm extends FormLayout {
                     UtilisateurDTO loggedUser = ((CustomAccessControl)accessControl).getCurrentUser();
             try {
                     userFacade.deleteUserAccount(loggedUser);
-                     Notification.show("Account  Deleted");
+                    Notification.show("Account  Deleted. You will be redirected to the login view", Notification.Type.HUMANIZED_MESSAGE);
+                    ui.getNavigator().navigateTo(LoginView.NAME);
                  } catch (CarnetException e) {
-                    Notification.show("An error occurs while deletinG a user", Notification.Type.ERROR_MESSAGE);
+                    Notification.show("An error occurs while deleting a user", Notification.Type.ERROR_MESSAGE);
               }
          });
     }

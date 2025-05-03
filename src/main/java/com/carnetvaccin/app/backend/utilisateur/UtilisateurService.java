@@ -1,15 +1,13 @@
 package com.carnetvaccin.app.backend.utilisateur;
 
+import com.carnetvaccin.app.api.roles.Role;
 import com.carnetvaccin.app.backend.commons.AbstractService;
 import com.carnetvaccin.app.backend.exceptions.CarnetException;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.transaction.Transactional;
 import java.util.Optional;
 import java.util.UUID;
@@ -79,10 +77,14 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
     public void deleteUserAccount(Utilisateur utilisateur) throws CarnetException {
 
         try {
-            remove(utilisateur);
+            TypedQuery<Utilisateur> query = em.createNamedQuery("Utilisateur.deleteUtilisateur", Utilisateur.class);
+            query.setParameter("userName", utilisateur.getUserName());
+            query.executeUpdate();
         } catch (Exception e) {
-            throw new CarnetException("An error occurs while deleting a user ");
+            logger.log(Level.WARNING, "Error updating user by username", e);
+            throw new CarnetException("Error updating user by username ");
         }
+
     }
 
 
@@ -184,6 +186,10 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
             }
             if (isEmailTaken(userEntity.getEmail())) {
                 throw new CarnetException("Email is already taken. You may already have an account.");
+            }
+            userEntity.addRole(Role.User);
+            if(userEntity.isAdmin()){
+                userEntity.addRole(Role.ADMIN);
             }
             create(userEntity);
 

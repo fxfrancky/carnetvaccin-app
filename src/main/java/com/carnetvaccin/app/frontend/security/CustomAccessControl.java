@@ -1,6 +1,5 @@
 package com.carnetvaccin.app.frontend.security;
 
-import com.carnetvaccin.app.api.roles.Role;
 import com.carnetvaccin.app.api.utilisateur.UtilisateurDTO;
 import com.carnetvaccin.app.api.utilisateur.UtilisateurFacade;
 import com.carnetvaccin.app.backend.exceptions.CarnetException;
@@ -92,16 +91,9 @@ public class CustomAccessControl extends AccessControl implements Serializable {
             // Authenticate the user and assign a bearer token
             UtilisateurDTO foundUser = utilisateurFacade.loginUser(username, password);
             if (foundUser != null) {
-                log.info("********************* The user was even found in the controller");
                 if (VaadinSession.getCurrent() != null) {
-                    log.info("************* user found and vaadin session is correct");
-                    foundUser.addRole(Role.User);
-                    if (foundUser.isAdmin()){
-                        foundUser.addRole(Role.ADMIN);
-                    }
                     VaadinSession.getCurrent().setAttribute(SESSION_USER_KEY,foundUser);
                     HttpServletRequest request = (HttpServletRequest) VaadinService.getCurrentRequest();
-
                     request.setAttribute(username,password);
                     log.info("User " + username + " logged in successfully via HttpServletRequest.login()");
 
@@ -111,24 +103,16 @@ public class CustomAccessControl extends AccessControl implements Serializable {
 
                 }
             } else {
-                System.out.println("---------------------------  User Not even found but in Vaadin : is null  ---------------------------------------------------------");
+               log.warn("---------------------------  User Not even found but in Vaadin : is null  ---------------------------------------------------------");
             }
             return false;
         }catch (CarnetException e) {
-//            System.out.println("---------------------------  Invalid Credentials !   ---------------------------------------------------------");
-            System.out.println("Invalid Credentials !  **************" + e.getMessage());
-            throw new CarnetException("Invalid Credentials !          **************" + e.getMessage());
+            log.warn("Invalid Credentials !  **************" + e.getMessage());
+            throw new CarnetException("Invalid Credentials ! ");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-//
-//    public void signOut() {
-//        if (VaadinSession.getCurrent() != null) {
-//            VaadinSession.getCurrent().setAttribute(SESSION_USER_KEY, null);
-//        }
-//    }
-
 
     public UtilisateurDTO getCurrentUser() {
 

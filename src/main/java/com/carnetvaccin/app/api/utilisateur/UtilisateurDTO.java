@@ -36,16 +36,21 @@ public class UtilisateurDTO extends BaseDto implements Serializable {
 
     private boolean isAdmin;
 
-    public UtilisateurDTO(String firstName, String lastName, String email, String dateNaissance, List<VaccinUtilisateurDTO> vaccinUtilisateurDTOList, List<NotificationDTO> notificationDTOList, String userName, String plainPassword, Boolean isAdmin) {
+    private boolean isActive = true;
+
+    public UtilisateurDTO(String firstName, String lastName, String email, String dateNaissance, String userName, String plainPassword, String token, List<VaccinUtilisateurDTO> vaccinUtilisateurDTOList, List<NotificationDTO> notificationDTOList, List<String> roles, boolean isAdmin, boolean isActive) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.dateNaissance = dateNaissance;
-        this.vaccinUtilisateurDTOList = vaccinUtilisateurDTOList;
-        this.notificationDTOList = notificationDTOList;
         this.userName = userName;
         this.plainPassword = plainPassword;
+        this.token = token;
+        this.vaccinUtilisateurDTOList = vaccinUtilisateurDTOList;
+        this.notificationDTOList = notificationDTOList;
+        this.roles = roles;
         this.isAdmin = isAdmin;
+        this.isActive = isActive;
     }
 
     public UtilisateurDTO() {

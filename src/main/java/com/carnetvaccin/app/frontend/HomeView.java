@@ -111,7 +111,7 @@ public class HomeView extends VerticalLayout implements View {
 
         vaccinForm = new VaccinForm(this,vFacade,vUtilisateurFacade, accessControl);
 
-        profileForm = new ProfileForm(utilisateurFacade, accessControl);
+        profileForm = new ProfileForm(utilisateurFacade, accessControl, ui);
         tabSheet.addTab(carnetDataGridTab(), "Carnet de vaccination");
         tabSheet.addTab(profileForm, "Mon Profil");
 //        tabSheet.addTab(new VerticalLayout(new Label("Content for the second tab")), "Mon Profil");

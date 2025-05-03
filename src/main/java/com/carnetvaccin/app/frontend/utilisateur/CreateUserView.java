@@ -153,7 +153,7 @@ public class CreateUserView extends CustomComponent implements View {
             try {
                 binder.writeBean(user);
                 userFacade.create(user);
-                binder.setBean(new UtilisateurDTO("","", "", "",null, null,"","",false));
+                binder.setBean(new UtilisateurDTO());
             }catch (ValidationException e){
                 Notification.show("An error occurs" + e.getMessage(), Notification.Type.ERROR_MESSAGE);
             }
@@ -169,7 +169,7 @@ public class CreateUserView extends CustomComponent implements View {
             try {
                 binder.writeBean(user);
                 userFacade.remove(user);
-                binder.setBean(new UtilisateurDTO("","", "", "",null, null,"","",false));
+                binder.setBean(new UtilisateurDTO());
             }catch (ValidationException e){
                 Notification.show("An error occurs" + e.getMessage(), Notification.Type.ERROR_MESSAGE);
             }

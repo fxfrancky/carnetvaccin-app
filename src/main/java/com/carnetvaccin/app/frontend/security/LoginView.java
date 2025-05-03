@@ -176,11 +176,11 @@ public class LoginView extends VerticalLayout implements View {
                         ui.getNavigator().navigateTo(HomeView.NAME);
                     }
                 } else {
-                    Notification.show("Invalid username or password", Notification.Type.ERROR_MESSAGE);
+                    Notification.show("Invalid username or password", Notification.Type.WARNING_MESSAGE);
                     passwordField.clear();
                 }
             } catch (CarnetException e) {
-                Notification.show(e.getMessage(), Notification.Type.ERROR_MESSAGE);
+                Notification.show(e.getMessage(), Notification.Type.WARNING_MESSAGE);
                 passwordField.clear();
             }
 

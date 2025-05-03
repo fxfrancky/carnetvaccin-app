@@ -21,7 +21,8 @@
             <property name="eclipselink.jdbc.property.PRAGMA foreign_keys" value="ON"/>
             <!-- Enable EclipseLink DDL Schema Updates (Preserve Data) -->
 <!--            <property name="eclipselink.ddl-generation" value="update-tables"/>-->
-            <property name="eclipselink.ddl-generation.output-mode" value="database"/>
+<!--            <property name="eclipselink.ddl-generation.output-mode" value="database"/>-->
+            <property name="eclipselink.ddl-generation.output-mode" value="both"/>
             <!-- Ensure UTF-8 encoding -->
             <property name="javax.persistence.jdbc.connection.characterEncoding" value="UTF-8"/>
             <property name="javax.persistence.jdbc.connection.useUnicode" value="true"/>

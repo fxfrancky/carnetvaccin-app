@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 public class CarnetForm extends FormLayout {
 
 
-
     @Inject
     private AccessControl accessControl;
 
