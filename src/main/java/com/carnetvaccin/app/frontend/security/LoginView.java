@@ -7,9 +7,11 @@ import com.vaadin.cdi.CDIView;
 import com.vaadin.cdi.CDIViewProvider;
 import com.vaadin.cdi.access.AccessControl;
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -51,25 +53,24 @@ public class LoginView extends VerticalLayout implements View {
         VerticalLayout loginForm = createInnerLoginLayout();
 
         // Title
-        Label title = new Label("Login");
-        title.setStyleName(ValoTheme.LABEL_H1);
+        Label title = new Label( VaadinIcons.SIGN_IN.getHtml() +"  Login");
+        title.setContentMode(ContentMode.HTML);
+        title.setStyleName(ValoTheme.LABEL_H2);
 
         // Username field
         usernameField = new TextField("Username");
+        usernameField.setIcon(VaadinIcons.USER);
         usernameField.setPlaceholder("Enter your username");
         usernameField.setWidth("100%");
-        usernameField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+        usernameField.addStyleName(ValoTheme.TEXTFIELD_LARGE);
 //        usernameField.addStyleName(ValoTheme.TEXTFIELD_LARGE);
 
         // Password field
         passwordField = new PasswordField("Password");
+        passwordField.setIcon(VaadinIcons.LOCK);
         passwordField.setPlaceholder("Enter your password");
         passwordField.setWidth("100%");
-//        passwordField.addStyleName(ValoTheme.TEXTFIELD_LARGE);
-        passwordField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
-//
-//        usernameField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
-//        passwordField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+        passwordField.addStyleName(ValoTheme.TEXTFIELD_LARGE);
 
         // Login button
         Button loginButton = createLoginButton();
@@ -79,10 +80,13 @@ public class LoginView extends VerticalLayout implements View {
         HorizontalLayout registerLayout = new HorizontalLayout();
         registerLayout.setSpacing(true);
         Label registerPrompt = new Label("Don't have an account yet ?");
-        Button registerButton = new Button("Click Here to Register", event -> {
+        Button registerButton = new Button("Click Here to Register",VaadinIcons.FORM);
+        registerButton.addStyleNames(ValoTheme.BUTTON_BORDERLESS_COLORED);
+        registerButton.addClickListener(event -> {
             ui.getNavigator().navigateTo(RegistrationView.NAME);
 
         });
+
         registerButton.setStyleName(ValoTheme.LINK_SMALL);//link
 //        registerButton.setStyleName(ValoTheme.LINK_SMALL);//link
         registerLayout.addComponents(registerPrompt, registerButton);
@@ -138,8 +142,8 @@ public class LoginView extends VerticalLayout implements View {
      */
     public Panel createCenterLoginPanel() {
         Panel loginPanel = new Panel();
-        loginPanel.setWidth("500px");
-        loginPanel.setHeight("500px");
+        loginPanel.setWidth("450px");
+        loginPanel.setHeight("450px");
         loginPanel.addStyleName(ValoTheme.PANEL_WELL);
         return loginPanel;
     }
@@ -154,7 +158,7 @@ public class LoginView extends VerticalLayout implements View {
 
     public Button createLoginButton() {
         // Login button with primary style.
-        Button loginButton = new Button("Login");
+        Button loginButton = new Button("Login", VaadinIcons.SIGN_IN);
         loginButton.setWidth("100%");
         loginButton.addStyleName(ValoTheme.BUTTON_PRIMARY);
         // Set Enter key as a shortcut for login.

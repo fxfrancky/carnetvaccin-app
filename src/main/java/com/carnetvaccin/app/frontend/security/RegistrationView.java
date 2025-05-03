@@ -5,8 +5,10 @@ import com.carnetvaccin.app.api.utilisateur.UtilisateurFacade;
 import com.carnetvaccin.app.backend.exceptions.CarnetException;
 import com.vaadin.cdi.CDIView;
 import com.vaadin.cdi.CDIViewProvider;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -28,51 +30,86 @@ public class RegistrationView extends VerticalLayout implements View {
     private UI ui;
 
     public RegistrationView() {
-//        setSizeFull(); // Ensure the view fills the entire screen
         setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
         VerticalLayout registrationForm = new VerticalLayout();
-        registrationForm.setWidth("400px"); // Set fixed width for better styling
+        registrationForm.setWidth("700px"); // Set fixed width for better styling
         registrationForm.setSpacing(true);
+        registrationForm.setMargin(true);
         registrationForm.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-//        registrationForm.setSizeFull();
 
         // Title
-        Label title = new Label("Register a New Account");
-        title.setStyleName(ValoTheme.LABEL_H1);
+        Label title = new Label("Register a New Account  "+ VaadinIcons.FORM.getHtml());
+        title.setContentMode(ContentMode.HTML);
+        title.setStyleName(ValoTheme.LABEL_H2);
+
 
         // First Name
         TextField firstNameField = new TextField("First Name");
+        firstNameField.setIcon(VaadinIcons.USER);
+        firstNameField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+
+
         Label firstNameHelp = new Label("First name must be at least 3 characters.");
-        firstNameHelp.setStyleName("help-text"); // Optional: Apply CSS styling for help text
+        firstNameHelp.setStyleName(ValoTheme.LABEL_SMALL);
+        firstNameHelp.addStyleName(ValoTheme.LABEL_LIGHT);
+        firstNameHelp.setStyleName("color: blue;");
 
         // Last Name
         TextField lastNameField = new TextField("Last Name");
+        lastNameField.setIcon(VaadinIcons.USER_CARD);
+        lastNameField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+
         Label lastNameHelp = new Label("Last name must be at least 3 characters.");
+        lastNameHelp.setStyleName(ValoTheme.LABEL_SMALL);
+        lastNameHelp.addStyleName(ValoTheme.LABEL_LIGHT);
+        lastNameHelp.setStyleName("color: blue;");
 
         // Username
         TextField usernameField = new TextField("Username");
+        usernameField.setIcon(VaadinIcons.USER);
+        usernameField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+
         Label usernameHelp = new Label("Username must be at least 6 characters.");
+        usernameHelp.setStyleName(ValoTheme.LABEL_SMALL);
+        usernameHelp.addStyleName(ValoTheme.LABEL_LIGHT);
+        usernameHelp.setStyleName("color: blue;");
 
         // Email
         TextField emailField = new TextField("Email");
+        emailField.setIcon(VaadinIcons.ENVELOPE);
+        emailField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+
         Label emailHelp = new Label("Enter a valid email address.");
+        emailHelp.setStyleName(ValoTheme.LABEL_SMALL);
+        emailHelp.addStyleName(ValoTheme.LABEL_LIGHT);
+        emailHelp.setStyleName("color: blue;");
 
         // Password
         PasswordField passwordField = new PasswordField("Password");
+        passwordField.setIcon(VaadinIcons.LOCK);
+        passwordField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+
         Label passwordHelp = new Label("Password must be at least 6 characters and contain one special character (!, @, #, etc.).");
+        passwordHelp.setStyleName(ValoTheme.LABEL_SMALL);
+        passwordHelp.addStyleName(ValoTheme.LABEL_LIGHT);
+        passwordHelp.setStyleName("color: blue;");
 
         // Confirm Password
         PasswordField confirmPasswordField = new PasswordField("Confirm Password");
+        confirmPasswordField.setIcon(VaadinIcons.LOCK);
+        confirmPasswordField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+
 
         // Date of Birth
         DateField dateOfBirthField = new DateField("Date of Birth");
+        dateOfBirthField.setIcon(VaadinIcons.CALENDAR);
         dateOfBirthField.setRangeEnd(LocalDate.now());
 
         // Is User an admin
         CheckBox isUserAdmin = new CheckBox("Is User Admin ?");
 
         // Register Button
-        Button registerButton = new Button("Register");
+        Button registerButton = new Button("Register ", VaadinIcons.FORM);
         registerButton.setStyleName(ValoTheme.BUTTON_PRIMARY);
 
         // Register Button Logic
@@ -89,8 +126,8 @@ public class RegistrationView extends VerticalLayout implements View {
                 utilisateurDTO.setAdmin(isUserAdmin.getValue());
 
                 userService.registerUtilisateur(utilisateurDTO);
-                ui.getNavigator().navigateTo(LoginView.NAME);
                 Notification.show("Registration successful! Please login.", Notification.Type.HUMANIZED_MESSAGE);
+                ui.getNavigator().navigateTo(LoginView.NAME);
             } catch (CarnetException e) {
                 Notification.show(e.getMessage(), Notification.Type.WARNING_MESSAGE);
             }
@@ -99,11 +136,11 @@ public class RegistrationView extends VerticalLayout implements View {
         // Add all components to the form layout
         registrationForm.addComponents(
                 title,
-                firstNameField, firstNameHelp,
-                lastNameField, lastNameHelp,
-                usernameField, usernameHelp,
-                emailField, emailHelp,
-                passwordField, passwordHelp,
+                firstNameField,
+                lastNameField,
+                usernameField,
+                emailField,
+                passwordField,
                 confirmPasswordField,
                 dateOfBirthField,
                 isUserAdmin,

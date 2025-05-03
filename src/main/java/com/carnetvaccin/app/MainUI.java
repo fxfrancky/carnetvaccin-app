@@ -10,6 +10,7 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.cdi.CDIUI;
 import com.vaadin.cdi.CDIViewProvider;
 import com.vaadin.navigator.Navigator;
+import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.UI;
 
@@ -32,18 +33,10 @@ public class MainUI extends UI {
 
     @Inject
     private CDIViewProvider viewProvider;
-//    @Inject
-//    @Named
-//    private CDIViewProvider viewProvider;
-
-//    @Inject
-//    private UI ui;
-
-//    @Inject
-//    private javax.enterprise.event.Event<NavigationEvent> navigationEvent;
 
     @Override
     protected void init(VaadinRequest request) {
+
         //Initialize your views here
         Navigator navigator = new Navigator(this, this);
         navigator.addProvider(viewProvider);
@@ -53,7 +46,6 @@ public class MainUI extends UI {
         navigator.setErrorView(ErrorView.class);
         navigator.navigateTo(LoginView.NAME);
 
-//        navigationEvent.fire(new NavigationEvent(LoginView.LOGIN));
     }
 
 }

@@ -19,6 +19,7 @@ import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.HeaderRow;
@@ -100,8 +101,12 @@ public class HomeView extends VerticalLayout implements View {
         // Add header
         addComponent(createHeader());
         // Add Title
-        Label title = new Label("Carnet de Vaccination");
+        Label title = new Label(VaadinIcons.BOOK.getHtml() + "  Carnet de Vaccination  "+ VaadinIcons.BOOK.getHtml());
+        title.setContentMode(ContentMode.HTML);
         title.setStyleName(ValoTheme.LABEL_H2);
+
+
+
         addComponent(title);
 
         // Initialize TabSheet 1
@@ -171,7 +176,7 @@ public class HomeView extends VerticalLayout implements View {
         });
 
 //      Add a new Button to save vaccin
-        Button addVaccinUtilisateurBtn = new Button("Add new Vaccin");
+        Button addVaccinUtilisateurBtn = new Button("Add new Vaccin", VaadinIcons.PLUS);
         // Apply custom green color using inline styles
 //        addVaccinUtilisateurBtn.addStyleName("green-primary-button");
         addVaccinUtilisateurBtn.addStyleName(ValoTheme.BUTTON_PRIMARY);
@@ -343,21 +348,21 @@ public class HomeView extends VerticalLayout implements View {
         headerBar.setWidth("100%");
         headerBar.setMargin(true);
         headerBar.setSpacing(true);
-//        headerBar.setStyleName("header");
         // Show current user information
         String currentUser = ((CustomAccessControl)accessControl).getPrincipalName();
         Label userInfoLabel = new Label(" Logged in as :   " + currentUser);
         userInfoLabel.addStyleName(ValoTheme.LABEL_COLORED);
         userInfoLabel.addStyleName(ValoTheme.LABEL_BOLD);
-        userInfoLabel.addStyleName(ValoTheme.LABEL_H3);
 
-        // Logout button with placeholder logout logic.
-        Button logoutButton = new Button("Logout", event -> {
+
+        Button logoutButton = new Button("Logout", VaadinIcons.SIGN_OUT);
+        logoutButton.addClickListener(event -> {
             ((CustomAccessControl) accessControl).signOut();
 
             ui.getNavigator().navigateTo(LoginView.NAME);
 
         });
+
         logoutButton.addStyleName(ValoTheme.BUTTON_DANGER);
 
         // Add the user info and logout button to the header bar.
