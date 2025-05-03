@@ -112,10 +112,12 @@ public class HomeView extends VerticalLayout implements View {
         vaccinForm = new VaccinForm(this,vFacade,vUtilisateurFacade, accessControl);
 
         profileForm = new ProfileForm(utilisateurFacade, accessControl, ui);
-        tabSheet.addTab(carnetDataGridTab(), "Carnet de vaccination");
-        tabSheet.addTab(profileForm, "Mon Profil");
+        tabSheet.addTab(carnetDataGridTab(), "Carnet de vaccination", VaadinIcons.CALENDAR );
+        tabSheet.addTab(profileForm, "Mon Profil", VaadinIcons.USER);
 //        tabSheet.addTab(new VerticalLayout(new Label("Content for the second tab")), "Mon Profil");
-
+        tabSheet.setStyleName("background-color: #f0f0f0; border-radius: 5px;");
+        tabSheet.addStyleName(ValoTheme.TABSHEET_FRAMED);  // Adds borders
+        tabSheet.addStyleName(ValoTheme.TABSHEET_PADDED_TABBAR);
         // Add TabSheets to the layout
         addComponents(tabSheet);
         setExpandRatio(tabSheet, 1); // Let the first TabSheet expand
@@ -129,6 +131,7 @@ public class HomeView extends VerticalLayout implements View {
     private VerticalLayout carnetDataGridTab() {
         VerticalLayout layout = new VerticalLayout();
         layout.setMargin(true);
+        layout.setSpacing(true);
 
         // Create a search field that will be used to filter multiple columns
 
@@ -195,6 +198,8 @@ public class HomeView extends VerticalLayout implements View {
 
         HorizontalLayout toolbar = new HorizontalLayout(filtering, addVaccinUtilisateurBtn);
         toolbar.setSizeFull();
+        toolbar.setMargin(true);
+        toolbar.setSpacing(true);
         layout.addComponent(toolbar);
 //
         HorizontalLayout main = new HorizontalLayout(vUtilisateurGrid, vaccinForm);
