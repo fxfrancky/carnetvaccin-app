@@ -8,7 +8,6 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +26,9 @@ public class VaccinUtilisateurMapper extends AbstractMapper<VaccinUtilisateur, V
 
     @Override
     public VaccinUtilisateurDTO toDto(VaccinUtilisateur vUEntity) {
+        if (vUEntity == null){
+            return null;
+        }
         VaccinUtilisateurDTO vUDTO = new VaccinUtilisateurDTO();
         vUDTO.setId(vUEntity.getVaccinUtilisateurId());
         vUDTO.setVaccinDTO(vaccinMapper.toDto(vUEntity.getVaccin()));
@@ -39,6 +41,9 @@ public class VaccinUtilisateurMapper extends AbstractMapper<VaccinUtilisateur, V
 
     @Override
     public VaccinUtilisateur toEntity(VaccinUtilisateurDTO vUDTO) {
+        if (vUDTO == null){
+            return null;
+        }
         VaccinUtilisateur vUEntity = new VaccinUtilisateur();
         vUEntity.setVaccinUtilisateurId(vUDTO.getId());
         vUEntity.setVaccin(vaccinMapper.toEntity(vUDTO.getVaccinDTO()));
@@ -54,7 +59,7 @@ public class VaccinUtilisateurMapper extends AbstractMapper<VaccinUtilisateur, V
 
         List<VaccinUtilisateur> vaccinUtilisateurList;
         if (CollectionUtils.isEmpty(vaccinUtilisateurDTOS)){
-            vaccinUtilisateurList = new ArrayList<>();
+            vaccinUtilisateurList = null;
         } else {
             vaccinUtilisateurList = vaccinUtilisateurDTOS.stream()
                     .map(this::toEntity).collect(Collectors.toList());
@@ -67,7 +72,7 @@ public class VaccinUtilisateurMapper extends AbstractMapper<VaccinUtilisateur, V
 
         List<VaccinUtilisateurDTO> vaccinUtilisateurDTOList;
         if (CollectionUtils.isEmpty(vaccinUtilisateurs)){
-            vaccinUtilisateurDTOList = new ArrayList<>();
+            vaccinUtilisateurDTOList = null;
         }else {
             vaccinUtilisateurDTOList = vaccinUtilisateurs.stream()
                     .map(this::toDto).collect(Collectors.toList());

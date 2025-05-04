@@ -43,8 +43,12 @@ public class UtilisateurMapper extends AbstractMapper<Utilisateur, UtilisateurDT
             uDTO.setToken(uEntity.getToken());
             uDTO.setRoles(uEntity.getRoles());
             uDTO.setActive(uEntity.isActive());
-//        uDTO.setVaccinUtilisateurDTOList(vaccinUtilisateurMapper.toDtoList(uEntity.getVaccinUtilisateurList()));
-//        uDTO.setNotificationDTOList(notificationMapper.toDtoList(uEntity.getNotificationList()));
+//            if(CollectionUtils.isNotEmpty(uEntity.getVaccinUtilisateurList())){
+//                uDTO.setVaccinUtilisateurDTOList(vaccinUtilisateurMapper.toDtoList(uEntity.getVaccinUtilisateurList()));
+//            }
+//            if(CollectionUtils.isNotEmpty(uEntity.getNotificationList())){
+//                uDTO.setNotificationDTOList(notificationMapper.toDtoList(uEntity.getNotificationList()));
+//            }
             uDTO.setAdmin(uEntity.isAdmin());
 
         return uDTO;
@@ -64,8 +68,12 @@ public class UtilisateurMapper extends AbstractMapper<Utilisateur, UtilisateurDT
         uEntity.setEmail(uDTO.getEmail());
         uEntity.setDateNaissance(uDTO.getDateNaissance());
         uEntity.setUserName(uDTO.getUserName());
-        uEntity.setVaccinUtilisateurList(vaccinUtilisateurMapper.toEntityList(uDTO.getVaccinUtilisateurDTOList()));
-        uEntity.setNotificationList(notificationMapper.toEntityList(uDTO.getNotificationDTOList()));
+        if (uEntity.getVaccinUtilisateurList()!= null && !uEntity.getVaccinUtilisateurList().isEmpty()){
+            uEntity.setVaccinUtilisateurList(vaccinUtilisateurMapper.toEntityList(uDTO.getVaccinUtilisateurDTOList()));
+        }
+        if(uEntity.getNotificationList()!=null && !uEntity.getNotificationList().isEmpty()){
+            uEntity.setNotificationList(notificationMapper.toEntityList(uDTO.getNotificationDTOList()));
+        }
         uEntity.setAdmin(uDTO.isAdmin());
         uEntity.setToken(uDTO.getToken());
         uEntity.setRoles(uDTO.getRoles());

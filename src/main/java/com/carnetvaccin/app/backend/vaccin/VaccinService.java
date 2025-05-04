@@ -9,6 +9,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,9 +47,11 @@ public class VaccinService  extends AbstractService<Vaccin> {
      * @param vaccin
      * @throws CarnetException
      */
+    @Transactional
     public void createVaccin(Vaccin vaccin) throws CarnetException {
         try {
             create(vaccin);
+            em.flush();
         } catch (Exception ex) {
             throw new CarnetException("An error occurs while creating a vaccin");
         }

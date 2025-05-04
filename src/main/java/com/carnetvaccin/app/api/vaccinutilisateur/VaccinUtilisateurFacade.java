@@ -2,7 +2,6 @@ package com.carnetvaccin.app.api.vaccinutilisateur;
 
 import com.carnetvaccin.app.api.commons.AbstractFacade;
 import com.carnetvaccin.app.backend.exceptions.CarnetException;
-import com.carnetvaccin.app.backend.utilisateur.Utilisateur;
 import com.carnetvaccin.app.backend.vaccinutilisateur.VaccinUtilisateur;
 import com.carnetvaccin.app.backend.vaccinutilisateur.VaccinUtilisateurService;
 
@@ -53,11 +52,16 @@ public class VaccinUtilisateurFacade extends AbstractFacade<VaccinUtilisateur,Va
         return mapper.toDtoList(getService().findrByTerms(searchTerm,utilisateurId));
     }
 
-    public void saveOrUpdate(VaccinUtilisateurDTO vaccinUtilisateurDTO) throws CarnetException{
-        getService().saveOrUpdate(mapper.toEntity(vaccinUtilisateurDTO));
+    public void saveVaccinUtilisateur(VaccinUtilisateurDTO vaccinUtilisateurDTO) throws CarnetException{
+        getService().saveVaccinUtilisateur(mapper.toEntity(vaccinUtilisateurDTO));
+    }
+
+    public VaccinUtilisateurDTO updateVaccinUtilisateur(VaccinUtilisateurDTO vaccinUtilisateurDTO) throws CarnetException{
+        VaccinUtilisateur vaccinUtilisateur = getService().updateVaccinUtilisateur(mapper.toEntity(vaccinUtilisateurDTO));
+        return mapper.toDto(vaccinUtilisateur);
     }
 
     public void deleteVaccin(VaccinUtilisateurDTO vaccinUtilisateurDTO) throws CarnetException{
-        getService().deleteVaccin(mapper.toEntity(vaccinUtilisateurDTO));
+        getService().deleteVaccinUtilisateur(mapper.toEntity(vaccinUtilisateurDTO));
     }
 }

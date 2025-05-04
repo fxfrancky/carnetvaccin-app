@@ -63,7 +63,6 @@ public class LoginView extends VerticalLayout implements View {
         usernameField.setPlaceholder("Enter your username");
         usernameField.setWidth("100%");
         usernameField.addStyleName(ValoTheme.TEXTFIELD_LARGE);
-//        usernameField.addStyleName(ValoTheme.TEXTFIELD_LARGE);
 
         // Password field
         passwordField = new PasswordField("Password");

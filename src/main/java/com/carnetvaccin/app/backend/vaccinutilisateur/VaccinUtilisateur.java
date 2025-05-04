@@ -30,11 +30,11 @@ public class VaccinUtilisateur extends BaseEntity implements Serializable {
     private Long vaccinUtilisateurId;
 
     @JoinColumn(name = "vaccin_id")
-    @ManyToOne(optional = false, cascade = CascadeType.PERSIST)
+    @ManyToOne
     private Vaccin vaccin;
 
-    @JoinColumn(name = "utilisateur_id", referencedColumnName = "utilisateur_id")
-    @ManyToOne(optional = false)
+    @JoinColumn(name = "utilisateur_id")
+    @ManyToOne
     private Utilisateur utilisateur;
 
     @Column(name = "date_vaccination")

@@ -80,6 +80,7 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
             TypedQuery<Utilisateur> query = em.createNamedQuery("Utilisateur.deleteUtilisateur", Utilisateur.class);
             query.setParameter("userName", utilisateur.getUserName());
             query.executeUpdate();
+            em.flush();
         } catch (Exception e) {
             logger.log(Level.WARNING, "Error updating user by username", e);
             throw new CarnetException("Error updating user by username ");
@@ -192,7 +193,7 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
                 userEntity.addRole(Role.ADMIN);
             }
             create(userEntity);
-
+            em.flush();
             // Send email
 //            emailService.sendEmail(email, "Welcome!", "Hi " + firstName + ", your registration was successful!");
             return userEntity;
@@ -200,7 +201,6 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
             throw new CarnetException("Error during registration: " + e.getMessage());
         }
     }
-
 
     public String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());

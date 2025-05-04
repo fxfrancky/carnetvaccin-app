@@ -8,6 +8,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -81,6 +82,7 @@ public List<VaccinUtilisateur> findrByTerms(String searchTerm, Long utilisateurI
      * @param vaccinUtilisateur
      * @throws CarnetException
      */
+    @Transactional
     public void saveOrUpdate(VaccinUtilisateur vaccinUtilisateur) throws CarnetException{
 
         try {
@@ -89,23 +91,57 @@ public List<VaccinUtilisateur> findrByTerms(String searchTerm, Long utilisateurI
             }else { // save
                 create(vaccinUtilisateur);
             }
+            em.flush();
         } catch (Exception e) {
             throw new CarnetException("An error occurs while saving a vaccin " + e.getMessage());
         }
     }
 
     /**
-     * Delete Vaccin
+     * Create Vaccin Utilisateur
      * @param vaccinUtilisateur
      * @throws CarnetException
      */
-    public void deleteVaccin(VaccinUtilisateur vaccinUtilisateur) throws CarnetException{
+    @Transactional
+    public void saveVaccinUtilisateur(VaccinUtilisateur vaccinUtilisateur) throws CarnetException{
 
         try{
-            remove(vaccinUtilisateur);
+            create(vaccinUtilisateur);
+            em.flush();
         } catch (Exception e) {
-            throw new CarnetException("An error occurs while deleting a vaccin ");
+            throw new CarnetException("An error occurs while saving a vaccin utilisateur");
         }
     }
 
+    /**
+     * update a vaccin utilisateur
+     * @param vaccinUtilisateur
+     * @throws CarnetException
+     */
+    @Transactional
+    public VaccinUtilisateur updateVaccinUtilisateur(VaccinUtilisateur vaccinUtilisateur) throws CarnetException {
+        try {
+            VaccinUtilisateur vaccin = update(vaccinUtilisateur);
+            em.flush();
+            return vaccin;
+        } catch (Exception ex) {
+            throw new CarnetException("An error occurs while updating a vaccin");
+        }
+    }
+
+    /**
+     * Create Vaccin Utilisateur
+     * @param vaccinUtilisateur
+     * @throws CarnetException
+     */
+    @Transactional
+    public void deleteVaccinUtilisateur(VaccinUtilisateur vaccinUtilisateur) throws CarnetException{
+
+        try{
+            remove(vaccinUtilisateur);
+            em.flush();
+        } catch (Exception e) {
+            throw new CarnetException("An error occurs while saving a vaccin utilisateur");
+        }
+    }
 }

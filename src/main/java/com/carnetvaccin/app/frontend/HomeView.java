@@ -3,11 +3,9 @@ package com.carnetvaccin.app.frontend;
 import com.carnetvaccin.app.api.roles.Role;
 import com.carnetvaccin.app.api.utilisateur.UtilisateurDTO;
 import com.carnetvaccin.app.api.utilisateur.UtilisateurFacade;
-import com.carnetvaccin.app.api.vaccin.VaccinDTO;
 import com.carnetvaccin.app.api.vaccin.VaccinFacade;
 import com.carnetvaccin.app.api.vaccinutilisateur.VaccinUtilisateurDTO;
 import com.carnetvaccin.app.api.vaccinutilisateur.VaccinUtilisateurFacade;
-import com.carnetvaccin.app.backend.enums.TypeVaccinEnum;
 import com.carnetvaccin.app.backend.exceptions.CarnetException;
 import com.carnetvaccin.app.frontend.security.CustomAccessControl;
 import com.carnetvaccin.app.frontend.security.LoginView;
@@ -24,12 +22,15 @@ import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.HeaderRow;
 import com.vaadin.ui.themes.ValoTheme;
-import org.apache.commons.collections4.CollectionUtils;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.vaadin.ui.Notification.Type.ERROR_MESSAGE;
+import static com.vaadin.ui.Notification.Type.HUMANIZED_MESSAGE;
 
 
 @CDIView(HomeView.NAME)
@@ -43,7 +44,6 @@ public class HomeView extends VerticalLayout implements View {
     @Inject
     private UI ui;
 
-
     @Inject
     private AccessControl accessControl;
 
@@ -56,117 +56,162 @@ public class HomeView extends VerticalLayout implements View {
     @Inject
     private UtilisateurFacade utilisateurFacade;
 
-    private Grid<VaccinUtilisateurDTO> vUtilisateurGrid = new Grid<>(VaccinUtilisateurDTO.class);
+    private Grid<VaccinUtilisateurDTO> vUtilisateurGrid;
 
+    private Button addVaccinUtilisateurButton;
 
-    TextField searchField = new TextField();
+    private TextField searchField;
+
+    private Label title;
+
+    private CssLayout filtering;
+
+    private Button clearFilterTextBtn;
 
     // Add an extra header row to hold the filtering components.
-    HeaderRow filterRow = vUtilisateurGrid.appendHeaderRow();
+    private HeaderRow filterRow;
+//    HeaderRow filterRow = vUtilisateurGrid.appendHeaderRow();
 
-    private TabSheet tabSheet; // First TabSheet
+    private TabSheet mainTabSheet; // First TabSheet
 
+    private VerticalLayout vaccinUtilisateurTab;
 
-    List<VaccinDTO> vaccinDTOList;
+    private Button logoutButton;
 
-    private VaccinForm vaccinForm;
-//
+    private VaccinForm vUtilisateurForm;
+    //
     private ProfileForm profileForm;
 
+    private HorizontalLayout mainContentLayout; // main layout to hold grid and form
+    private HorizontalLayout headerLayout;
+
+    private ListDataProvider<VaccinUtilisateurDTO> vaccinUtilisateurDataProvider;
+    private List<VaccinUtilisateurDTO> vaccinUtilisateurList;
+
+    private UtilisateurDTO loggedInUser;
+
     @Inject
-    public HomeView(){
+    public HomeView() {
 
-        setMargin(true);
-        setSpacing(true);
-        setSizeFull(); // Occupy full screen space
-
+//        setMargin(true);
+//        setSpacing(true);
+//        setSizeFull(); // Occupy full screen space
     }
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
 
-//        Only allow authenticated users
-     if (!((CustomAccessControl) accessControl).isUserSignedIn()
-             || !((CustomAccessControl) accessControl).isUserInRole(Role.User)) {
-         ui.getNavigator().navigateTo(LoginView.NAME);
+        //   Only allow authenticated users
+        if (!((CustomAccessControl) accessControl).isUserSignedIn()
+                || !((CustomAccessControl) accessControl).isUserInRole(Role.User)) {
+            ui.getNavigator().navigateTo(LoginView.NAME);
         }
-        init(); // Only build the view if the user is signed in
     }
 
 
-//    @PostConstruct
-    private void init(){
-        removeAllComponents();
-        updateVaccinUtilisateurList();
-        // Add header
-        addComponent(createHeader());
+    @PostConstruct
+    private void init() {
+        loggedInUser = ((CustomAccessControl) accessControl).getCurrentUser();
+        setupVaccinUtilisateurData();
+        createComponents();
+        configureComponents(); //call configureComponents
+        buildView();
+    }
+
+    private void setupVaccinUtilisateurData() {
+        vaccinUtilisateurList = vUtilisateurFacade.findAllVaccinUtilisateurByUserId(loggedInUser.getId());
+        if (vaccinUtilisateurList == null || vaccinUtilisateurList.isEmpty()) {
+            vaccinUtilisateurList = new ArrayList<>();
+        }
+        vaccinUtilisateurDataProvider = new ListDataProvider<>(vaccinUtilisateurList);
+    }
+
+    //    Update List of VaccinUtilisateur
+    public void updateVaccinUtilisateurDTOList(){
+        vaccinUtilisateurList = vUtilisateurFacade.findrByTerms(searchField.getValue(), loggedInUser.getId());
+        if (vaccinUtilisateurList == null || vaccinUtilisateurList.isEmpty()) {
+            vaccinUtilisateurList = new ArrayList<>();
+        }
+        // Update in the Grid
+        vaccinUtilisateurDataProvider.getItems().clear();
+        vaccinUtilisateurDataProvider.getItems().addAll(vaccinUtilisateurList);
+        filterRow.getCell("typeVaccin").setComponent(getvaccinTypesFilters());
+        vaccinUtilisateurDataProvider.refreshAll();
+    }
+
+    private void createComponents() {
+        // Common components
+
+        // create logout button
+        logoutButton = new Button("Logout", VaadinIcons.SIGN_OUT);
+        // create header
+        headerLayout = createHeader();
         // Add Title
-        Label title = new Label(VaadinIcons.BOOK.getHtml() + "  Carnet de Vaccination  "+ VaadinIcons.BOOK.getHtml());
+        title = new Label(VaadinIcons.BOOK.getHtml() + "  Carnet de Vaccination  " + VaadinIcons.BOOK.getHtml());
+
+        //  VaccinUtilisateur Tab Components
+        vaccinUtilisateurTab = new VerticalLayout();
+
+        // Main TabSheet
+        mainTabSheet = new TabSheet();
+        // Main TabSheet Content
+        mainContentLayout = new HorizontalLayout(); // Initialize the layout
+
+        vUtilisateurGrid = new Grid<VaccinUtilisateurDTO>("Historique des Vaccins");
+
+        // Add an extra header row to hold the filtering components.
+        HeaderRow filterRow = vUtilisateurGrid.appendHeaderRow();
+
+        addVaccinUtilisateurButton = new Button("Add new Vaccin", VaadinIcons.PLUS);
+
+        vUtilisateurForm = new VaccinForm(this, accessControl, vFacade); // Pass HomeView instance
+
+        profileForm = new ProfileForm(utilisateurFacade, accessControl, ui);
+
+        // Search Field
+        searchField = new TextField();
+
+        // Button to clear the filter
+        clearFilterTextBtn = new Button(VaadinIcons.CLOSE);
+
+        // Filtering Layout
+        filtering = new CssLayout();
+    }
+
+
+    private void configureComponents() {
+        // configure Logout Button
+        logoutButton.addClickListener(this::logout);
+        logoutButton.addStyleName(ValoTheme.BUTTON_DANGER);
+
+        // configure title
         title.setContentMode(ContentMode.HTML);
         title.setStyleName(ValoTheme.LABEL_H2);
 
+        // Add Vaccin Button
+        addVaccinUtilisateurButton.addStyleName(ValoTheme.BUTTON_PRIMARY);
+
+        // configure VaccinUtilisateurDataGrid
+        configureVaccinUtilisateurDataGrid();
+
+        // Place the ComboBox into the header cell for the "Last Name" column.
+//        filterRow.getCell("typeVaccin").setComponent(getvaccinTypesFilters());
 
 
-        addComponent(title);
 
-        // Initialize TabSheet 1
-        tabSheet = new TabSheet();
-        tabSheet.setSizeFull();
-        tabSheet.setStyleName(ValoTheme.TABSHEET_ICONS_ON_TOP);
-
-        vaccinForm = new VaccinForm(this,vFacade,vUtilisateurFacade, accessControl);
-
-        profileForm = new ProfileForm(utilisateurFacade, accessControl, ui);
-        tabSheet.addTab(carnetDataGridTab(), "Carnet de vaccination", VaadinIcons.CALENDAR );
-        tabSheet.addTab(profileForm, "Mon Profil", VaadinIcons.USER);
-//        tabSheet.addTab(new VerticalLayout(new Label("Content for the second tab")), "Mon Profil");
-        tabSheet.setStyleName("background-color: #f0f0f0; border-radius: 5px;");
-        tabSheet.addStyleName(ValoTheme.TABSHEET_FRAMED);  // Adds borders
-        tabSheet.addStyleName(ValoTheme.TABSHEET_PADDED_TABBAR);
-        // Add TabSheets to the layout
-        addComponents(tabSheet);
-        setExpandRatio(tabSheet, 1); // Let the first TabSheet expand
-
-    }
-
-    /**
-     * Create DataGrid
-     * @return
-     */
-    private VerticalLayout carnetDataGridTab() {
-        VerticalLayout layout = new VerticalLayout();
-        layout.setMargin(true);
-        layout.setSpacing(true);
-
-        // Create a search field that will be used to filter multiple columns
-
+        // Add filtering
         searchField.setPlaceholder("Search (Description vaccin, commentaire, Lieu,  type vaccin)...");
         searchField.setWidth("100%");
-        searchField.addValueChangeListener(e -> updateVaccinUtilisateurList());
+        searchField.addValueChangeListener(e -> updateVaccinUtilisateurDTOList());
         searchField.setValueChangeMode(ValueChangeMode.LAZY);
-
-//      // Button to clear the filter
-        Button clearFilterTextBtn = new Button(VaadinIcons.CLOSE);
-        clearFilterTextBtn.setDescription("Clear the current filter");
-        clearFilterTextBtn.addClickListener(e -> {
-            searchField.clear();
-        });
-
-        CssLayout filtering = new CssLayout();
-        filtering.addComponents(searchField, clearFilterTextBtn);
-        filtering.setStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
-
-
-        // Add value change listener to filter the grid based on the search field's text.
         searchField.addValueChangeListener(evnt -> {
             String searchTerm = evnt.getValue();
-            ListDataProvider<VaccinUtilisateurDTO> dataProvider = (ListDataProvider<VaccinUtilisateurDTO>) vUtilisateurGrid.getDataProvider();
             if (searchTerm == null || searchTerm.trim().isEmpty()) {
                 // Clear filter if search term is empty
-                dataProvider.clearFilters();
+                vaccinUtilisateurDataProvider.clearFilters();
             } else {
                 final String lowerCaseSearchTerm = searchTerm.toLowerCase();
-                dataProvider.setFilter(vaccinUtilisateurDTO ->
+                vaccinUtilisateurDataProvider.setFilter(vaccinUtilisateurDTO ->
                         vaccinUtilisateurDTO.getCommentairesVaccin().toLowerCase().contains(lowerCaseSearchTerm) ||
                                 vaccinUtilisateurDTO.getVaccinDTO().getVaccinDescription().toLowerCase().contains(lowerCaseSearchTerm) ||
                                 vaccinUtilisateurDTO.getVaccinDTO().getTypeVaccin().name().toLowerCase().contains(lowerCaseSearchTerm) ||
@@ -175,68 +220,106 @@ public class HomeView extends VerticalLayout implements View {
             }
         });
 
-//      Add a new Button to save vaccin
-        Button addVaccinUtilisateurBtn = new Button("Add new Vaccin", VaadinIcons.PLUS);
-        // Apply custom green color using inline styles
-//        addVaccinUtilisateurBtn.addStyleName("green-primary-button");
-        addVaccinUtilisateurBtn.addStyleName(ValoTheme.BUTTON_PRIMARY);
-//        addVaccinUtilisateurBtn.setStyleName("background-color: green !important; color: white !important;");        // Apply custom green color using CSS class
-
-        addVaccinUtilisateurBtn.addClickListener(e -> {
-            vUtilisateurGrid.asSingleSelect().clear();
-            VaccinDTO vaccinDTO = new VaccinDTO();
-            if(CollectionUtils.isNotEmpty(vaccinDTOList)) {
-                vaccinDTO = vaccinDTOList.get(0);
-            } else {
-                vaccinDTO.setId(1L);
-                vaccinDTO.setTypeVaccin(TypeVaccinEnum.RSV);
-                vaccinDTO.setNbrMonthsDose(0);
-                vaccinDTO.setNumDose(1);
-                vaccinDTO.setVaccinDescription("2, 1745945986976, 0, 1, 'RSV', NULL, ' RSV (virus respiratoire syncytial) : administration d�un traitement préventif (produit d immunisation passive) qui prot�ge contre la bronchiolite, de préférence avant la sortie de la maternité, en pé-riode de haute circulation du virus, de septembre � février. ");
-            }
-                VaccinUtilisateurDTO vaccinUtilisateurDTO = new VaccinUtilisateurDTO();
-                vaccinUtilisateurDTO.setVaccinDTO(vaccinDTO);
-            UtilisateurDTO loggedInUser = ((CustomAccessControl)accessControl).getCurrentUser();
-                vaccinUtilisateurDTO.setUtilisateurDTO(loggedInUser);
-                vaccinForm.setVaccinUtilisateurDTO(vaccinUtilisateurDTO);
+        // Clear Button Filter
+        clearFilterTextBtn.setDescription("Clear the current filter");
+        clearFilterTextBtn.addClickListener(e -> {
+            searchField.clear();
         });
 
-        HorizontalLayout toolbar = new HorizontalLayout(filtering, addVaccinUtilisateurBtn);
+        // configure vaccinUtilisateurTab
+        vaccinUtilisateurTab.setMargin(true);
+        vaccinUtilisateurTab.setSpacing(true);
+
+        // Add filtering
+        CssLayout filtering = new CssLayout();
+        filtering.addComponents(searchField, clearFilterTextBtn);
+        filtering.setStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
+
+        // ToolBar
+        HorizontalLayout toolbar = new HorizontalLayout(filtering, addVaccinUtilisateurButton);
         toolbar.setSizeFull();
         toolbar.setMargin(true);
         toolbar.setSpacing(true);
-        layout.addComponent(toolbar);
-//
-        HorizontalLayout main = new HorizontalLayout(vUtilisateurGrid, vaccinForm);
-        main.setSizeFull();
-        vUtilisateurGrid.setSizeFull();
-        main.setExpandRatio(vUtilisateurGrid, 1);
-        layout.addComponents(main);
+        vaccinUtilisateurTab.addComponent(toolbar);
+        vaccinUtilisateurTab.addComponent(vUtilisateurGrid);
+        vaccinUtilisateurTab.setSpacing(true);
+        vaccinUtilisateurTab.setSizeFull();
+
+        mainContentLayout.addComponent(vaccinUtilisateurTab);
+        mainContentLayout.addComponent(vUtilisateurForm);
+
+        // Set the form to take 35% of the width
+        vaccinUtilisateurTab.setWidth("65%"); // Grid takes 65%
+        vUtilisateurForm.setWidth("35%");    // Form takes 35%
+
+        mainContentLayout.setExpandRatio(vaccinUtilisateurTab, 65);
+        mainContentLayout.setExpandRatio(vUtilisateurForm, 35);
+        mainContentLayout.setSizeFull();
+        mainContentLayout.setSpacing(true);
+        // Main TabSheet
+        mainTabSheet.setSizeFull();
+        mainTabSheet.setStyleName(ValoTheme.TABSHEET_ICONS_ON_TOP);
+        mainTabSheet.addTab(mainContentLayout, "Carnet de vaccination", VaadinIcons.CALENDAR);
+        mainTabSheet.addTab(profileForm, "Mon Profil", VaadinIcons.USER);
+        mainTabSheet.addStyleName(ValoTheme.TABSHEET_FRAMED);  // Adds borders
+        mainTabSheet.addStyleName(ValoTheme.TABSHEET_PADDED_TABBAR);
+    }
+
+    private void configureVaccinUtilisateurDataGrid() {
+
+        // Configure VaccinUtilisateur Grid
+        vUtilisateurGrid.setDataProvider(vaccinUtilisateurDataProvider);
 
 
-        vaccinForm.setVisible(false);
-        vUtilisateurGrid.asSingleSelect().addValueChangeListener(e ->{
-            if(e.getValue() == null){
-                vaccinForm.setVisible(false);
-            }else {
-                vaccinForm.setVaccinUtilisateurDTO(e.getValue());
+        vUtilisateurGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+
+        // Handle selection change in Grid
+        vUtilisateurGrid.asSingleSelect().addValueChangeListener(event -> {
+            VaccinUtilisateurDTO selectedUser = event.getValue();
+            if (selectedUser != null) {
+                vUtilisateurForm.editVaccinUtilisateur(selectedUser);
+            } else {
+                vUtilisateurForm.setVisible(false);
             }
         });
 
-        return layout;
-    }
+//        vUtilisateurGrid.addSelectionListener(e -> {
+//            e.getFirstSelectedItem().ifPresent(selectedVaccinUtilisateur ->{
+//                vUtilisateurForm.editVaccinUtilisateur(selectedVaccinUtilisateur);
+//            });
+//            if (!e.getFirstSelectedItem().isPresent()){
+//                vUtilisateurForm.setVisible(false);
+//            }
+////            if (selectedVaccinUtilisateur != null) {
+////                vaccinUtilisateurForm.editVaccinUtilisateur(selectedVaccinUtilisateur);
+////            } else {
+////                vaccinUtilisateurForm.setVisible(false);
+////            }
+//        });
+//        vUtilisateurGrid.setSelectionMode(SelectionMode.SINGLE);
+//        vUtilisateurGrid.asSingleSelect().addValueChangeListener(event -> {
+//            VaccinUtilisateurDTO selectedUser = event.getValue();
+//            if (selectedUser != null) {
+//                if (vUtilisateurGrid.getSelectedItems() != null) {
+//                    vUtilisateurForm.editVaccinUtilisateur(selectedUser);
+//                } else {
+//                    vUtilisateurForm.setVisible(false);
+//                }
+//            }
+//        });
+//        vUtilisateurGrid.addSelectionListener(e -> {
+//            if (vUtilisateurGrid.getSelectedItems() != null) {
+//                VaccinUtilisateurDTO selectedVaccinUtilisateur = (VaccinUtilisateurDTO) vUtilisateurGrid.getSelectedItems();
+//                vUtilisateurForm.editVaccinUtilisateur(selectedVaccinUtilisateur);
+//            } else {
+//                vUtilisateurForm.setVisible(false);
+//            }
+//        });
 
-    /**
-     * Update the List of VaccinUtilisateur for the Grid
-     */
-    public void updateVaccinUtilisateurList(){
-
-        List<VaccinUtilisateurDTO> vUtilisateursDTOList = getVaccinUtilisateurDTOList();
-        vUtilisateurGrid.setItems(vUtilisateursDTOList);
         vUtilisateurGrid.removeAllColumns();
 //        vUtilisateurGrid.addColumn(VaccinUtilisateurDTO::getId).setCaption("Identifiant").setId("id");
         vUtilisateurGrid.addColumn(vUtilisateur -> vUtilisateur.getVaccinDTO().getTypeVaccin()).setCaption("Type Vaccin").setId("typeVaccin");
-        vUtilisateurGrid.addColumn(vUtilisateur -> vUtilisateur.getVaccinDTO().getVaccinDescription()).setCaption("Description du vaccin").setId("vaccinDescription").setWidth(1500);
+        vUtilisateurGrid.addColumn(vUtilisateur -> vUtilisateur.getVaccinDTO().getVaccinDescription()).setCaption("Description du vaccin").setId("vaccinDescription").setWidth(1300);
         vUtilisateurGrid.addColumn(vUtilisateur -> vUtilisateur.getVaccinDTO().getNumDose()).setCaption("Dose").setId("numDose");
 
         vUtilisateurGrid.addColumn(VaccinUtilisateurDTO::getDateVaccination).setCaption("Date Vaccination").setId("dateVaccination").setSortable(true);
@@ -244,65 +327,129 @@ public class HomeView extends VerticalLayout implements View {
         vUtilisateurGrid.addColumn(VaccinUtilisateurDTO::getLieuVacctination).setCaption("Lieu Vaccination").setId("lieuVacctination");
         vUtilisateurGrid.setWidthFull();
 
-        filterRow.getCell("typeVaccin").setComponent(getvaccinTypesFilters());
-
     }
 
-    //    Get the List of VaccinUtilisateur
-    public List<VaccinUtilisateurDTO> getVaccinUtilisateurDTOList(){
-        List<VaccinUtilisateurDTO> vUtilisateursDTOList = new ArrayList<>();
-        try {
-            if (((CustomAccessControl)accessControl).isUserSignedIn()){
-                UtilisateurDTO loggedInUser = ((CustomAccessControl)accessControl).getCurrentUser();
-                vUtilisateursDTOList = vUtilisateurFacade.findrByTerms(searchField.getValue(), loggedInUser.getId());
-            }
-        } catch (CarnetException e) {
-            Notification.show("An error occurs while retrieving List Vaccin", Notification.Type.ERROR_MESSAGE);
-        }
-        return vUtilisateursDTOList;
+    private void logout(Button.ClickEvent event) {
+        ((CustomAccessControl) accessControl).signOut();
+        ui.getNavigator().navigateTo(LoginView.NAME);
     }
 
     /**
+     * Create a Header for our page
+     *
+     * @return
+     */
+    public HorizontalLayout createHeader() {
+        // --- Header Bar ---
+        HorizontalLayout headerBar = new HorizontalLayout();
+        headerBar.setWidth("100%");
+        headerBar.setMargin(true);
+        headerBar.setSpacing(true);
+        // Show current user information
+        String currentUser = loggedInUser.getFirstName() + "  -  " + loggedInUser.getLastName();
+        Label userInfoLabel = new Label(" Welcome   " + currentUser);
+        userInfoLabel.addStyleName(ValoTheme.LABEL_COLORED);
+        userInfoLabel.addStyleName(ValoTheme.LABEL_BOLD);
+
+        // Add the user info and logout button to the header bar.
+        headerBar.addComponents(userInfoLabel, logoutButton);
+        headerBar.setComponentAlignment(logoutButton, Alignment.MIDDLE_RIGHT);
+        headerBar.setExpandRatio(userInfoLabel, 1);
+        return headerBar;
+    }
+
+    private void buildView() {
+        removeAllComponents();
+
+
+        VerticalLayout mainLayout = new VerticalLayout();
+        // Add Header
+        mainLayout.addComponent(headerLayout);
+        // Add Title
+        mainLayout.addComponent(title);
+
+        mainLayout.addComponent(mainTabSheet);
+//        mainLayout.setSpacing(true);
+//        mainLayout.setSizeFull();
+        addComponent(mainLayout);
+//        setSizeFull();
+    }
+
+    // Method to add new VaccinUtilisateur to the Grid and database
+    public void addVaccinUtilisateur(VaccinUtilisateurDTO newVaccinUtilisateur) {
+        try {
+            // Persist the new entity to the database
+            vUtilisateurFacade.saveVaccinUtilisateur(newVaccinUtilisateur);
+            // Add to the Grid
+            vaccinUtilisateurList.add(newVaccinUtilisateur);
+            vaccinUtilisateurDataProvider.getItems().add(newVaccinUtilisateur); // Use the data provider
+            vaccinUtilisateurDataProvider.refreshAll();
+            //vaccinUtilisateurGrid.refreshRow(newVaccinUtilisateur); // Removed refreshRow
+            Notification.show("Vaccin Utilisateur added successfully", HUMANIZED_MESSAGE);
+        } catch (CarnetException e) {
+            e.printStackTrace();
+            Notification.show("Error adding Vaccin Utilisateur: ", ERROR_MESSAGE);
+        }
+    }
+
+
+    // Method to update VaccinUtilisateur in the Grid and database
+    public void updateVaccinUtilisateur(VaccinUtilisateurDTO updatedVaccinUtilisateur) {
+        try {
+            // Merge the updated entity to the database
+            vUtilisateurFacade.updateVaccinUtilisateur(updatedVaccinUtilisateur);
+
+            // Update in the Grid
+            vaccinUtilisateurDataProvider.getItems().clear();
+            vaccinUtilisateurDataProvider.getItems().addAll(vaccinUtilisateurList);
+            vaccinUtilisateurDataProvider.refreshAll();
+            //vaccinUtilisateurGrid.refreshRow(updatedVaccinUtilisateur); // Removed refreshRow
+            Notification.show("Vaccin Utilisateur updated successfully", HUMANIZED_MESSAGE);
+        } catch (CarnetException e) {
+            e.printStackTrace();
+            Notification.show("Error updating Vaccin Utilisateur: ", ERROR_MESSAGE);
+        }
+    }
+
+
+    /**
      * Add Type Vaccin Filter to the Grid
+     *
      * @param grid
      * @param vaccinUtilisateurDTOList
      */
-    public void addTypeVaccinFilter(Grid<VaccinUtilisateurDTO> grid, List<VaccinUtilisateurDTO> vaccinUtilisateurDTOList){
+//    public void addTypeVaccinFilter(Grid<VaccinUtilisateurDTO> grid, List<VaccinUtilisateurDTO> vaccinUtilisateurDTOList) {
+//
+//        // Add an extra header row to hold the filtering components.
+//        HeaderRow filterRow = grid.appendHeaderRow();
+//
+//        // Create a ComboBox to filter the "Last Name" column.
+//        ComboBox<String> vaccinTypesFilter = new ComboBox<>();
+//        vaccinTypesFilter.setPlaceholder("Select Type Vaccin");
+//        vaccinTypesFilter.setWidth("100%");
+//
+//        // Populate the ComboBox with distinct last names from the data.
+//        List<String> distinctVaccinTypes = vaccinUtilisateurDTOList.stream()
+//                .map(vUtilisateur -> vUtilisateur.getVaccinDTO().getTypeVaccin().name())
+//                .distinct()
+//                .collect(Collectors.toList());
+//        vaccinTypesFilter.setItems(distinctVaccinTypes);
+//
+//        // Add a listener to filter the grid upon selecting a value.
+//        vaccinTypesFilter.addValueChangeListener(event -> {
+//            String selectedValue = event.getValue();
+//            if (selectedValue == null || selectedValue.isEmpty()) {
+//                // No selection: clear the filter.
+//                vaccinUtilisateurDataProvider.clearFilters();
+//            } else {
+//                // Set the filter to display only rows with a matching last name.
+//                vaccinUtilisateurDataProvider.setFilter(VaccinUtilisateurDTO::getVaccinDTO,
+//                        vaccinDTO -> vaccinDTO.getTypeVaccin().name().equals(selectedValue));
+//            }
+//        });
+//    }
 
-        // Add an extra header row to hold the filtering components.
-        HeaderRow filterRow = grid.appendHeaderRow();
 
-        // Create a ComboBox to filter the "Last Name" column.
-        ComboBox<String> vaccinTypesFilter = new ComboBox<>();
-        vaccinTypesFilter.setPlaceholder("Select Type Vaccin");
-        vaccinTypesFilter.setWidth("100%");
-
-        // Populate the ComboBox with distinct last names from the data.
-        List<String> distinctVaccinTypes = vaccinUtilisateurDTOList.stream()
-                .map(vUtilisateur -> vUtilisateur.getVaccinDTO().getTypeVaccin().name())
-                .distinct()
-                .collect(Collectors.toList());
-        vaccinTypesFilter.setItems(distinctVaccinTypes);
-
-        // Add a listener to filter the grid upon selecting a value.
-        vaccinTypesFilter.addValueChangeListener(event -> {
-            ListDataProvider<VaccinUtilisateurDTO> dataProvider =
-                    (ListDataProvider<VaccinUtilisateurDTO>) grid.getDataProvider();
-            String selectedValue = event.getValue();
-            if (selectedValue == null || selectedValue.isEmpty()) {
-                // No selection: clear the filter.
-                dataProvider.clearFilters();
-            } else {
-                // Set the filter to display only rows with a matching last name.
-                dataProvider.setFilter(VaccinUtilisateurDTO::getVaccinDTO,
-                        vaccinDTO -> vaccinDTO.getTypeVaccin().name().equals(selectedValue));
-            }
-        });
-
-        // Place the ComboBox into the header cell for the "Last Name" column.
-        filterRow.getCell("typeVaccin").setComponent(vaccinTypesFilter);
-
-    }
 
     /**
      * Get Vaccin Types Filter
@@ -315,7 +462,7 @@ public class HomeView extends VerticalLayout implements View {
         vaccinTypesFilter.setWidth("100%");
 
         // Populate the ComboBox with distinct last names from the data.
-        List<String> distinctVaccinTypes = getVaccinUtilisateurDTOList().stream()
+        List<String> distinctVaccinTypes = vaccinUtilisateurList.stream()
                 .map(vUtilisateur -> vUtilisateur.getVaccinDTO().getTypeVaccin().name())
                 .distinct()
                 .collect(Collectors.toList());
@@ -323,54 +470,16 @@ public class HomeView extends VerticalLayout implements View {
 
         // Add a listener to filter the grid upon selecting a value.
         vaccinTypesFilter.addValueChangeListener(event -> {
-            ListDataProvider<VaccinUtilisateurDTO> dataProvider =
-                    (ListDataProvider<VaccinUtilisateurDTO>) vUtilisateurGrid.getDataProvider();
             String selectedValue = event.getValue();
             if (selectedValue == null || selectedValue.isEmpty()) {
                 // No selection: clear the filter.
-                dataProvider.clearFilters();
+                vaccinUtilisateurDataProvider.clearFilters();
             } else {
                 // Set the filter to display only rows with a matching last name.
-                dataProvider.setFilter(VaccinUtilisateurDTO::getVaccinDTO,
+                vaccinUtilisateurDataProvider.setFilter(VaccinUtilisateurDTO::getVaccinDTO,
                         vaccinDTO -> vaccinDTO.getTypeVaccin().name().equals(selectedValue));
             }
         });
         return vaccinTypesFilter;
     }
-
-    /**
-     * Create a Header for our page
-     * @return
-     */
-    public HorizontalLayout createHeader(){
-        // --- Header Bar ---
-        HorizontalLayout headerBar = new HorizontalLayout();
-        headerBar.setWidth("100%");
-        headerBar.setMargin(true);
-        headerBar.setSpacing(true);
-        // Show current user information
-        String currentUser = ((CustomAccessControl)accessControl).getPrincipalName();
-        Label userInfoLabel = new Label(" Logged in as :   " + currentUser);
-        userInfoLabel.addStyleName(ValoTheme.LABEL_COLORED);
-        userInfoLabel.addStyleName(ValoTheme.LABEL_BOLD);
-
-
-        Button logoutButton = new Button("Logout", VaadinIcons.SIGN_OUT);
-        logoutButton.addClickListener(event -> {
-            ((CustomAccessControl) accessControl).signOut();
-
-            ui.getNavigator().navigateTo(LoginView.NAME);
-
-        });
-
-        logoutButton.addStyleName(ValoTheme.BUTTON_DANGER);
-
-        // Add the user info and logout button to the header bar.
-        headerBar.addComponents(userInfoLabel, logoutButton);
-        headerBar.setComponentAlignment(logoutButton, Alignment.MIDDLE_RIGHT);
-        headerBar.setExpandRatio(userInfoLabel, 1);
-        return headerBar;
-    }
-
-
 }

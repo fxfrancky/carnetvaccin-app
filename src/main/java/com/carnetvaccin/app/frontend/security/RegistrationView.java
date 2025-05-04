@@ -32,7 +32,7 @@ public class RegistrationView extends VerticalLayout implements View {
     public RegistrationView() {
         setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
         VerticalLayout registrationForm = new VerticalLayout();
-        registrationForm.setWidth("700px"); // Set fixed width for better styling
+        registrationForm.setWidth("650px"); // Set fixed width for better styling
         registrationForm.setSpacing(true);
         registrationForm.setMargin(true);
         registrationForm.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
@@ -42,12 +42,10 @@ public class RegistrationView extends VerticalLayout implements View {
         title.setContentMode(ContentMode.HTML);
         title.setStyleName(ValoTheme.LABEL_H2);
 
-
         // First Name
         TextField firstNameField = new TextField("First Name");
         firstNameField.setIcon(VaadinIcons.USER);
         firstNameField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
-
 
         Label firstNameHelp = new Label("First name must be at least 3 characters.");
         firstNameHelp.setStyleName(ValoTheme.LABEL_SMALL);
@@ -99,14 +97,14 @@ public class RegistrationView extends VerticalLayout implements View {
         confirmPasswordField.setIcon(VaadinIcons.LOCK);
         confirmPasswordField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
 
-
         // Date of Birth
         DateField dateOfBirthField = new DateField("Date of Birth");
         dateOfBirthField.setIcon(VaadinIcons.CALENDAR);
         dateOfBirthField.setRangeEnd(LocalDate.now());
 
         // Is User an admin
-        CheckBox isUserAdmin = new CheckBox("Is User Admin ?");
+        CheckBox isUserAdmin = new CheckBox("Admin ?");
+        isUserAdmin.setIcon(VaadinIcons.USERS);
 
         // Register Button
         Button registerButton = new Button("Register ", VaadinIcons.FORM);

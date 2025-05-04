@@ -22,12 +22,12 @@ public class Notification extends BaseEntity implements Serializable {
     @Column(name = "notification_id")
     private Long notificationId;
 
-    @JoinColumn(name = "utilisateur_id", referencedColumnName = "utilisateur_id")
-    @ManyToOne(optional = false)
+    @JoinColumn(name = "utilisateur_id")
+    @ManyToOne
     private Utilisateur utilisateur;
 
     @JoinColumn(name = "vaccin_id")
-    @ManyToOne(optional = false)
+    @ManyToOne
     private Vaccin vaccin;
 
     @Column(name = "date_notification")

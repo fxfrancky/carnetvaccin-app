@@ -6,6 +6,7 @@ import com.carnetvaccin.app.backend.exceptions.CarnetException;
 import com.carnetvaccin.app.frontend.security.CustomAccessControl;
 import com.carnetvaccin.app.frontend.security.LoginView;
 import com.vaadin.cdi.access.AccessControl;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -28,7 +29,7 @@ public class ProfileForm extends FormLayout {
     private DateField dateNaissance = new DateField("Birth Date");
     private TextField userName = new TextField("Username");
     private TextField password = new TextField("password");
-    private CheckBox isAdmin = new CheckBox("Is Admin");
+    private CheckBox isAdmin = new CheckBox("Admin ?");
     private Button createButton = new Button("Create User");
     private Button deleteButton = new Button("Delete Account");
 
@@ -42,38 +43,53 @@ public class ProfileForm extends FormLayout {
         }else {
             Notification.show("An error occur The user is not connected", Notification.Type.ERROR_MESSAGE);
         }
-        setSizeUndefined();
+        setSizeFull();
+        setMargin(true);
+        setSpacing(true);
 
         Label title = new Label("Profil Utilisateur");
         title.setStyleName(ValoTheme.LABEL_H3);
         addComponent(title);
 
         final VerticalLayout layout = new VerticalLayout();
-
+        layout.setMargin(true);
+        layout.setSpacing(true);
 
         firstName.setValue(loggedInUser.getFirstName());
         firstName.setEnabled(false);
+        firstName.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+        firstName.setIcon(VaadinIcons.USER);
         layout.addComponent(firstName);
 
         lastName.setValue(loggedInUser.getLastName());
         lastName.setEnabled(false);
+        lastName.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+        lastName.setIcon(VaadinIcons.USER_CARD);
         layout.addComponent(lastName);
 
 
         email.setValue(loggedInUser.getEmail());
         email.setEnabled(false);
+        email.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+        email.setIcon(VaadinIcons.ENVELOPE);
         layout.addComponent(email);
+
         LocalDate parsedAtServer = LocalDate.parse(loggedInUser.getDateNaissance(), DateTimeFormatter.ISO_DATE);
         dateNaissance.setValue(parsedAtServer);
         dateNaissance.setEnabled(false);
+        dateNaissance.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+        dateNaissance.setIcon(VaadinIcons.CALENDAR);
         layout.addComponent(dateNaissance);
 
         userName.setValue(loggedInUser.getUserName());
         userName.setEnabled(false);
+        userName.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+        userName.setIcon(VaadinIcons.USER);
         layout.addComponent(userName);
 
 //        layout.addComponent(password);
         isAdmin.setValue(loggedInUser.isAdmin());
+        isAdmin.setIcon(VaadinIcons.USERS);
         isAdmin.setEnabled(false);
         layout.addComponent(isAdmin);
 
@@ -82,6 +98,7 @@ public class ProfileForm extends FormLayout {
         HorizontalLayout btn = new HorizontalLayout();
         btn.setSizeFull();
         deleteButton.setStyleName(ValoTheme.BUTTON_DANGER);
+        deleteButton.setIcon(VaadinIcons.TRASH);
         deleteButton.addClickListener(e -> delete());
         btn.addComponent(deleteButton);
         addComponents(layout, btn);
