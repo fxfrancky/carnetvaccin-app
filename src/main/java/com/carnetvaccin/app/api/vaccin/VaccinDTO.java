@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -28,5 +29,18 @@ public class VaccinDTO  extends BaseDto implements Serializable {
     }
 
     public VaccinDTO() {
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        VaccinDTO vaccinDTO = (VaccinDTO) o;
+        return typeVaccin == vaccinDTO.typeVaccin && Objects.equals(numDose, vaccinDTO.numDose);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), typeVaccin, numDose);
     }
 }

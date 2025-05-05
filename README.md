@@ -7,44 +7,44 @@ Template for a simple Vaadin application that only requires a Servlet 3.0 contai
 Workflow
 ========
 
-To compile the entire project, run "mvn install".
-
-To run the application, run "mvn jetty:run" and open http://localhost:8080/ .
 
 To produce a deployable production mode WAR:
 - change productionMode to true in the servlet class configuration (nested in the UI class)
 - run "mvn clean package"
-- test the war file with "mvn jetty:run-war"
 
-Client-Side compilation
+To deploy the application, run "PS D:\payara5\bin> .\asadmin.bat deploy --force=true "C:/Users/fxfra/OneDrive/Bureau/Projet Java Vaadin/carnetvaccin-app.war" 
+and open http://localhost:8080/carnetvaccin-app/#!login.
+
+
+A data source should be configured on payara
 -------------------------
 
-The generated maven project is using an automatically generated widgetset by default. 
-When you add a dependency that needs client-side compilation, the maven plugin will 
-automatically generate it for you. Your own client-side customizations can be added into
-package "client".
+C:\payara5\bin\asadmin add-library sqlite-connection-pool_v1.2.0.jar
+C:\payara5\bin\asadmin add-library sqlite-jdbc-3.49.1.0.jar
 
-Debugging client side code
-  - run "mvn vaadin:run-codeserver" on a separate console while the application is running
-  - activate Super Dev Mode in the debug window of the application
+asadmin create-jdbc-connection-pool --datasourceclassname org.sqlite.SQLiteDataSource --restype javax.sql.DataSource --property url="jdbc\:sqlite\:C\:\Users\Public\sqlitedb\carnetvaccindb.db" SQLitePool
+asadmin ping-connection-pool SQLitePool
+asadmin create-jdbc-resource --connectionpoolid SQLitePool jdbc/SQLiteDataSource
 
-Developing a theme using the runtime compiler
+the database is in the root falder of the project : carnetvaccindb.db
+
+
+Few screens of the application
 -------------------------
 
-When developing the theme, Vaadin can be configured to compile the SASS based
-theme at runtime in the server. This way you can just modify the scss files in
-your IDE and reload the browser to see changes.
+### Login Page
+![Login Image](Login.jpg)
 
-To use the runtime compilation, open pom.xml and comment out the compile-theme 
-goal from vaadin-maven-plugin configuration. To remove a possibly existing 
-pre-compiled theme, run "mvn clean package" once.
+### Registration Page
+![Registration Image](Registration.jpg)
 
-When using the runtime compiler, running the application in the "run" mode 
-(rather than in "debug" mode) can speed up consecutive theme compilations
-significantly.
 
-It is highly recommended to disable runtime compilation for production WAR files.
+### Main Page
+![Main Image](Main Page.jpg)
 
+
+### Profile Tab 
+![Profile Image](Profile page.jpg)
 Using Vaadin pre-releases
 -------------------------
 
