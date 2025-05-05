@@ -3,6 +3,8 @@ carnetvaccin-app
 
 Template for a simple Vaadin application that only requires a Servlet 3.0 container to run.
 
+For this project i use vaadin 8.14.3, payara 4, sqlite
+
 
 Workflow
 ========
