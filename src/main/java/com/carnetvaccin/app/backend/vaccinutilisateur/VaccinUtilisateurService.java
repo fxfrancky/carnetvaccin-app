@@ -2,6 +2,7 @@ package com.carnetvaccin.app.backend.vaccinutilisateur;
 
 import com.carnetvaccin.app.backend.commons.AbstractService;
 import com.carnetvaccin.app.backend.exceptions.CarnetException;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Stateless
 @LocalBean
 public class VaccinUtilisateurService extends AbstractService<VaccinUtilisateur> {
@@ -106,9 +108,19 @@ public List<VaccinUtilisateur> findrByTerms(String searchTerm, Long utilisateurI
     public void saveVaccinUtilisateur(VaccinUtilisateur vaccinUtilisateur) throws CarnetException{
 
         try{
+            System.out.println("************Lets verify our Entities");
+            System.out.println("************Lets verify our Vaccin " + vaccinUtilisateur.getVaccin());
+            System.out.println("************Lets verify our Vaccin Id " + vaccinUtilisateur.getVaccin().getVaccinId());
+            System.out.println("************Lets verify our Vaccin TypeVaccin" + vaccinUtilisateur.getVaccin().getTypeVaccin());
+            System.out.println("************Lets verify our Entities Utilisateur");
+            System.out.println("************Lets verify our Entities " + vaccinUtilisateur.getUtilisateur());
+            System.out.println("************Lets verify our Entities Utilisateur Id" + vaccinUtilisateur.getUtilisateur().getUtilisateurId()  );
+            System.out.println("************Lets verify our Entities utilisateur UserName" + vaccinUtilisateur.getUtilisateur().getUserName());
+            System.out.println("************Lets verify our Entities utilisateur FirstName" + vaccinUtilisateur.getUtilisateur().getFirstName());
             create(vaccinUtilisateur);
             em.flush();
         } catch (Exception e) {
+            System.out.println(" --------------- An error occurs while saving a vaccin utilisateur  : " + e.getMessage());
             throw new CarnetException("An error occurs while saving a vaccin utilisateur");
         }
     }

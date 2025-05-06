@@ -71,7 +71,6 @@ public class HomeView extends VerticalLayout implements View {
 
     // Add an extra header row to hold the filtering components.
     HeaderRow filterRow = vUtilisateurGrid.appendHeaderRow();
-//    HeaderRow filterRow = vUtilisateurGrid.appendHeaderRow();
 
     private TabSheet mainTabSheet; // First TabSheet
 
@@ -83,8 +82,10 @@ public class HomeView extends VerticalLayout implements View {
     //
     private ProfileForm profileForm;
 
-    private HorizontalLayout mainContentLayout; // main layout to hold grid and form
     private HorizontalLayout headerLayout;
+
+    private HorizontalLayout mainContentLayout; // main layout to hold grid and form
+    private HorizontalLayout searchAndAddLayout;
 
     private ListDataProvider<VaccinUtilisateurDTO> vaccinUtilisateurDataProvider;
     private List<VaccinUtilisateurDTO> vaccinUtilisateurList;
@@ -95,14 +96,20 @@ public class HomeView extends VerticalLayout implements View {
 
     public HomeView() {
 
-        setMargin(true);
-        setSpacing(true);
-        setSizeFull(); // Occupy full screen space
+    }
+
+    private void buildView() {
+        removeAllComponents();
+        VerticalLayout mainLayout = new VerticalLayout();
+        mainLayout.addComponent(headerLayout);
+        mainLayout.addComponent(title);
+        mainLayout.addComponent(mainTabSheet);
+        addComponent(mainLayout);
+
     }
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
-
         //   Only allow authenticated users
         if (!((CustomAccessControl) accessControl).isUserSignedIn()
                 || !((CustomAccessControl) accessControl).isUserInRole(Role.User)) {
@@ -126,13 +133,11 @@ public class HomeView extends VerticalLayout implements View {
             vaccinUtilisateurList = new ArrayList<>();
         }
         vaccinUtilisateurDataProvider = new ListDataProvider<>(vaccinUtilisateurList);
-
         vaccinDTOList = vFacade.findAllVaccin();
-
     }
 
     //    Update List of VaccinUtilisateur
-    public void updateVaccinUtilisateurDTOList(){
+    public void updateVaccinUtilisateurDTOList() {
         vaccinUtilisateurList = vUtilisateurFacade.findrByTerms(searchField.getValue(), loggedInUser.getId());
         if (vaccinUtilisateurList == null || vaccinUtilisateurList.isEmpty()) {
             vaccinUtilisateurList = new ArrayList<>();
@@ -140,13 +145,11 @@ public class HomeView extends VerticalLayout implements View {
         // Update in the Grid
         vaccinUtilisateurDataProvider.getItems().clear();
         vaccinUtilisateurDataProvider.getItems().addAll(vaccinUtilisateurList);
-        filterRow.getCell("typeVaccin").setComponent(getvaccinTypesFilters());
+//        filterRow.getCell("typeVaccin").setComponent(getvaccinTypesFilters());
         vaccinUtilisateurDataProvider.refreshAll();
     }
 
     private void createComponents() {
-        // Common components
-
         // create logout button
         logoutButton = new Button("Logout", VaadinIcons.SIGN_OUT);
         // create header
@@ -161,6 +164,7 @@ public class HomeView extends VerticalLayout implements View {
         mainTabSheet = new TabSheet();
         // Main TabSheet Content
         mainContentLayout = new HorizontalLayout(); // Initialize the layout
+        searchAndAddLayout = new HorizontalLayout();
 
         addVaccinUtilisateurButton = new Button("Add new Vaccin", VaadinIcons.PLUS);
 
@@ -176,7 +180,6 @@ public class HomeView extends VerticalLayout implements View {
 
         // Filtering Layout
         filtering = new CssLayout();
-
     }
 
 
@@ -194,11 +197,6 @@ public class HomeView extends VerticalLayout implements View {
 
         // configure VaccinUtilisateurDataGrid
         configureVaccinUtilisateurDataGrid();
-
-        // Place the ComboBox into the header cell for the "Last Name" column.
-//        filterRow.getCell("typeVaccin").setComponent(getvaccinTypesFilters());
-
-
 
         // Add filtering
         searchField.setPlaceholder("Search (Description vaccin, commentaire, Lieu,  type vaccin)...");
@@ -227,42 +225,44 @@ public class HomeView extends VerticalLayout implements View {
             searchField.clear();
         });
 
-        // configure vaccinUtilisateurTab
-        vaccinUtilisateurTab.setMargin(true);
-        vaccinUtilisateurTab.setSpacing(true);
-
         // Add filtering
         CssLayout filtering = new CssLayout();
         filtering.addComponents(searchField, clearFilterTextBtn);
         filtering.setStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
 
         // ToolBar
-        HorizontalLayout toolbar = new HorizontalLayout(filtering, addVaccinUtilisateurButton);
-        toolbar.setSizeFull();
-        toolbar.setMargin(true);
-        toolbar.setSpacing(true);
-        vaccinUtilisateurTab.addComponent(toolbar);
-        vaccinUtilisateurTab.addComponents(vUtilisateurGrid, vUtilisateurForm);
-//        vaccinUtilisateurTab.setSpacing(true);
-        vaccinUtilisateurTab.setExpandRatio(vUtilisateurGrid, 1);
-        vaccinUtilisateurTab.setSizeFull();
-        vUtilisateurGrid.setSizeFull();
+        searchAndAddLayout.addComponents(filtering, addVaccinUtilisateurButton);
+        searchAndAddLayout.setSpacing(true);
+        searchAndAddLayout.setMargin(true);
+        searchAndAddLayout.setSizeFull();
+        searchAndAddLayout.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
 
+        // configure vaccinUtilisateurTab
+        vaccinUtilisateurTab.addComponents(searchAndAddLayout);
+        vaccinUtilisateurTab.addComponents(mainContentLayout);
+        vaccinUtilisateurTab.setSizeFull();
+        vaccinUtilisateurTab.setSpacing(true);
+        vaccinUtilisateurTab.setMargin(true);
+
+        mainContentLayout.addComponents(vUtilisateurGrid, vUtilisateurForm);
+
+        addVaccinUtilisateurButton.addClickListener(e -> {
+            vUtilisateurForm.addNewVaccinUtilisateur();
+            showForm(); //show form
+        });
         vUtilisateurForm.setVisible(false);
 
-//        mainContentLayout.addComponent(vaccinUtilisateurTab);
-//        mainContentLayout.addComponent(vUtilisateurForm);
+        vUtilisateurForm.setWidth("20%");
+        vUtilisateurGrid.setWidth("80%");
 
-        // Set the form to take 35% of the width
-//        vaccinUtilisateurTab.setWidth("65%"); // Grid takes 65%
-//        vUtilisateurForm.setWidth("35%");    // Form takes 35%
+        mainContentLayout.setExpandRatio(vUtilisateurGrid, 80);
+        mainContentLayout.setExpandRatio(vUtilisateurForm, 20);
+        mainContentLayout.setSizeFull();
+        mainContentLayout.setSpacing(true);
 
-//        mainContentLayout.setExpandRatio(vaccinUtilisateurTab, 65);
-//        mainContentLayout.setExpandRatio(vUtilisateurForm, 35);
-//        mainContentLayout.setSizeFull();
-//        mainContentLayout.setSpacing(true);
+        setGridFullWidth();
+
         // Main TabSheet
-        mainTabSheet.setSizeFull();
         mainTabSheet.setStyleName(ValoTheme.TABSHEET_ICONS_ON_TOP);
         mainTabSheet.addTab(vaccinUtilisateurTab, "Carnet de vaccination", VaadinIcons.CALENDAR);
         mainTabSheet.addTab(profileForm, "Mon Profil", VaadinIcons.USER);
@@ -275,7 +275,6 @@ public class HomeView extends VerticalLayout implements View {
         // Configure VaccinUtilisateur Grid
         vUtilisateurGrid.setDataProvider(vaccinUtilisateurDataProvider);
 
-
         vUtilisateurGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
 
         // Handle selection change in Grid
@@ -283,13 +282,18 @@ public class HomeView extends VerticalLayout implements View {
             VaccinUtilisateurDTO selectedVaccinutilisateur = event.getValue();
             if (selectedVaccinutilisateur != null) {
                 vUtilisateurForm.editVaccinUtilisateur(selectedVaccinutilisateur);
+                vaccinUtilisateurDataProvider.refreshAll();
+                showForm();
+//                vaccinUtilisateurDataProvider.refreshAll();
+//                vUtilisateurGrid.setDataProvider(vaccinUtilisateurDataProvider);
+//                updateVaccinUtilisateurDTOList();
             } else {
                 vUtilisateurForm.setVisible(false);
+                setGridFullWidth();
             }
         });
 
         vUtilisateurGrid.removeAllColumns();
-//        vUtilisateurGrid.addColumn(VaccinUtilisateurDTO::getId).setCaption("Identifiant").setId("id");
         vUtilisateurGrid.addColumn(vUtilisateur -> vUtilisateur.getVaccinDTO().getTypeVaccin()).setCaption("Type Vaccin").setId("typeVaccin");
         vUtilisateurGrid.addColumn(vUtilisateur -> vUtilisateur.getVaccinDTO().getVaccinDescription()).setCaption("Description du vaccin").setId("vaccinDescription").setWidth(1300);
         vUtilisateurGrid.addColumn(vUtilisateur -> vUtilisateur.getVaccinDTO().getNumDose()).setCaption("Dose").setId("numDose");
@@ -298,9 +302,7 @@ public class HomeView extends VerticalLayout implements View {
         vUtilisateurGrid.addColumn(VaccinUtilisateurDTO::getCommentairesVaccin).setCaption("Commentaire vaccination").setId("commentairesVaccin");
         vUtilisateurGrid.addColumn(VaccinUtilisateurDTO::getLieuVacctination).setCaption("Lieu Vaccination").setId("lieuVacctination");
         vUtilisateurGrid.setSizeFull();
-
         filterRow.getCell("typeVaccin").setComponent(getvaccinTypesFilters());
-
 
     }
 
@@ -333,19 +335,6 @@ public class HomeView extends VerticalLayout implements View {
         return headerBar;
     }
 
-    private void buildView() {
-        removeAllComponents();
-
-//        VerticalLayout mainLayout = new VerticalLayout();
-        // Add Header
-        addComponent(headerLayout);
-        // Add Title
-        addComponent(title);
-        addComponent(mainTabSheet);
-        setExpandRatio(mainTabSheet, 1);
-//        addComponent(mainLayout);
-    }
-
     // Method to add new VaccinUtilisateur to the Grid and database
     public void addVaccinUtilisateur(VaccinUtilisateurDTO newVaccinUtilisateur) {
         try {
@@ -355,7 +344,7 @@ public class HomeView extends VerticalLayout implements View {
             vaccinUtilisateurList.add(newVaccinUtilisateur);
             vaccinUtilisateurDataProvider.getItems().add(newVaccinUtilisateur); // Use the data provider
             vaccinUtilisateurDataProvider.refreshAll();
-            //vaccinUtilisateurGrid.refreshRow(newVaccinUtilisateur); // Removed refreshRow
+            filterRow.getCell("typeVaccin").setComponent(getvaccinTypesFilters());
             Notification.show("Vaccin Utilisateur added successfully", HUMANIZED_MESSAGE);
         } catch (CarnetException e) {
             e.printStackTrace();
@@ -369,12 +358,10 @@ public class HomeView extends VerticalLayout implements View {
         try {
             // Merge the updated entity to the database
             vUtilisateurFacade.updateVaccinUtilisateur(updatedVaccinUtilisateur);
-
             // Update in the Grid
             vaccinUtilisateurDataProvider.getItems().clear();
             vaccinUtilisateurDataProvider.getItems().addAll(vaccinUtilisateurList);
             vaccinUtilisateurDataProvider.refreshAll();
-            //vaccinUtilisateurGrid.refreshRow(updatedVaccinUtilisateur); // Removed refreshRow
             Notification.show("Vaccin Utilisateur updated successfully", HUMANIZED_MESSAGE);
         } catch (CarnetException e) {
             e.printStackTrace();
@@ -385,14 +372,17 @@ public class HomeView extends VerticalLayout implements View {
 
     /**
      * Get Vaccin Types Filter
+     *
      * @return
      */
-    public ComboBox<String> getvaccinTypesFilters(){
+    public ComboBox<String> getvaccinTypesFilters() {
         // Create a ComboBox to filter the "Last Name" column.
         ComboBox<String> vaccinTypesFilter = new ComboBox<>();
         vaccinTypesFilter.setPlaceholder("Select Type Vaccin");
-        vaccinTypesFilter.setWidth("100%");
+        vaccinTypesFilter.setWidth("150px");
+        vaccinTypesFilter.setSizeFull();
 
+        updateVaccinUtilisateurDTOList();
         // Populate the ComboBox with distinct last names from the data.
         List<String> distinctVaccinTypes = vaccinUtilisateurList.stream()
                 .map(vUtilisateur -> vUtilisateur.getVaccinDTO().getTypeVaccin().name())
@@ -413,5 +403,21 @@ public class HomeView extends VerticalLayout implements View {
             }
         });
         return vaccinTypesFilter;
+    }
+
+    public void showForm(){
+        vUtilisateurForm.setVisible(true);
+        mainContentLayout.setExpandRatio(vUtilisateurForm, 20);
+        mainContentLayout.setExpandRatio(vUtilisateurGrid, 80);
+        vUtilisateurGrid.setWidth("80%");
+
+    }
+
+    public void setGridFullWidth() {
+        vUtilisateurGrid.setWidth("100%");
+        mainContentLayout.setExpandRatio(vUtilisateurGrid, 100);
+        mainContentLayout.setExpandRatio(vUtilisateurForm, 0);
+        // Ensure the form is not taking up any space
+        vUtilisateurForm.setWidth("0%");
     }
 }

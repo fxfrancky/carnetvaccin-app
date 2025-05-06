@@ -23,7 +23,7 @@ public class VaccinMapper extends AbstractMapper<Vaccin, VaccinDTO> {
         }
 
         VaccinDTO vaccinDTO = new VaccinDTO();
-        if(vaccinDTO.getId() != null){
+        if(vaccinEntity.getVaccinId() != null){
             vaccinDTO.setId(vaccinEntity.getVaccinId());
         }
         vaccinDTO.setTypeVaccin(vaccinEntity.getTypeVaccin());
