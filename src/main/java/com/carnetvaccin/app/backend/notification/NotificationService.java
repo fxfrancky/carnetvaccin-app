@@ -23,7 +23,9 @@ public class NotificationService extends AbstractService<Notification> {
         super(Notification.class);
     }
 
-
+    public void setEm(EntityManager em) {
+        this.em = em;
+    }
 
 
 

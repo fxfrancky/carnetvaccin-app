@@ -70,4 +70,8 @@ public class VaccinService  extends AbstractService<Vaccin> {
             throw new CarnetException("An error occurs while creating a vaccin");
         }
     }
+
+    public void setEm(EntityManager em) {
+        this.em = em;
+    }
 }

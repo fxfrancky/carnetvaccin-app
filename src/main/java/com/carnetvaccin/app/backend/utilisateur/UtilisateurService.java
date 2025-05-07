@@ -215,4 +215,8 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
         }
     }
 
+    public void setEm(EntityManager em) {
+        this.em = em;
+    }
+
 }

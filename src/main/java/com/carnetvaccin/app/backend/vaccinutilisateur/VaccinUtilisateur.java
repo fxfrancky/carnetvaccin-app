@@ -29,12 +29,12 @@ public class VaccinUtilisateur extends BaseEntity implements Serializable {
     @Column(name = "vaccin_utilisateur_id")
     private Long vaccinUtilisateurId;
 
-    @JoinColumn(name = "vaccin_id")
     @ManyToOne
+    @JoinColumn(name = "vaccin_id")
     private Vaccin vaccin;
 
-    @JoinColumn(name = "utilisateur_id")
     @ManyToOne
+    @JoinColumn(name = "utilisateur_id")
     private Utilisateur utilisateur;
 
     @Column(name = "date_vaccination")

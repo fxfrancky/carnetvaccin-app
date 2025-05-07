@@ -34,13 +34,21 @@
 		<hibernate-core.version>5.6.15.Final</hibernate-core.version>
 		<eclipselink.version>2.7.11</eclipselink.version>
 		<sqlite-jdbc.version>3.49.1.0</sqlite-jdbc.version>
+		<sqlite-testcontainer.version>1.17.3</sqlite-testcontainer.version>
 		<sqlite-dialect.version>0.1.4</sqlite-dialect.version>
 		<!-- Tests 		-->
-		<mockito-all.version>1.10.19</mockito-all.version>
-		<junit.version>4.13.2</junit.version>
+<!--		<mockito-all.version>1.10.19</mockito-all.version>-->
+<!--		<junit-jupiter.version>5.8.1</junit-jupiter.version>-->
+		<junit-jupiter-testcontainers.version>1.19.3</junit-jupiter-testcontainers.version>
+		<junit-jupiter.version>5.9.2</junit-jupiter.version>
+		<mockito.version>4.11.0</mockito.version>
 		<commons-collections4.version>4.4</commons-collections4.version>
 		<vaadin-confirm-dialog-flow.version>4.0.2</vaadin-confirm-dialog-flow.version>
 		<jbcrypt.version>0.4</jbcrypt.version>
+		<maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
+
+
+
 
 	</properties>
 
@@ -49,6 +57,7 @@
 			<id>vaadin-addons</id>
 			<url>https://maven.vaadin.com/vaadin-addons</url>
 		</repository>
+
 	</repositories>
 
 	<dependencyManagement>
@@ -128,7 +137,6 @@
 			<version>1.6.2</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-collections4</artifactId>
@@ -141,30 +149,12 @@
 			<scope>test</scope>
 		</dependency>
 
-<!--		<dependency>-->
-<!--			<groupId>org.vaadin.addons</groupId>-->
-<!--			<artifactId>vaadin-combobox-multiselect</artifactId>-->
-<!--			<version>2.8</version>-->
-<!--		</dependency>-->
-
-<!--		<dependency>-->
-<!--			<groupId>org.vaadin</groupId>-->
-<!--			<artifactId>prefixcombobox</artifactId>-->
-<!--			<version>1.5.0</version>-->
-<!--		</dependency>-->
-
-
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>${slf4j-simple.version}</version>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.slf4j</groupId>-->
-<!--			<artifactId>slf4j-simple</artifactId>-->
-<!--			<version>${slf4j-simple.version}</version>-->
-<!--			<scope>runtime</scope>-->
-<!--		</dependency>-->
+
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
@@ -207,72 +197,80 @@
 
 
 		<!---*************************** Testing ***************************************-->
+
+		<!-- Testcontainers -->
+<!--		<dependency>-->
+<!--			<groupId>org.testcontainers</groupId>-->
+<!--			<artifactId>jdbc</artifactId>-->
+<!--&lt;!&ndash;			<artifactId>sqlite</artifactId>&ndash;&gt;-->
+<!--			<version>${sqlite-testcontainer.version}</version>-->
+<!--			<scope>test</scope>-->
+<!--		</dependency>-->
+
+		<!-- Testcontainers -->
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>${junit.version}</version>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers</artifactId>
+			<version>${sqlite-testcontainer.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- JUnit 5 API -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>${junit-jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- JUnit 5 Engine (Required for running tests) -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>${junit-jupiter.version}</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
-			<version>${mockito-all.version}</version>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>${junit-jupiter-testcontainers.version}</version>
+<!--			<version>1.19.3</version> &lt;!&ndash; Check for the latest version &ndash;&gt;-->
 			<scope>test</scope>
 		</dependency>
+
+
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>${mockito.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-junit-jupiter</artifactId>
+			<version>${mockito.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+<!--		<dependency>-->
+<!--			<groupId>org.h2database</groupId>-->
+<!--			<artifactId>h2</artifactId>-->
+<!--			<version>2.2.220</version>-->
+<!--			<scope>test</scope>-->
+<!--		</dependency>-->
 	</dependencies>
 
 	<build>
 		<finalName>carnetvaccin-app</finalName>
 		<!--		<defaultGoal>package tomee:run</defaultGoal>-->
 		<plugins>
-			<!--			<plugin>-->
-			<!--				<groupId>org.apache.tomee.maven</groupId>-->
-			<!--				<artifactId>tomee-maven-plugin</artifactId>-->
-			<!--				<version>${tomee.version}</version>-->
-			<!--				<configuration>-->
-			<!--					<context>${project.artifactId}</context>-->
-			<!--					<tomeeClassifier>plus</tomeeClassifier>-->
-			<!--					<debugPort>8000</debugPort>-->
-			<!--					<tomeeAjpPort>8009</tomeeAjpPort>-->
-			<!--					<tomeeHttpPort>8080</tomeeHttpPort>-->
-			<!--					<tomeeShutdownPort>8005</tomeeShutdownPort>-->
-			<!--					&lt;!&ndash; no <path> tag &ndash;&gt;-->
-			<!--					<path>${tomee-maven-plugin-path}</path>-->
-			<!--					<useBinaries>true</useBinaries>-->
-			<!--				</configuration>-->
-			<!--				<executions>-->
-			<!--					<execution>-->
-			<!--						<id>deploy-it</id>-->
-			<!--						<phase>none</phase>-->
-			<!--						<goals>-->
-			<!--							<goal>deploy</goal>-->
-			<!--						</goals>-->
-			<!--						<configuration>-->
-			<!--							<path>${tomee-maven-plugin-path}</path>-->
-			<!--						</configuration>-->
-			<!--					</execution>-->
-			<!--					<execution>-->
-			<!--						<id>undeploy-it</id>-->
-			<!--						<phase>none</phase>-->
-			<!--						<goals>-->
-			<!--							<goal>undeploy</goal>-->
-			<!--						</goals>-->
-			<!--						<configuration>-->
-			<!--							<path>someear-1.0-SNAPSHOT</path>-->
-			<!--						</configuration>-->
-			<!--					</execution>-->
-			<!--				</executions>-->
-			<!--			</plugin>-->
-			<!--			<plugin>-->
-			<!--				<groupId>org.apache.tomee.maven</groupId>-->
-			<!--				<artifactId>tomee-maven-plugin</artifactId>-->
-			<!--				<version>8.0.1-SNAPSHOT</version>-->
-			<!--				<configuration>-->
-			<!--					<tomeeClassifier>plume</tomeeClassifier>-->
-			<!--					<args>-Xmx512m -XX:PermSize=256m</args>-->
-			<!--				</configuration>-->
-			<!--			</plugin>-->
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven-surefire-plugin.version}</version>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
@@ -284,17 +282,15 @@
 				</configuration>
 			</plugin>
 
-
-			<!--			<plugin>-->
-			<!--				 <groupId>fish.payara.maven.plugins</groupId>-->
-			<!--				 <artifactId>payara-micro-maven-plugin</artifactId>-->
-			<!--				 <version>1.0.5</version>-->
-			<!--			 </plugin>-->
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven-compiler-plugin.version}</version>
+<!--				<configuration>-->
+<!--					<annotationProcessorPaths>-->
+<!--						<path>${project.build.directory}/generated-annotations</path>-->
+<!--					</annotationProcessorPaths>-->
+<!--				</configuration>-->
 			</plugin>
 			<plugin>
 				<groupId>com.vaadin</groupId>
@@ -333,21 +329,6 @@
 	</build>
 
 	<profiles>
-		<!--		<profile>-->
-		<!--			<id>deploy</id>-->
-		<!--			<activation>-->
-		<!--				<activeByDefault>true</activeByDefault>-->
-		<!--			</activation>-->
-		<!--			<properties>-->
-		<!--				<tomee-maven-plugin-path>target/carnetvaccin-app.war</tomee-maven-plugin-path>-->
-		<!--			</properties>-->
-		<!--		</profile>-->
-		<!--		<profile>-->
-		<!--			<id>undeploy</id>-->
-		<!--			<properties>-->
-		<!--				<tomee-maven-plugin-path>carnetvaccin-app</tomee-maven-plugin-path>-->
-		<!--			</properties>-->
-		<!--		</profile>-->
 		<profile>
 			<!-- Vaadin pre-release repositories -->
 			<id>vaadin-prerelease</id>

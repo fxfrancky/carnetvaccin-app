@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+<!--<persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.1">-->
+    <persistence-unit name="test-pu">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <class>com.carnetvaccin.app.backend.notification.Notification</class>
+        <class>com.carnetvaccin.app.backend.utilisateur.Utilisateur</class>
+        <class>com.carnetvaccin.app.backend.vaccin.Vaccin</class>
+        <class>com.carnetvaccin.app.backend.vaccinutilisateur.VaccinUtilisateur</class>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <properties>
+            <!-- JDBC Connection -->
+            <property name="javax.persistence.jdbc.driver" value="org.sqlite.JDBC"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:sqlite::memory:"/>
+            <property name="javax.persistence.jdbc.user" value=""/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="eclipselink.jdbc.property.PRAGMA foreign_keys" value="ON"/>
+
+            <!-- Hibernate Configuration -->
+            <property name="hibernate.dialect" value="org.sqlite.hibernate.dialect.SQLiteDialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/> <!-- Auto-generate tables -->
+            <property name="hibernate.show_sql" value="true"/> <!-- Show SQL in logs -->
+            <property name="hibernate.format_sql" value="true"/> <!-- Pretty-print SQL -->
+        </properties>
+    </persistence-unit>
+</persistence>

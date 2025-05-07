@@ -108,19 +108,9 @@ public List<VaccinUtilisateur> findrByTerms(String searchTerm, Long utilisateurI
     public void saveVaccinUtilisateur(VaccinUtilisateur vaccinUtilisateur) throws CarnetException{
 
         try{
-            System.out.println("************Lets verify our Entities");
-            System.out.println("************Lets verify our Vaccin " + vaccinUtilisateur.getVaccin());
-            System.out.println("************Lets verify our Vaccin Id " + vaccinUtilisateur.getVaccin().getVaccinId());
-            System.out.println("************Lets verify our Vaccin TypeVaccin" + vaccinUtilisateur.getVaccin().getTypeVaccin());
-            System.out.println("************Lets verify our Entities Utilisateur");
-            System.out.println("************Lets verify our Entities " + vaccinUtilisateur.getUtilisateur());
-            System.out.println("************Lets verify our Entities Utilisateur Id" + vaccinUtilisateur.getUtilisateur().getUtilisateurId()  );
-            System.out.println("************Lets verify our Entities utilisateur UserName" + vaccinUtilisateur.getUtilisateur().getUserName());
-            System.out.println("************Lets verify our Entities utilisateur FirstName" + vaccinUtilisateur.getUtilisateur().getFirstName());
             create(vaccinUtilisateur);
             em.flush();
         } catch (Exception e) {
-            System.out.println(" --------------- An error occurs while saving a vaccin utilisateur  : " + e.getMessage());
             throw new CarnetException("An error occurs while saving a vaccin utilisateur");
         }
     }
@@ -155,5 +145,9 @@ public List<VaccinUtilisateur> findrByTerms(String searchTerm, Long utilisateurI
         } catch (Exception e) {
             throw new CarnetException("An error occurs while saving a vaccin utilisateur");
         }
+    }
+
+    public void setEm(EntityManager em) {
+        this.em = em;
     }
 }

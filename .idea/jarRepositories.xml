@@ -22,6 +22,11 @@
       <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="testcontainers" />
+      <option name="name" value="testcontainers" />
+      <option name="url" value="https://repo.maven.apache.org/maven2" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="vaadin-addons" />
       <option name="name" value="vaadin-addons" />
       <option name="url" value="http://maven.vaadin.com/vaadin-addons" />
