@@ -14,6 +14,9 @@ To produce a deployable production mode WAR:
 - change productionMode to true in the servlet class configuration (nested in the UI class)
 - run "mvn clean package"
 
+To run tests
+- mvn test
+
 To deploy the application, run "PS D:\payara5\bin> .\asadmin.bat deploy --force=true "C:/Users/fxfra/OneDrive/Bureau/Projet Java Vaadin/carnetvaccin-app.war" 
 and open http://localhost:8080/carnetvaccin-app/#!login.
 
@@ -42,11 +45,16 @@ Few screens of the application
 
 
 ### Main Page
-![Main Image](Main Page.jpg)
+![Main Image](MainPage.jpg)
 
 
 ### Profile Tab 
-![Profile Image](Profile page.jpg)
+![Profile Image](ProfilePage.jpg)
+Using Vaadin pre-releases
+
+
+### Delete Account
+![Delete Accoun](DeleteAccount.jpg)
 Using Vaadin pre-releases
 -------------------------
 

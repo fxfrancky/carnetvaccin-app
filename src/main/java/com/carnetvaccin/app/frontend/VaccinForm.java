@@ -228,5 +228,11 @@ public class VaccinForm extends FormLayout {
     }
 
 
+    public ComboBox<VaccinDTO> getComboBox() {
+        return comboBox;
+    }
 
+    public void setCurrentVaccin(VaccinDTO currentVaccin) {
+        this.currentVaccin = currentVaccin;
+    }
 }

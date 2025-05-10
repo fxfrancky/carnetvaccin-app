@@ -42,7 +42,7 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
         try {
             TypedQuery<Utilisateur> query = em.createNamedQuery("Utilisateur.getUserByEmail", Utilisateur.class);
             query.setParameter("email", email);
-            return Optional.ofNullable(query.getSingleResult()); // Use Optional.ofNullable
+            return query.getResultStream().findFirst();
         } catch (Exception e) {
             logger.log(Level.WARNING, "Error finding user by email", e);
             return Optional.empty();
@@ -59,10 +59,10 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
         try {
             TypedQuery<Utilisateur> query = em.createNamedQuery("Utilisateur.getUserByUserName", Utilisateur.class);
             query.setParameter("userName", userName);
-            return Optional.ofNullable(query.getSingleResult()); // Use Optional.ofNullable
+            return query.getResultStream().findFirst(); // Use Optional.ofNullable
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Error finding user by email", e);
-            throw new CarnetException("Error finding user by email ");
+            logger.log(Level.WARNING, "Error finding user by userName", e);
+            throw new CarnetException("Error finding user by userName " + e.getMessage());
         }
     }
 
@@ -77,13 +77,15 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
     public void deleteUserAccount(Utilisateur utilisateur) throws CarnetException {
 
         try {
-            TypedQuery<Utilisateur> query = em.createNamedQuery("Utilisateur.deleteUtilisateur", Utilisateur.class);
+            Query query = em.createNamedQuery("Utilisateur.deleteUtilisateur");
             query.setParameter("userName", utilisateur.getUserName());
             query.executeUpdate();
+
+
             em.flush();
         } catch (Exception e) {
             logger.log(Level.WARNING, "Error updating user by username", e);
-            throw new CarnetException("Error updating user by username ");
+            throw new CarnetException("Error updating user by username " + e.getMessage());
         }
 
     }

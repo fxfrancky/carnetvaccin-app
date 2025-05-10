@@ -1,50 +1,46 @@
 package com.carnetvaccin.app.backend;
 
-import org.junit.jupiter.api.*;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.startupcheck.IsRunningStartupCheckStrategy;
-import org.testcontainers.junit.jupiter.Container;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import java.time.Duration;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class AbstractServiceTest {
 
-    @Container
-    public static final GenericContainer<?> sqliteContainer = new GenericContainer<>("nouchka/sqlite3:latest")
-        .withStartupCheckStrategy(new IsRunningStartupCheckStrategy())
-        .withStartupTimeout(Duration.ofSeconds(150));
-
-    protected EntityManagerFactory entityManagerFactory;
-    protected EntityManager entityManager;
+    protected static EntityManagerFactory entityManagerFactory;
+    protected static EntityManager entityManager;
 
     @BeforeAll
-    static void startContainer() {
-        sqliteContainer.start();
-    }
-
-    @BeforeEach
-    void setUp() {
-        System.setProperty("javax.persistence.jdbc.url", "jdbc:sqlite::memory:");
-        System.setProperty("javax.persistence.jdbc.driver", "org.sqlite.JDBC");
-
+    static void setUp() {
         entityManagerFactory = Persistence.createEntityManagerFactory("test-pu");
         entityManager = entityManagerFactory.createEntityManager();
     }
 
     @AfterEach
-    void cleanDatabase() {
-        entityManager.getTransaction().begin();
-        entityManager.createNativeQuery("DELETE FROM vaccin_utilisateur").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM vaccin").executeUpdate();
+    public void cleanDatabase() {
+        startTransaction();
+//        entityManager.getTransaction().begin();
+        entityManager.createQuery("DELETE FROM VaccinUtilisateur").executeUpdate();
+        entityManager.createQuery("DELETE FROM Vaccin").executeUpdate();
         entityManager.getTransaction().commit();
     }
 
     @AfterAll
-    static void stopContainer() {
-        sqliteContainer.stop();
+    static void tearDown() {
+        if (entityManager != null) {
+            entityManager.close();
+        }
+        if (entityManagerFactory != null) {
+            entityManagerFactory.close();
+        }
+    }
+
+    public void startTransaction() {
+        if (!entityManager.getTransaction().isActive()) {
+            entityManager.getTransaction().begin();
+        }
     }
 }

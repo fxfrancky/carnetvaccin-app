@@ -282,6 +282,8 @@ public class HomeView extends VerticalLayout implements View {
             VaccinUtilisateurDTO selectedVaccinutilisateur = event.getValue();
             if (selectedVaccinutilisateur != null) {
                 vUtilisateurForm.editVaccinUtilisateur(selectedVaccinutilisateur);
+                vUtilisateurForm.setCurrentVaccin(selectedVaccinutilisateur.getVaccinDTO());
+                vUtilisateurForm.getComboBox().setValue(selectedVaccinutilisateur.getVaccinDTO());
                 vaccinUtilisateurDataProvider.refreshAll();
                 showForm();
 //                vaccinUtilisateurDataProvider.refreshAll();
