@@ -5,19 +5,24 @@ Template for a simple Vaadin application that only requires a Servlet 3.0 contai
 
 For this project i use vaadin 8.14.3, payara 4, sqlite
 
-
 Workflow
 ========
 
-
-To produce a deployable production mode WAR:
-- change productionMode to true in the servlet class configuration (nested in the UI class)
+## To build the application
 - run "mvn clean package"
 
-To run tests
+### To run only unit tests
 - mvn test
 
-To deploy the application, run "PS D:\payara5\bin> .\asadmin.bat deploy --force=true "C:/Users/fxfra/OneDrive/Bureau/Projet Java Vaadin/carnetvaccin-app.war" 
+### To run only integration tests
+-  mvn verify -P integration-tests
+
+### To run unit tests and integration Tests
+- mvn clean verify
+
+
+### To deploy the application
+run "PS D:\payara5\bin> .\asadmin.bat deploy --force=true "C:/Users/fxfra/OneDrive/Bureau/Projet Java Vaadin/carnetvaccin-app.war" 
 and open http://localhost:8080/carnetvaccin-app/#!login.
 
 

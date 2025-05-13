@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+
 @Slf4j
 @Stateless
 @LocalBean
@@ -31,33 +32,50 @@ public class VaccinUtilisateurService extends AbstractService<VaccinUtilisateur>
         super(VaccinUtilisateur.class);
     }
 
+    /**
+     * Find VaccinUtilisateur
+     * @param vaccinId
+     * @param utilisateurId
+     * @return
+     * @throws CarnetException
+     */
     public Optional<VaccinUtilisateur> findByUtilisaterIDAndVaccinId(Long vaccinId, Long utilisateurId) throws CarnetException {
 
         try {
             TypedQuery<VaccinUtilisateur> query = em.createNamedQuery("VaccinUtilisateur.findByUtilisaterIDAndVaccinId", VaccinUtilisateur.class);
             query.setParameter("vaccinId", vaccinId );
             query.setParameter("utilisateurId",utilisateurId);
-            return Optional.ofNullable(query.getSingleResult()); // Use Optional.ofNullable
-
+            return query.getResultStream().findFirst();
         } catch (Exception ex){
             throw new CarnetException("Error finding vaccinutilisateur by VaccinId and utilisateurId");
         }
     }
 
 
-
-public List<VaccinUtilisateur> findAllVaccinUtilisateurByUserId(Long utilisateurId) throws CarnetException {
+    /**
+     * find All VaccinUtilisateur By UserId
+     * @param utilisateurId
+     * @return
+     * @throws CarnetException
+     */
+    public List<VaccinUtilisateur> findAllVaccinUtilisateurByUserId(Long utilisateurId) throws CarnetException {
     TypedQuery<VaccinUtilisateur> query = em.createNamedQuery("VaccinUtilisateur.findAllVaccinUtilisateurByUserId", VaccinUtilisateur.class);
     query.setParameter("utilisateurId",utilisateurId);
-
     try {
         return query.getResultList();
     } catch (Exception ex){
-        throw new CarnetException("An error occurss");
+        throw new CarnetException("An error occurs");
     }
 }
 
-public List<VaccinUtilisateur> findrByTerms(String searchTerm, Long utilisateurId) throws CarnetException {
+    /**
+     * Find by terms
+     * @param searchTerm
+     * @param utilisateurId
+     * @return
+     * @throws CarnetException
+     */
+    public List<VaccinUtilisateur> findByTerms(String searchTerm, Long utilisateurId) throws CarnetException {
     List<VaccinUtilisateur> vaccinUtilisateurList = new ArrayList<>();
     try {
         if (searchTerm == null || searchTerm.trim().isEmpty()) {
@@ -106,7 +124,6 @@ public List<VaccinUtilisateur> findrByTerms(String searchTerm, Long utilisateurI
      */
     @Transactional
     public void saveVaccinUtilisateur(VaccinUtilisateur vaccinUtilisateur) throws CarnetException{
-
         try{
             create(vaccinUtilisateur);
             em.flush();

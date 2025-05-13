@@ -43,6 +43,7 @@ public class VaccinFacade extends AbstractFacade<Vaccin,VaccinDTO, VaccinService
     }
 
     public List<VaccinDTO> findAllVaccin() throws CarnetException{
-        return mapper.toDtoList(getService().findAllVaccin());
+         List<Vaccin> vaccinList = getService().findAllVaccin();
+        return mapper.toDtoList(vaccinList);
     }
 }

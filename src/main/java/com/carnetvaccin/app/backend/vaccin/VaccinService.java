@@ -30,14 +30,20 @@ public class VaccinService  extends AbstractService<Vaccin> {
     }
 
 
+    /**
+     * Find Vaccin By Type and Dose
+     * @param typeVaccin
+     * @param numDose
+     * @return
+     * @throws CarnetException
+     */
     public Optional<Vaccin> findVaccinByTypeAndDose(String typeVaccin, Integer numDose) throws CarnetException {
 
         try {
             TypedQuery<Vaccin> query = em.createNamedQuery("Vaccin.findVaccinByTypeAndDose", Vaccin.class);
             query.setParameter("typeVaccin", TypeVaccinEnum.valueOf(typeVaccin) );
             query.setParameter("numDose",numDose);
-            return Optional.ofNullable(query.getSingleResult()); // Use Optional.ofNullable
-
+            return query.getResultStream().findFirst();
         } catch (Exception ex){
             throw new CarnetException("Error finding vaccin by dose and typeVaccin");
         }

@@ -61,7 +61,6 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
             query.setParameter("userName", userName);
             return query.getResultStream().findFirst(); // Use Optional.ofNullable
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Error finding user by userName", e);
             throw new CarnetException("Error finding user by userName " + e.getMessage());
         }
     }
@@ -80,11 +79,8 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
             Query query = em.createNamedQuery("Utilisateur.deleteUtilisateur");
             query.setParameter("userName", utilisateur.getUserName());
             query.executeUpdate();
-
-
             em.flush();
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Error updating user by username", e);
             throw new CarnetException("Error updating user by username " + e.getMessage());
         }
 
@@ -109,8 +105,6 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
                     foundUser.setToken(token);
                     Utilisateur savedUser = update(foundUser);
                     return foundUser;
-                } else {
-                    logger.info("********************** Password Not Checked correctly");
                 }
             }
             return null;
@@ -164,12 +158,10 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
     public Optional<Utilisateur> findByToken(String token) throws CarnetException {
 
         try {
-        TypedQuery<Utilisateur> query = em.createNamedQuery("Utilisateur.getUserByToken", Utilisateur.class);
-        query.setParameter("token", token);
-        return Optional.ofNullable(query.getSingleResult()); // Use Optional.ofNullable
-
+            TypedQuery<Utilisateur> query = em.createNamedQuery("Utilisateur.getUserByToken", Utilisateur.class);
+            query.setParameter("token", token);
+            return Optional.ofNullable(query.getSingleResult()); // Use Optional.ofNullable
         } catch (Exception ex){
-            logger.log(Level.WARNING, "Error finding user by token", ex);
             throw new CarnetException("A Issue Occurs validating Token");
         }
     }
@@ -204,10 +196,21 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
         }
     }
 
+    /**
+     * To hash a password
+     * @param password
+     * @return
+     */
     public String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
     }
 
+    /**
+     * Compare PlainPassword to Hashpassword
+     * @param password
+     * @param storedHash
+     * @return
+     */
     public boolean checkPassword(String password, String storedHash) {
         try {
             return BCrypt.checkpw(password, storedHash);

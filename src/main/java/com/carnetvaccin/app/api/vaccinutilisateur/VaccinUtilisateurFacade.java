@@ -49,7 +49,7 @@ public class VaccinUtilisateurFacade extends AbstractFacade<VaccinUtilisateur,Va
     }
 
     public List<VaccinUtilisateurDTO> findrByTerms(String searchTerm, Long utilisateurId) throws CarnetException {
-        return mapper.toDtoList(getService().findrByTerms(searchTerm,utilisateurId));
+        return mapper.toDtoList(getService().findByTerms(searchTerm,utilisateurId));
     }
 
     public void saveVaccinUtilisateur(VaccinUtilisateurDTO vaccinUtilisateurDTO) throws CarnetException{
