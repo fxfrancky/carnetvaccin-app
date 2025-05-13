@@ -20,6 +20,8 @@ Workflow
 ### To run unit tests and integration Tests
 - mvn clean verify
 
+### To Generate test Reports
+After mvn verify the reports will be target/site/jacoco-merged/index.html
 
 ### To deploy the application
 run "PS D:\payara5\bin> .\asadmin.bat deploy --force=true "C:/Users/fxfra/OneDrive/Bureau/Projet Java Vaadin/carnetvaccin-app.war" 
