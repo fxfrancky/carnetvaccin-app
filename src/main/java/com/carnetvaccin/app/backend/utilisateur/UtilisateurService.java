@@ -9,6 +9,7 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.*;
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -46,6 +47,19 @@ public class UtilisateurService extends AbstractService<Utilisateur> {
         } catch (Exception e) {
             logger.log(Level.WARNING, "Error finding user by email", e);
             return Optional.empty();
+        }
+    }
+
+    /**
+     * Find all active Utilisateurs
+     * @return
+     */
+    public List<Utilisateur> getAllActiveUtilisateurs() {
+        try {
+            TypedQuery<Utilisateur> query = em.createNamedQuery("Utilisateur.getAllActiveUtilisateurs", Utilisateur.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            throw new CarnetException("Error finding active users" + e.getMessage());
         }
     }
 

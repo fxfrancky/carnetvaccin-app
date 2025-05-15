@@ -26,44 +26,49 @@ public class VaccinUtilisateur extends BaseEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "vaccin_utilisateur_id")
+    @Column(name = "vaccin_utilisateur_id" , nullable = false)
     private Long vaccinUtilisateurId;
 
     @ManyToOne
-    @JoinColumn(name = "vaccin_id")
+    @JoinColumn(name = "vaccin_id" , nullable = false)
     private Vaccin vaccin;
 
     @ManyToOne
-    @JoinColumn(name = "utilisateur_id")
+    @JoinColumn(name = "utilisateur_id" , nullable = false)
     private Utilisateur utilisateur;
 
-    @Column(name = "date_vaccination")
+    @Column(name = "date_vaccination" , nullable = false)
     private LocalDate dateVaccination;
 
-    @Column(name = "lieu_vaccination")
+    @Column(name = "lieu_vaccination" , nullable = false)
     private String lieuVacctination;
 
     @Column(name = "commentaires_vaccin")
     private String commentairesVaccin;
 
+    @Column(name ="notification_sent" )
+    private boolean notificationSent = false;
+
     public VaccinUtilisateur() {
     }
 
-    public VaccinUtilisateur(Long vaccinUtilisateurId, Vaccin vaccin, Utilisateur utilisateur, LocalDate dateVaccination, String lieuVacctination, String commentairesVaccin) {
+    public VaccinUtilisateur(Long vaccinUtilisateurId, Vaccin vaccin, Utilisateur utilisateur, LocalDate dateVaccination, String lieuVacctination, String commentairesVaccin, boolean notificationSent) {
         this.vaccinUtilisateurId = vaccinUtilisateurId;
         this.vaccin = vaccin;
         this.utilisateur = utilisateur;
         this.dateVaccination = dateVaccination;
         this.lieuVacctination = lieuVacctination;
         this.commentairesVaccin = commentairesVaccin;
+        this.notificationSent = notificationSent;
     }
 
-    public VaccinUtilisateur(Vaccin vaccin, Utilisateur utilisateur, LocalDate dateVaccination, String lieuVacctination, String commentairesVaccin) {
-        this.vaccin = vaccin;
-        this.utilisateur = utilisateur;
-        this.dateVaccination = dateVaccination;
-        this.lieuVacctination = lieuVacctination;
+    public VaccinUtilisateur(boolean notificationSent, String commentairesVaccin, String lieuVacctination, LocalDate dateVaccination, Utilisateur utilisateur, Vaccin vaccin) {
+        this.notificationSent = notificationSent;
         this.commentairesVaccin = commentairesVaccin;
+        this.lieuVacctination = lieuVacctination;
+        this.dateVaccination = dateVaccination;
+        this.utilisateur = utilisateur;
+        this.vaccin = vaccin;
     }
 
     @Override

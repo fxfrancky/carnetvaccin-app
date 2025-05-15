@@ -23,15 +23,20 @@ public class VaccinUtilisateurDTO extends BaseDto implements Serializable {
 
     private String commentairesVaccin;
 
+    private boolean notificationSent;
 
-    public VaccinUtilisateurDTO(VaccinDTO vaccinDTO, UtilisateurDTO utilisateurDTO, LocalDate dateVaccination, String lieuVacctination, String commentairesVaccin) {
+
+    public VaccinUtilisateurDTO(VaccinDTO vaccinDTO, UtilisateurDTO utilisateurDTO, LocalDate dateVaccination, String lieuVacctination, String commentairesVaccin, boolean notificationSent) {
         this.vaccinDTO = vaccinDTO;
         this.utilisateurDTO = utilisateurDTO;
         this.dateVaccination = dateVaccination;
         this.lieuVacctination = lieuVacctination;
         this.commentairesVaccin = commentairesVaccin;
+        this.notificationSent = notificationSent;
     }
 
     public VaccinUtilisateurDTO() {
     }
+
+
 }

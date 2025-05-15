@@ -11,6 +11,14 @@ Workflow
 ## To build the application
 - run "mvn clean package"
 
+## To build the application and skip the tests
+- mvn clean package -DskipTests=true
+
+## To build the application and not skip the tests
+- mvn clean package -DskipTests=false
+
+
+
 ### To run only unit tests
 - mvn test
 

@@ -25,13 +25,13 @@ public class Vaccin extends BaseEntity implements Serializable {
     @Column(name = "vaccin_type")
     private TypeVaccinEnum typeVaccin;
 
-    @Column(name = "vaccin_description")
+    @Column(name = "vaccin_description"  , nullable = false)
     private String vaccinDescription;
 
-    @Column(name = "num_dose")
+    @Column(name = "num_dose"  , nullable = false)
     private Integer numDose;
 
-    @Column(name = "nbre_months_dose")
+    @Column(name = "nbre_months_dose"  , nullable = false)
     private Integer nbrMonthsDose;
 
     public Vaccin() {

@@ -36,6 +36,7 @@ public class VaccinUtilisateurMapper extends AbstractMapper<VaccinUtilisateur, V
         vUDTO.setDateVaccination(vUEntity.getDateVaccination());
         vUDTO.setLieuVacctination(vUEntity.getLieuVacctination());
         vUDTO.setCommentairesVaccin(vUEntity.getCommentairesVaccin());
+        vUDTO.setNotificationSent(vUEntity.isNotificationSent());
         return vUDTO;
     }
 
@@ -51,6 +52,7 @@ public class VaccinUtilisateurMapper extends AbstractMapper<VaccinUtilisateur, V
         vUEntity.setDateVaccination(vUDTO.getDateVaccination());
         vUEntity.setLieuVacctination(vUDTO.getLieuVacctination());
         vUEntity.setCommentairesVaccin(vUDTO.getCommentairesVaccin());
+        vUEntity.setNotificationSent(vUDTO.isNotificationSent());
         return vUEntity;
     }
 

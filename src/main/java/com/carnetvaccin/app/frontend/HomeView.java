@@ -1,5 +1,7 @@
 package com.carnetvaccin.app.frontend;
 
+import com.carnetvaccin.app.api.notification.MessagesButton;
+import com.carnetvaccin.app.api.notification.NotificationFacade;
 import com.carnetvaccin.app.api.roles.Role;
 import com.carnetvaccin.app.api.utilisateur.UtilisateurDTO;
 import com.carnetvaccin.app.api.utilisateur.UtilisateurFacade;
@@ -50,6 +52,9 @@ public class HomeView extends VerticalLayout implements View {
 
     @Inject
     private VaccinUtilisateurFacade vUtilisateurFacade;
+
+    @Inject
+    private NotificationFacade notificationFacade;
 
     @Inject
     private VaccinFacade vFacade;
@@ -145,7 +150,6 @@ public class HomeView extends VerticalLayout implements View {
         // Update in the Grid
         vaccinUtilisateurDataProvider.getItems().clear();
         vaccinUtilisateurDataProvider.getItems().addAll(vaccinUtilisateurList);
-//        filterRow.getCell("typeVaccin").setComponent(getvaccinTypesFilters());
         vaccinUtilisateurDataProvider.refreshAll();
     }
 
@@ -258,7 +262,7 @@ public class HomeView extends VerticalLayout implements View {
         mainContentLayout.setExpandRatio(vUtilisateurGrid, 80);
         mainContentLayout.setExpandRatio(vUtilisateurForm, 20);
         mainContentLayout.setSizeFull();
-        mainContentLayout.setSpacing(true);
+//        mainContentLayout.setSpacing(true);
 
         setGridFullWidth();
 
@@ -286,9 +290,6 @@ public class HomeView extends VerticalLayout implements View {
                 vUtilisateurForm.getComboBox().setValue(selectedVaccinutilisateur.getVaccinDTO());
                 vaccinUtilisateurDataProvider.refreshAll();
                 showForm();
-//                vaccinUtilisateurDataProvider.refreshAll();
-//                vUtilisateurGrid.setDataProvider(vaccinUtilisateurDataProvider);
-//                updateVaccinUtilisateurDTOList();
             } else {
                 vUtilisateurForm.setVisible(false);
                 setGridFullWidth();
@@ -303,7 +304,7 @@ public class HomeView extends VerticalLayout implements View {
         vUtilisateurGrid.addColumn(VaccinUtilisateurDTO::getDateVaccination).setCaption("Date Vaccination").setId("dateVaccination").setSortable(true);
         vUtilisateurGrid.addColumn(VaccinUtilisateurDTO::getCommentairesVaccin).setCaption("Commentaire vaccination").setId("commentairesVaccin");
         vUtilisateurGrid.addColumn(VaccinUtilisateurDTO::getLieuVacctination).setCaption("Lieu Vaccination").setId("lieuVacctination");
-        vUtilisateurGrid.setSizeFull();
+//        vUtilisateurGrid.setSizeFull();
         filterRow.getCell("typeVaccin").setComponent(getvaccinTypesFilters());
 
     }
@@ -330,8 +331,16 @@ public class HomeView extends VerticalLayout implements View {
         userInfoLabel.addStyleName(ValoTheme.LABEL_COLORED);
         userInfoLabel.addStyleName(ValoTheme.LABEL_BOLD);
 
+        // Add Notification Ring
+        notificationFacade.initialize(loggedInUser);
+        MessagesButton msgBtn = notificationFacade.getMessagesButton();
+
         // Add the user info and logout button to the header bar.
-        headerBar.addComponents(userInfoLabel, logoutButton);
+        headerBar.addComponents(userInfoLabel, msgBtn, logoutButton);
+        headerBar.setComponentAlignment(msgBtn, Alignment.MIDDLE_CENTER);
+
+//        headerBar.addComponents(userInfoLabel, logoutButton);
+
         headerBar.setComponentAlignment(logoutButton, Alignment.MIDDLE_RIGHT);
         headerBar.setExpandRatio(userInfoLabel, 1);
         return headerBar;
@@ -411,7 +420,7 @@ public class HomeView extends VerticalLayout implements View {
         vUtilisateurForm.setVisible(true);
         mainContentLayout.setExpandRatio(vUtilisateurForm, 20);
         mainContentLayout.setExpandRatio(vUtilisateurGrid, 80);
-        vUtilisateurGrid.setWidth("80%");
+        vUtilisateurGrid.setWidth("100%");
 
     }
 

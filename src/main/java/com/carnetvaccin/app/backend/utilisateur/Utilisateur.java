@@ -20,6 +20,7 @@ import java.util.Objects;
 @Setter
 @NamedQueries({
    @NamedQuery(name = "Utilisateur.getUserByEmail", query = "from Utilisateur u where u.email = :email and u.isActive = true"),
+   @NamedQuery(name = "Utilisateur.getAllActiveUtilisateurs", query = "from Utilisateur u where u.isActive = true"),
    @NamedQuery(name = "Utilisateur.getUserByUserName", query = "from Utilisateur u where u.userName = :userName and u.isActive = true"),
    @NamedQuery(name = "Utilisateur.getUserByToken", query = "from Utilisateur u where u.token = :token and u.isActive = true"),
    @NamedQuery(name = "Utilisateur.getUserByUserNameAndPassword", query = "from Utilisateur u where u.userName = :userName and u.encryptedPassword = :encryptedPassword and u.isActive = true"),
@@ -32,35 +33,29 @@ public class Utilisateur extends BaseEntity implements Serializable {
     @Column(name = "utilisateur_id")
     private Long utilisateurId;
 
-    @Column(name = "first_name")
-//    @NotNull
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Column(name = "last_name")
-//    @NotNull
+    @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    @Column(name = "email", unique = true)
-//    @NotNull
+    @Column(name = "email", unique = true, nullable = false)
     @Email
     private String email;
 
-    @Column(name = "date_naiss")
-//    @NotNull
+    @Column(name = "date_naiss", nullable = false)
     private String dateNaissance;
 
-    @Column(name = "user_name" , unique = true)
-//    @NotNull
+    @Column(name = "user_name" , unique = true, nullable = false)
     private String userName;
 
-//    @NotNull
-    @Column(name = "password")
+    @Column(name = "password" , nullable = false)
     private String encryptedPassword;
 
     @Column(name = "is_admin")
     private boolean isAdmin = false;
 
-    @Column(name = "token")
+    @Column(name = "token" , nullable = false)
     private String token; // Added for Bearer Token
 
     @Column(name = "roles")

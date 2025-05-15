@@ -21,11 +21,14 @@ public class NotificationDTO extends BaseDto implements Serializable {
 
     private String message;
 
-    public NotificationDTO(UtilisateurDTO utilisateurDTO, VaccinDTO vaccinDTO, LocalDate dateNotification, String message) {
+    private boolean isRead;
+
+    public NotificationDTO(UtilisateurDTO utilisateurDTO, VaccinDTO vaccinDTO, LocalDate dateNotification, String message, boolean isRead) {
         this.utilisateurDTO = utilisateurDTO;
         this.vaccinDTO = vaccinDTO;
         this.dateNotification = dateNotification;
         this.message = message;
+        this.isRead = isRead;
     }
 
     public NotificationDTO() {

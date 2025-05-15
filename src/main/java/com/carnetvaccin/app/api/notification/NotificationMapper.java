@@ -35,6 +35,7 @@ public class NotificationMapper extends AbstractMapper<Notification, Notificatio
         notificationDTO.setId(notificationEntity.getNotificationId());
         notificationDTO.setDateNotification(notificationEntity.getDateNotification());
         notificationDTO.setMessage(notificationEntity.getMessage());
+        notificationDTO.setRead(notificationEntity.isRead());
         notificationDTO.setUtilisateurDTO(utilisateurMapper.toDto(notificationEntity.getUtilisateur()));
         notificationDTO.setVaccinDTO(vaccinMapper.toDto(notificationEntity.getVaccin()));
         return notificationDTO;
@@ -49,7 +50,8 @@ public class NotificationMapper extends AbstractMapper<Notification, Notificatio
         Notification notificationEntity = new Notification();
         notificationEntity.setNotificationId(notificationDTO.getId());
         notificationEntity.setDateNotification(notificationDTO.getDateNotification());
-        notificationEntity.setMessage(notificationEntity.getMessage());
+        notificationEntity.setMessage(notificationDTO.getMessage());
+        notificationEntity.setRead(notificationDTO.isRead());
         notificationEntity.setUtilisateur(utilisateurMapper.toEntity(notificationDTO.getUtilisateurDTO()));
         notificationEntity.setVaccin(vaccinMapper.toEntity(notificationDTO.getVaccinDTO()));
         return notificationEntity;

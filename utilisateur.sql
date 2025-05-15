@@ -1,14 +1,70 @@
+-- File generated with SQLiteStudio v3.4.17 on jeu. mai 15 21:51:08 2025
 --
--- File generated with SQLiteStudio v3.4.17 on jeu. mai 1 21:19:10 2025
---
--- Text encoding used: System
+-- Text encoding used: UTF-8
 --
 PRAGMA foreign_keys = off;
-BEGIN TRANSACTION;
 
--- Table: utilisateur
-CREATE TABLE IF NOT EXISTS utilisateur (utilisateur_id NUMBER(19) NOT NULL, created_on TIMESTAMP, date_naiss VARCHAR, email VARCHAR UNIQUE, password VARCHAR, first_name VARCHAR, is_admin NUMBER(1), last_name VARCHAR, token VARCHAR, updated_on TIMESTAMP, user_name VARCHAR UNIQUE, PRIMARY KEY (utilisateur_id));
-INSERT INTO utilisateur (utilisateur_id, created_on, date_naiss, email, password, first_name, is_admin, last_name, token, updated_on, user_name) VALUES (1, 1745940638552, '2025-04-28', 'fxowen@yahoo.com', 'HXB4EZiAacp2CCaGHW1joQ6MO38XHERBpkcupYwRcRs=', 'Francois Xavier', 1, 'OWONA', 'eeedde98-f285-4c13-95b3-8f2380054856', 1746125740410, 'fxowene');
 
-COMMIT TRANSACTION;
+INSERT INTO utilisateur (
+                            utilisateur_id,
+                            created_on,
+                            date_naiss,
+                            email,
+                            password,
+                            first_name,
+                            is_admin,
+                            last_name,
+                            roles,
+                            token,
+                            updated_on,
+                            user_name,
+                            is_active
+                        )
+                        VALUES (
+                            388,
+                            1746259559022,
+                            '2025-04-30',
+                            'fxowen@yahoo.com',
+                            '$2a$10$XlRYZ/8NUPDrI6/0M2oybOEFtt8P8wwR5LEcgQiRPlSFVHV4ApqwC',
+                            'Francois Xavier',
+                            1,
+                            'OWONA',
+                            'User,Admin',
+                            '4a12f6af-e685-40e8-bb6d-072d5a7b1d32',
+                            1747338071425,
+                            'fxowen',
+                            1
+                        );
+
+INSERT INTO utilisateur (
+                            utilisateur_id,
+                            created_on,
+                            date_naiss,
+                            email,
+                            password,
+                            first_name,
+                            is_admin,
+                            last_name,
+                            roles,
+                            token,
+                            updated_on,
+                            user_name,
+                            is_active
+                        )
+                        VALUES (
+                            389,
+                            1746280073671,
+                            '2025-04-29',
+                            'kevindur@gmail.com',
+                            '$2a$10$c/SvwF69PxX9dHUUfIaQYer4N/yHlam0oBS22tHMhhCyhjNH5/sTm',
+                            'Kevin',
+                            0,
+                            'Durant',
+                            'User',
+                            'ae32a498-cf68-4d0d-be90-f11bf7d598fa',
+                            NULL,
+                            'kevindur',
+                            1
+                        );
+
 PRAGMA foreign_keys = on;
