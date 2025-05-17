@@ -77,6 +77,7 @@ public class VaccinService  extends AbstractService<Vaccin> {
         }
     }
 
+
     public void setEm(EntityManager em) {
         this.em = em;
     }

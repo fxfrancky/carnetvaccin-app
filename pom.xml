@@ -48,6 +48,7 @@
 		<jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
         <jakartaee-api.version>8.0.0</jakartaee-api.version>
 		<vaadin-contextmenu.version>3.1.0</vaadin-contextmenu.version>
+<!--		<vaadin-contextmenu.version>2.0.0</vaadin-contextmenu.version>-->
 		<skipTests>true</skipTests>
 	</properties>
 
@@ -116,6 +117,23 @@
 <!--			<version>${vaadin-contextmenu.version}</version>-->
 <!--		</dependency>-->
 
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-compatibility-server</artifactId>
+<!--			<version>8.14.3</version>-->
+		</dependency>
+
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-compatibility-client-compiled</artifactId>
+<!--			<version>8.14.3</version>-->
+		</dependency>
+
+<!--		<dependency>-->
+<!--			<groupId>org.vaadin.addons</groupId>-->
+<!--			<artifactId>context-menu</artifactId>-->
+<!--			<version>${vaadin-contextmenu.version}</version>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>

@@ -1,69 +1,74 @@
 package com.carnetvaccin.app.api.notification;
 
 
-import com.vaadin.server.FontAwesome;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.MenuBar;
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.ui.*;
+import com.vaadin.ui.themes.ValoTheme;
 
-import java.util.List;
+public class MessagesButton extends Button {
 
-public class MessagesButton extends CssLayout {
-
-    private final Button bellButton;
-    private final Label notificationBadge;
-    private int unreadMessages = 0;
-    private final MenuBar notificationMenu;
+    private int unreadCount = 0;
+    private VerticalLayout messagesLayout;
+    private Window messagesWindow;
+    private Label countLabel;
 
     public MessagesButton() {
-        bellButton = new Button(FontAwesome.BELL);
-        notificationBadge = new Label("0");
-        notificationBadge.setStyleName("badge");
-        notificationMenu = new MenuBar();
-        notificationMenu.setVisible(false);
+        setStyleName(ValoTheme.BUTTON_BORDERLESS);
+        setIcon(VaadinIcons.BELL_O); // Use VaadinIcons.BELL_O for messagesButton
+        //Removed the old icon
+        countLabel = new Label(" (0)");
+        countLabel.setStyleName(ValoTheme.LABEL_SMALL);
 
-        addStyleName("messages-button");
-        addComponent(bellButton);
-        addComponent(notificationBadge);
-        addComponent(notificationMenu);
-        updateNotificationCount();
+        VerticalLayout iconAndCount = new VerticalLayout();
+        iconAndCount.addComponents(countLabel); // Only add the label
+        iconAndCount.setSpacing(false);
+        iconAndCount.setMargin(false);
+        iconAndCount.setHeight("100%");
+        iconAndCount.setWidth("100%");
+        iconAndCount.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
 
-        bellButton.addClickListener(event -> toggleMenu());
+        setCaption("Messages");
+
+        messagesLayout = new VerticalLayout();
+        messagesLayout.setMargin(true);
+        messagesLayout.setSpacing(true);
+
+        messagesWindow = new Window("Messages");
+        messagesWindow.setClosable(true);
+        messagesWindow.setModal(false);
+        messagesWindow.setWidth("300px");
+        messagesWindow.setHeightUndefined();
+        messagesWindow.setContent(messagesLayout);
+
+        addClickListener(e -> {
+            showMessages();
+            if (messagesWindow != null && messagesWindow.getParent() == null) {
+                UI.getCurrent().addWindow(messagesWindow);
+            } else if (messagesWindow != null) {
+                messagesWindow.close();
+            }
+        });
     }
 
-    public void setUnreadMessages(int count) {
-        this.unreadMessages = count;
-        updateNotificationCount();
-    }
+    public void setUnreadCount(int count) {
+        this.unreadCount = count;
+        countLabel.setValue(" (" + unreadCount + ")"); // Update the label's value
 
-    public int getUnreadMessages() {
-        return unreadMessages;
-    }
-
-    public void setNotifications(List<NotificationDTO> notifications) {
-        notificationMenu.removeItems();
-        for (NotificationDTO notificationDTO : notifications) {
-            notificationMenu.addItem(notificationDTO.getVaccinDTO().getTypeVaccin().name() + "-" + notificationDTO.getVaccinDTO().getNumDose(), selectedItem -> notificationDTO.setRead(true));
+        if (unreadCount > 0) {
+            addStyleName("unread"); // Apply the "unread" style
+        } else {
+            removeStyleName("unread");
         }
-        notificationBadge.setValue(String.valueOf(notifications.size()));
     }
 
-    public void toggleMenu() {
-        notificationMenu.setVisible(!notificationMenu.isVisible());
-    }
-
-    private void updateNotificationCount() {
-        notificationBadge.setValue(String.valueOf(unreadMessages));
-        notificationBadge.setVisible(unreadMessages > 0);
-    }
-
-    private void markAsRead() {
-        setUnreadMessages(0);
-        notificationBadge.setVisible(false);
-    }
-
-    public Button getNotificationBell() {
-        return bellButton;
+    private void showMessages() {
+        messagesLayout.removeAllComponents();
+        if (unreadCount == 0) {
+            messagesLayout.addComponent(new Label("No new messages"));
+        } else {
+            for (int i = 0; i < unreadCount; i++) {
+                messagesLayout.addComponent(new Label("Message " + (i + 1) + " content..."));
+            }
+        }
     }
 }

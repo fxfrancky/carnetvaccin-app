@@ -33,6 +33,13 @@
 
 @mixin mytheme {
   @include valo;
+  .unread {
+      font-weight: bold;
+      color: red;
+      background-color: lighten(#000, 95%);  /* Lighter gray, using a variable */
+      padding: 0.3em;
+      border-radius: 0.3em;
+  }
 }
 
 // .v-grid {

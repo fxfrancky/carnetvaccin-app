@@ -19,8 +19,9 @@ import java.util.Objects;
         @NamedQuery(name = "VaccinUtilisateur.findByUtilisaterIDAndVaccinId", query = "from VaccinUtilisateur v where v.vaccin.vaccinId = :vaccinId  and v.utilisateur.utilisateurId = :utilisateurId"),
         @NamedQuery(name = "VaccinUtilisateur.findAllVaccinUtilisateurByUserId", query = "from VaccinUtilisateur v where v.utilisateur.utilisateurId = :utilisateurId order by v.dateVaccination desc"),
         @NamedQuery(name = "VaccinUtilisateur.findrByTerms", query = "from VaccinUtilisateur v WHERE v.utilisateur.utilisateurId = :utilisateurId AND (lower(v.commentairesVaccin) LIKE :term OR  lower(v.lieuVacctination) LIKE :term" +
-                            " OR  lower(v.vaccin.vaccinDescription) LIKE :term  OR  lower(v.vaccin.typeVaccin) LIKE :term )"
-        )
+                            " OR  lower(v.vaccin.vaccinDescription) LIKE :term  OR  lower(v.vaccin.typeVaccin) LIKE :term )"),
+        @NamedQuery(name = "VaccinUtilisateur.notificationSent", query = "UPDATE VaccinUtilisateur v SET v.notificationSent = true where v.vaccinUtilisateurId = :vaccinUtilisateurId "),
+
 })
 public class VaccinUtilisateur extends BaseEntity implements Serializable {
 

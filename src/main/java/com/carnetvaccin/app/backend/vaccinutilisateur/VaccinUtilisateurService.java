@@ -6,10 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -161,6 +160,38 @@ public class VaccinUtilisateurService extends AbstractService<VaccinUtilisateur>
             em.flush();
         } catch (Exception e) {
             throw new CarnetException("An error occurs while saving a vaccin utilisateur");
+        }
+    }
+
+    // New method to find due vaccinations
+    public List<VaccinUtilisateur> findDueVaccinations(LocalDate dateVaccination) throws CarnetException{
+
+
+        TypedQuery<VaccinUtilisateur> query = em.createQuery(
+                "SELECT v FROM VaccinUtilisateur v WHERE v.dateVaccination <= :dateVaccination AND v.notificationSent = false", VaccinUtilisateur.class);
+        query.setParameter("dateVaccination", dateVaccination);
+        try {
+            return query.getResultList();
+        } catch (Exception ex){
+            throw new CarnetException("An error occurs");
+        }
+    }
+
+
+    /**
+     * Mark as notification sent
+     * @param vaccinUtilisateurId
+     * @throws CarnetException
+     */
+    @Transactional
+    public void markAsSent(Long vaccinUtilisateurId) throws CarnetException {
+        try {
+            Query query = em.createNamedQuery("VaccinUtilisateur.notificationSent");
+            query.setParameter("vaccinUtilisateurId", vaccinUtilisateurId);
+            query.executeUpdate();
+            em.flush();
+        } catch (Exception e) {
+            throw new CarnetException("Error updating a vaccinUtilisateur " + e.getMessage());
         }
     }
 

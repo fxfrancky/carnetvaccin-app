@@ -20,7 +20,6 @@ import java.util.Objects;
         @NamedQuery(name = "Notification.findUnreadNotifications", query = "FROM Notification n WHERE n.isRead = false ORDER BY n.dateNotification DESC"),
         @NamedQuery(name = "Notification.markAsRead", query = "UPDATE Notification n SET n.isRead = true where n.notificationId = :notificationId "),
 })
-@EntityListeners(NotificationListener.class)
 public class Notification extends BaseEntity implements Serializable {
 
     @Id

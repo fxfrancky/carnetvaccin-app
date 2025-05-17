@@ -1,7 +1,7 @@
 package com.carnetvaccin.app.api.notification;
 
 import com.carnetvaccin.app.api.commons.AbstractFacade;
-import com.carnetvaccin.app.api.utilisateur.UtilisateurDTO;
+import com.carnetvaccin.app.backend.exceptions.CarnetException;
 import com.carnetvaccin.app.backend.notification.Notification;
 import com.carnetvaccin.app.backend.notification.NotificationService;
 
@@ -36,18 +36,22 @@ public class NotificationFacade extends AbstractFacade<Notification, Notificatio
 
     private MessagesButton messagesButton;
 
-
-    public void initialize(UtilisateurDTO loggedInUser) {
-        messagesButton = new MessagesButton();
-
-        List<NotificationDTO> notifications = mapper.toDtoList(notificationService.findUnreadNotificationsByUserId(loggedInUser.getId()));
-        messagesButton.setNotifications(notifications);
-        messagesButton.setUnreadMessages(notifications.size());
-
-        messagesButton.getNotificationBell().addClickListener(event -> messagesButton.toggleMenu());
+    public void addNotification(NotificationDTO notification) throws CarnetException{
+        getService().addNotification(mapper.toEntity(notification));
     }
 
-    public MessagesButton getMessagesButton() {
-        return messagesButton;
+    public void markAsRead(Long notificationId) throws CarnetException {
+        getService().markAsRead(notificationId);
     }
+
+    public List<NotificationDTO> getUnreadNotifications()  throws CarnetException {
+        return mapper.toDtoList(getService().getUnreadNotifications());
+
+    }
+
+    public List<NotificationDTO> findUnreadNotificationsByUserId(Long utilisateurId) throws CarnetException {
+        return mapper.toDtoList(getService().findUnreadNotificationsByUserId(utilisateurId));
+    }
+
+
 }

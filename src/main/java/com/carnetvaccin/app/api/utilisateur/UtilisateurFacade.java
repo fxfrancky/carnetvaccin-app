@@ -10,6 +10,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -98,16 +99,7 @@ public UtilisateurDTO loginUser(String username, String plainPassword) {
     public String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
     }
-//
-//    public boolean checkPassword(String password, String storedHash) {
-//        try {
-//            return BCrypt.checkpw(password, storedHash);
-//        } catch (Exception e) {
-//            log.error("Error checking password: {}", e.getMessage());
-//            e.printStackTrace();
-//            throw new CarnetException("Error checking password: in UserFacade");
-//        }
-//    }
+
 
     @Transactional
     public UtilisateurDTO loginWithToken(String token) {
@@ -115,9 +107,7 @@ public UtilisateurDTO loginUser(String username, String plainPassword) {
         return user.map(utilisateur -> mapper.toDto(utilisateur)).orElse(null);
     }
 
-//    @Transactional
-//    public UtilisateurDTO getCurrentUser(String userName) {
-//        Optional<Utilisateur> user = getService().getUserByUserName(userName);
-//        return user.map(utilisateur -> mapper.toDto(utilisateur)).orElse(null);
-//    }
+    public List<UtilisateurDTO> findAllUtilisateurs(){
+        return mapper.toDtoList(getService().getAllActiveUtilisateurs());
+    }
 }

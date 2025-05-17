@@ -10,8 +10,8 @@ import java.util.Properties;
 //@SessionScoped
 public class EmailService {
 
-    private final String SMTP_SERVER = "smtp.example.com";
-    private final String EMAIL_FROM = "noreply@vaccinapp.com";
+    private final String SMTP_SERVER = "mail.privateemail.com";
+    private final String EMAIL_FROM = "contact@owonafx.com";
 
     public void sendEmail(String recipient, String subject, String message) {
         Properties properties = new Properties();
@@ -20,7 +20,7 @@ public class EmailService {
 
         Session session = Session.getInstance(properties, new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("your-email@example.com", "your-password");
+                return new PasswordAuthentication("contact@owonafx.com", "Xavier123s");
             }
         });
 

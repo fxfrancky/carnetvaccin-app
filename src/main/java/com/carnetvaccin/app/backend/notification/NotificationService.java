@@ -40,9 +40,9 @@ public class NotificationService extends AbstractService<Notification> {
      * Notify The Ui of any change
      * @param notification
      */
-    public void notifyUI(Notification notification) {
-        subscribers.forEach(subscriber -> subscriber.accept(notification));
-    }
+//    public void notifyUI(Notification notification) {
+//        subscribers.forEach(subscriber -> subscriber.accept(notification));
+//    }
 
 
     /**
@@ -50,7 +50,7 @@ public class NotificationService extends AbstractService<Notification> {
      * @param notification
      */
     @Transactional
-    public void addNotification(Notification notification) {
+    public void addNotification(Notification notification) throws CarnetException {
         try {
             create(notification);
             em.flush();

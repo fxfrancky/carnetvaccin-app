@@ -1,6 +1,8 @@
 package com.carnetvaccin.app.frontend;
 
+import com.carnetvaccin.app.api.commons.VaccinationNotificationBatchJob;
 import com.carnetvaccin.app.api.notification.MessagesButton;
+import com.carnetvaccin.app.api.notification.NotificationDTO;
 import com.carnetvaccin.app.api.notification.NotificationFacade;
 import com.carnetvaccin.app.api.roles.Role;
 import com.carnetvaccin.app.api.utilisateur.UtilisateurDTO;
@@ -9,6 +11,7 @@ import com.carnetvaccin.app.api.vaccin.VaccinDTO;
 import com.carnetvaccin.app.api.vaccin.VaccinFacade;
 import com.carnetvaccin.app.api.vaccinutilisateur.VaccinUtilisateurDTO;
 import com.carnetvaccin.app.api.vaccinutilisateur.VaccinUtilisateurFacade;
+import com.carnetvaccin.app.backend.commons.EmailService;
 import com.carnetvaccin.app.backend.exceptions.CarnetException;
 import com.carnetvaccin.app.frontend.security.CustomAccessControl;
 import com.carnetvaccin.app.frontend.security.LoginView;
@@ -25,11 +28,21 @@ import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.HeaderRow;
 import com.vaadin.ui.themes.ValoTheme;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 import static com.vaadin.ui.Notification.Type.ERROR_MESSAGE;
@@ -61,6 +74,9 @@ public class HomeView extends VerticalLayout implements View {
 
     @Inject
     private UtilisateurFacade utilisateurFacade;
+
+    @Inject
+    private EmailService emailService;
 
     private Grid<VaccinUtilisateurDTO> vUtilisateurGrid = new Grid<VaccinUtilisateurDTO>("Historique des Vaccins");
 
@@ -99,6 +115,20 @@ public class HomeView extends VerticalLayout implements View {
 
     private List<VaccinDTO> vaccinDTOList;
 
+    @Inject
+    private VaccinationNotificationBatchJob notificationBatchJob;
+    private ScheduledExecutorService scheduler;
+
+    // Store notification counts for each user.
+    private Map<Long, Integer> unreadNotificationCounts = new HashMap<>();
+    private Button bellBtn; // Bell icon button
+//    private ContextMenu notificationMenu; //  ContextMenu
+    private VerticalLayout notificationLayout;
+    private MessagesButton messagesButton;
+    private Window notificationWindow; // Use a Window instead of ContextMenu
+
+    private static final Logger logger = LoggerFactory.getLogger(HomeView.class);
+
     public HomeView() {
 
     }
@@ -130,8 +160,16 @@ public class HomeView extends VerticalLayout implements View {
         createComponents();
         configureComponents(); //call configureComponents
         buildView();
+        startNotificationScheduler();
+        updateNotificationCount();
     }
 
+    @PreDestroy
+    void destroy() {
+        if (scheduler != null) {
+            scheduler.shutdownNow();
+        }
+    }
     private void setupVaccinUtilisateurData() {
         vaccinUtilisateurList = vUtilisateurFacade.findAllVaccinUtilisateurByUserId(loggedInUser.getId());
         if (vaccinUtilisateurList == null || vaccinUtilisateurList.isEmpty()) {
@@ -332,12 +370,37 @@ public class HomeView extends VerticalLayout implements View {
         userInfoLabel.addStyleName(ValoTheme.LABEL_BOLD);
 
         // Add Notification Ring
-        notificationFacade.initialize(loggedInUser);
-        MessagesButton msgBtn = notificationFacade.getMessagesButton();
+        // Initialize the notification bell button and context menu
+// Initialize the notification bell button and  Window
+        bellBtn = new Button(); // Bell icon button
+        bellBtn.setIcon(VaadinIcons.BELL_O); // Use VaadinIcons.BELL_O
+        bellBtn.addClickListener(e -> {  // Open the window on click
+            updateNotificationCount();
+            showNotifications();
+            if (notificationWindow != null && notificationWindow.getParent() == null) {
+                UI.getCurrent().addWindow(notificationWindow);
+            } else if (notificationWindow != null) {
+                notificationWindow.close();
+            }
+
+        });
+
+        notificationWindow = new Window("Notifications");
+        notificationWindow.setClosable(true);
+        notificationWindow.setModal(false);
+        notificationWindow.setWidth("300px"); // Set a reasonable width
+        notificationWindow.setHeightUndefined();
+
+        notificationLayout = new VerticalLayout();
+        notificationLayout.setMargin(true);
+        notificationLayout.setSpacing(true);
+        notificationWindow.setContent(notificationLayout);
+
+        messagesButton = new MessagesButton(); // This already uses VaadinIcons.BELL_O
 
         // Add the user info and logout button to the header bar.
-        headerBar.addComponents(userInfoLabel, msgBtn, logoutButton);
-        headerBar.setComponentAlignment(msgBtn, Alignment.MIDDLE_CENTER);
+        headerBar.addComponents(userInfoLabel, messagesButton, logoutButton);
+        headerBar.setComponentAlignment(messagesButton, Alignment.MIDDLE_CENTER);
 
 //        headerBar.addComponents(userInfoLabel, logoutButton);
 
@@ -430,5 +493,97 @@ public class HomeView extends VerticalLayout implements View {
         mainContentLayout.setExpandRatio(vUtilisateurForm, 0);
         // Ensure the form is not taking up any space
         vUtilisateurForm.setWidth("0%");
+    }
+
+    // Method to show notifications - now updates the Window
+    public void showNotifications() {
+        List<NotificationDTO> notifications = notificationFacade.findUnreadNotificationsByUserId(loggedInUser.getId());
+        notificationLayout.removeAllComponents();
+
+        if (notifications.isEmpty()) {
+            notificationLayout.addComponent(new Label("No new notifications"));
+            bellBtn.setCaption("0");
+        } else {
+            int unreadCount = 0;
+            for (NotificationDTO notification : notifications) {
+                HorizontalLayout notificationItem = new HorizontalLayout();
+                notificationItem.setSpacing(true);
+                Label messageLabel = new Label(notification.getMessage());
+                if (!notification.isRead()) {
+                    unreadCount++;
+                    messageLabel.addStyleName("unread-notification");
+                    Button markReadButton = new Button("Mark as Read");
+                    markReadButton.addClickListener(e -> {
+                        notificationFacade.markAsRead(notification.getId());
+                        showNotifications();
+                        //notificationMenu.close();    Removed
+                        if (notificationWindow != null) {
+                            notificationWindow.close();
+                        }
+                        updateNotificationCount(); //update after marking as read
+                    });
+                    notificationItem.addComponent(messageLabel);
+                    notificationItem.addComponent(markReadButton);
+                } else {
+                    notificationItem.addComponent(messageLabel);
+                }
+                notificationLayout.addComponent(notificationItem);
+            }
+            bellBtn.setCaption(String.valueOf(unreadCount));
+        }
+    }
+
+    // Method to update and display the unread notification count
+    public void updateNotificationCount() {
+        int unreadCount = notificationFacade.findUnreadNotificationsByUserId(loggedInUser.getId()).size();
+        unreadNotificationCounts.put(loggedInUser.getId(), unreadCount);
+        bellBtn.setCaption(String.valueOf(unreadCount));
+        messagesButton.setUnreadCount(unreadCount); //update messages
+    }
+
+    // Observer method to detect new notifications (CDI Event) - Removed the @Observes
+    public void onNotificationCreated(@Observes NotificationDTO notification) {
+        // Check if the notification is for the current user.
+        if (notification.getUtilisateurDTO().getId().equals(loggedInUser.getId())) {
+            logger.info("Observed new notification for user: " + loggedInUser.getUserName());
+            updateNotificationCount(); //update the count
+            if (UI.getCurrent() != null) { //check if UI is attached.
+                UI.getCurrent().access(() -> {
+                    showNotifications();
+                });
+            }
+        }
+    }
+
+    private void startNotificationScheduler() {
+        scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                // Perform the notification batch job
+                List<VaccinUtilisateurDTO> dueVaccinations = vUtilisateurFacade.findDueVaccinations(LocalDate.now());
+                for (VaccinUtilisateurDTO vu : dueVaccinations) {
+                    String message = "Reminder: Your vaccination (" + vu.getVaccinDTO().getTypeVaccin().name() + ", Dose " + vu.getVaccinDTO().getNumDose() + ") is due on " + LocalDate.now() + "."; //date
+                    NotificationDTO notification = new NotificationDTO();
+                    notification.setUtilisateurDTO(loggedInUser);
+                    notification.setVaccinDTO(vu.getVaccinDTO());
+                    notification.setMessage(message);
+                    notification.setDateNotification(LocalDate.now());
+                    notification.setRead(false);
+                    notificationFacade.addNotification(notification);
+//                    notificationService.createNotification(vu.getUser(), "Vaccination " + vu.getVaccin().getType() + " is due!");
+                    String email = vu.getUtilisateurDTO().getEmail();
+                    if (email != null && !email.isEmpty()) {
+                        emailService.sendEmail(email, "Vaccination Reminder", message);
+                    }
+                }
+                // Update unread counts for online users.
+                UI.getCurrent().access(() -> {
+                    updateNotificationCount(); //update counts.
+                });
+
+            } catch (Exception e) {
+                logger.error("Error during scheduled notification task:", e);
+            }
+        }, 0, 5, TimeUnit.MINUTES); // Run every 24 hours
     }
 }

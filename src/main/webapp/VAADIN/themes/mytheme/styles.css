@@ -15429,3 +15429,11 @@ div.v-layout.v-horizontal.v-widget {
 	width: 19px;
 	overflow: hidden;
 }
+
+.mytheme .unread {
+	font-weight: bold;
+	color: red;
+	background-color: #f2f2f2;
+	padding: 0.3em;
+	border-radius: 0.3em;
+}

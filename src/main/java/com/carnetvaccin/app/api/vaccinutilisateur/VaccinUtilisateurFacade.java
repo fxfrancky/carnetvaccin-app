@@ -7,6 +7,7 @@ import com.carnetvaccin.app.backend.vaccinutilisateur.VaccinUtilisateurService;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,19 +50,28 @@ public class VaccinUtilisateurFacade extends AbstractFacade<VaccinUtilisateur,Va
     }
 
     public List<VaccinUtilisateurDTO> findrByTerms(String searchTerm, Long utilisateurId) throws CarnetException {
-        return mapper.toDtoList(getService().findByTerms(searchTerm,utilisateurId));
+        return mapper.toDtoList(getService().findByTerms(searchTerm, utilisateurId));
     }
 
-    public void saveVaccinUtilisateur(VaccinUtilisateurDTO vaccinUtilisateurDTO) throws CarnetException{
+    public void saveVaccinUtilisateur(VaccinUtilisateurDTO vaccinUtilisateurDTO) throws CarnetException {
         getService().saveVaccinUtilisateur(mapper.toEntity(vaccinUtilisateurDTO));
     }
 
-    public VaccinUtilisateurDTO updateVaccinUtilisateur(VaccinUtilisateurDTO vaccinUtilisateurDTO) throws CarnetException{
+    public VaccinUtilisateurDTO updateVaccinUtilisateur(VaccinUtilisateurDTO vaccinUtilisateurDTO) throws CarnetException {
         VaccinUtilisateur vaccinUtilisateur = getService().updateVaccinUtilisateur(mapper.toEntity(vaccinUtilisateurDTO));
         return mapper.toDto(vaccinUtilisateur);
     }
 
-    public void deleteVaccin(VaccinUtilisateurDTO vaccinUtilisateurDTO) throws CarnetException{
+    public void deleteVaccin(VaccinUtilisateurDTO vaccinUtilisateurDTO) throws CarnetException {
         getService().deleteVaccinUtilisateur(mapper.toEntity(vaccinUtilisateurDTO));
     }
+
+    public void markAsSent(Long vaccinUtilisateurId) throws CarnetException {
+        getService().markAsSent(vaccinUtilisateurId);
+    }
+
+    public List<VaccinUtilisateurDTO> findDueVaccinations(LocalDate dateVaccination) throws CarnetException {
+        return mapper.toDtoList(getService().findDueVaccinations(dateVaccination));
+    }
+
 }
