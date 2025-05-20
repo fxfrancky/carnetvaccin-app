@@ -37,12 +37,10 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.vaadin.ui.Notification.Type.ERROR_MESSAGE;
@@ -119,14 +117,9 @@ public class HomeView extends VerticalLayout implements View {
     private VaccinationNotificationBatchJob notificationBatchJob;
     private ScheduledExecutorService scheduler;
 
-    // Store notification counts for each user.
-    private Map<Long, Integer> unreadNotificationCounts = new HashMap<>();
-    private Button bellBtn; // Bell icon button
-//    private ContextMenu notificationMenu; //  ContextMenu
-    private VerticalLayout notificationLayout;
-    private MessagesButton messagesButton;
-    private Window notificationWindow; // Use a Window instead of ContextMenu
 
+    private MessagesButton messagesButton;
+    private CssLayout messagesButtonLayout;
     private static final Logger logger = LoggerFactory.getLogger(HomeView.class);
 
     public HomeView() {
@@ -140,7 +133,6 @@ public class HomeView extends VerticalLayout implements View {
         mainLayout.addComponent(title);
         mainLayout.addComponent(mainTabSheet);
         addComponent(mainLayout);
-
     }
 
     @Override
@@ -364,45 +356,38 @@ public class HomeView extends VerticalLayout implements View {
         headerBar.setMargin(true);
         headerBar.setSpacing(true);
         // Show current user information
-        String currentUser = loggedInUser.getFirstName() + "  -  " + loggedInUser.getLastName();
+        String currentUser = loggedInUser.getFirstName() + " - " + loggedInUser.getLastName();
         Label userInfoLabel = new Label(" Welcome   " + currentUser);
         userInfoLabel.addStyleName(ValoTheme.LABEL_COLORED);
         userInfoLabel.addStyleName(ValoTheme.LABEL_BOLD);
 
         // Add Notification Ring
-        // Initialize the notification bell button and context menu
-// Initialize the notification bell button and  Window
-        bellBtn = new Button(); // Bell icon button
-        bellBtn.setIcon(VaadinIcons.BELL_O); // Use VaadinIcons.BELL_O
-        bellBtn.addClickListener(e -> {  // Open the window on click
-            updateNotificationCount();
-            showNotifications();
-            if (notificationWindow != null && notificationWindow.getParent() == null) {
-                UI.getCurrent().addWindow(notificationWindow);
-            } else if (notificationWindow != null) {
-                notificationWindow.close();
-            }
 
-        });
+        messagesButton = new MessagesButton();
+        messagesButton.setIcon(VaadinIcons.BELL);
+        messagesButton.addClickListener(click -> showNotificationView());
 
-        notificationWindow = new Window("Notifications");
-        notificationWindow.setClosable(true);
-        notificationWindow.setModal(false);
-        notificationWindow.setWidth("300px"); // Set a reasonable width
-        notificationWindow.setHeightUndefined();
+        // Get the iconAndCount layout from the messagesButton
+        CssLayout messagesButtonContent = messagesButton.getIconAndCountLayout();
 
-        notificationLayout = new VerticalLayout();
-        notificationLayout.setMargin(true);
-        notificationLayout.setSpacing(true);
-        notificationWindow.setContent(notificationLayout);
+        // Create a CssLayout to hold both the button and the iconAndCount
+        messagesButtonLayout = new CssLayout();
+        messagesButtonLayout.addComponent(messagesButton);
+        messagesButtonLayout.addComponent(messagesButtonContent);
+//
+        messagesButtonLayout.setStyleName("messages-button-layout"); // Apply a style name
+        messagesButtonLayout.setHeight("100%");
+//
+        HorizontalLayout notificationContainer = new HorizontalLayout();
+        notificationContainer.addComponent(messagesButtonLayout);
+        notificationContainer.setSpacing(false);
 
-        messagesButton = new MessagesButton(); // This already uses VaadinIcons.BELL_O
+        messagesButtonLayout.setStyleName("messages-button-layout");
 
-        // Add the user info and logout button to the header bar.
-        headerBar.addComponents(userInfoLabel, messagesButton, logoutButton);
-        headerBar.setComponentAlignment(messagesButton, Alignment.MIDDLE_CENTER);
-
-//        headerBar.addComponents(userInfoLabel, logoutButton);
+       // Add the user info and logout button to the headerbar.
+        headerBar.addComponents(userInfoLabel, notificationContainer, logoutButton);
+        notificationContainer.setSpacing(false);
+        headerBar.setComponentAlignment(notificationContainer, Alignment.MIDDLE_CENTER);
 
         headerBar.setComponentAlignment(logoutButton, Alignment.MIDDLE_RIGHT);
         headerBar.setExpandRatio(userInfoLabel, 1);
@@ -484,7 +469,6 @@ public class HomeView extends VerticalLayout implements View {
         mainContentLayout.setExpandRatio(vUtilisateurForm, 20);
         mainContentLayout.setExpandRatio(vUtilisateurGrid, 80);
         vUtilisateurGrid.setWidth("100%");
-
     }
 
     public void setGridFullWidth() {
@@ -495,50 +479,19 @@ public class HomeView extends VerticalLayout implements View {
         vUtilisateurForm.setWidth("0%");
     }
 
-    // Method to show notifications - now updates the Window
-    public void showNotifications() {
-        List<NotificationDTO> notifications = notificationFacade.findUnreadNotificationsByUserId(loggedInUser.getId());
-        notificationLayout.removeAllComponents();
+    public List<NotificationDTO> getNotificationList(){
+        return notificationFacade.findUnreadNotificationsByUserId(loggedInUser.getId());
+    }
 
-        if (notifications.isEmpty()) {
-            notificationLayout.addComponent(new Label("No new notifications"));
-            bellBtn.setCaption("0");
-        } else {
-            int unreadCount = 0;
-            for (NotificationDTO notification : notifications) {
-                HorizontalLayout notificationItem = new HorizontalLayout();
-                notificationItem.setSpacing(true);
-                Label messageLabel = new Label(notification.getMessage());
-                if (!notification.isRead()) {
-                    unreadCount++;
-                    messageLabel.addStyleName("unread-notification");
-                    Button markReadButton = new Button("Mark as Read");
-                    markReadButton.addClickListener(e -> {
-                        notificationFacade.markAsRead(notification.getId());
-                        showNotifications();
-                        //notificationMenu.close();    Removed
-                        if (notificationWindow != null) {
-                            notificationWindow.close();
-                        }
-                        updateNotificationCount(); //update after marking as read
-                    });
-                    notificationItem.addComponent(messageLabel);
-                    notificationItem.addComponent(markReadButton);
-                } else {
-                    notificationItem.addComponent(messageLabel);
-                }
-                notificationLayout.addComponent(notificationItem);
-            }
-            bellBtn.setCaption(String.valueOf(unreadCount));
-        }
+    public void markAsRead(NotificationDTO notification){
+        notificationFacade.markAsRead(notification.getId());
+
     }
 
     // Method to update and display the unread notification count
     public void updateNotificationCount() {
         int unreadCount = notificationFacade.findUnreadNotificationsByUserId(loggedInUser.getId()).size();
-        unreadNotificationCounts.put(loggedInUser.getId(), unreadCount);
-        bellBtn.setCaption(String.valueOf(unreadCount));
-        messagesButton.setUnreadCount(unreadCount); //update messages
+        messagesButton.setUnreadCount(notificationFacade.getUnreadMessageCount(loggedInUser.getId())); //update messages
     }
 
     // Observer method to detect new notifications (CDI Event) - Removed the @Observes
@@ -547,11 +500,7 @@ public class HomeView extends VerticalLayout implements View {
         if (notification.getUtilisateurDTO().getId().equals(loggedInUser.getId())) {
             logger.info("Observed new notification for user: " + loggedInUser.getUserName());
             updateNotificationCount(); //update the count
-            if (UI.getCurrent() != null) { //check if UI is attached.
-                UI.getCurrent().access(() -> {
-                    showNotifications();
-                });
-            }
+
         }
     }
 
@@ -580,10 +529,14 @@ public class HomeView extends VerticalLayout implements View {
                 UI.getCurrent().access(() -> {
                     updateNotificationCount(); //update counts.
                 });
-
             } catch (Exception e) {
                 logger.error("Error during scheduled notification task:", e);
             }
         }, 0, 5, TimeUnit.MINUTES); // Run every 24 hours
     }
+
+    private void showNotificationView() {
+        UI.getCurrent().setContent(new NotificationView(this));
+    }
+    
 }

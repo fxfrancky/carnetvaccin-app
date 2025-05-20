@@ -15437,3 +15437,67 @@ div.v-layout.v-horizontal.v-widget {
 	padding: 0.3em;
 	border-radius: 0.3em;
 }
+
+.mytheme .v-button.messages-button {
+	padding-right: 0.5em;
+	display: flex;
+	align-items: center;
+}
+
+.mytheme .messages-button-layout {
+	display: flex;
+	align-items: center;
+	position: relative;
+}
+
+.mytheme .messages-button-layout .icon-and-count {
+	margin-left: 0.2em;
+}
+
+.mytheme .messages-button-layout.hidden .v-label {
+	display: none;
+}
+
+.mytheme .messages-button-layout i.v-icon {
+	margin-right: 0.2em;
+}
+
+.mytheme .messages-popup {
+	position: absolute;
+	top: 100%;
+	right: 0;
+	background-color: white;
+	border: 1px solid #ccc;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+	z-index: 1000;
+	margin-top: 5px;
+	min-width: 200px;
+}
+
+.mytheme .notifications-window {
+	position: absolute;
+	top: 100%;
+	right: 0;
+	background-color: white;
+	border: 1px solid #ccc;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+	z-index: 1000;
+	margin-top: 5px;
+	min-width: 200px;
+}
+
+.mytheme .popup-container {
+	position: relative;
+}
+
+.mytheme .popup-window {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	z-index: 1000;
+	margin-top: 5px;
+}
+
+.mytheme .italic-text {
+	font-style: italic;
+}

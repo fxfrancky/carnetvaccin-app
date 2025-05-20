@@ -53,5 +53,9 @@ public class NotificationFacade extends AbstractFacade<Notification, Notificatio
         return mapper.toDtoList(getService().findUnreadNotificationsByUserId(utilisateurId));
     }
 
+    public int getUnreadMessageCount(Long utilisateurId) throws CarnetException {
+        return getService().getUnreadMessageCount(utilisateurId);
+    }
+
 
 }

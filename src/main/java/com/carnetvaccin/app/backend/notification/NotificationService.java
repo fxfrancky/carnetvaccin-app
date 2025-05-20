@@ -109,6 +109,20 @@ public class NotificationService extends AbstractService<Notification> {
         }
     }
 
+    public int getUnreadMessageCount(Long utilisateurId) throws CarnetException {
+        int count = 0;
+        try {
+            // Implement the logic to count unread messages.
+            TypedQuery<Long> query = em.createQuery(
+                    "SELECT count(n) FROM Notification n WHERE n.utilisateur.utilisateurId = :utilisateurId AND n.isRead = false", Long.class);
+            query.setParameter("utilisateurId", utilisateurId);
+
+                count = query.getSingleResult().intValue();
+            } catch (Exception ex) {
+                throw new CarnetException("An error occurs");
+            }
+        return count;
+    }
     public void setEm(EntityManager em) {
         this.em = em;
     }

@@ -17,6 +17,7 @@ public class EmailService {
         Properties properties = new Properties();
         properties.put("mail.smtp.host", SMTP_SERVER);
         properties.put("mail.smtp.auth", "true");
+        properties.put("mail.smtp.port", "587");
 
         Session session = Session.getInstance(properties, new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {

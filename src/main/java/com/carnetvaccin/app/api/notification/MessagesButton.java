@@ -8,67 +8,49 @@ import com.vaadin.ui.themes.ValoTheme;
 public class MessagesButton extends Button {
 
     private int unreadCount = 0;
-    private VerticalLayout messagesLayout;
-    private Window messagesWindow;
     private Label countLabel;
+    private CssLayout iconAndCount; // Use CssLayout
+    private boolean messagesVisible = false;
+
 
     public MessagesButton() {
         setStyleName(ValoTheme.BUTTON_BORDERLESS);
-        setIcon(VaadinIcons.BELL_O); // Use VaadinIcons.BELL_O for messagesButton
-        //Removed the old icon
+        setIcon(VaadinIcons.BELL_O);
         countLabel = new Label(" (0)");
         countLabel.setStyleName(ValoTheme.LABEL_SMALL);
 
-        VerticalLayout iconAndCount = new VerticalLayout();
-        iconAndCount.addComponents(countLabel); // Only add the label
-        iconAndCount.setSpacing(false);
-        iconAndCount.setMargin(false);
+        // Use a CssLayout
+        iconAndCount = new CssLayout();
+        iconAndCount.addComponent(countLabel);
+        iconAndCount.setStyleName("icon-and-count"); // Apply a style name for CSS
         iconAndCount.setHeight("100%");
         iconAndCount.setWidth("100%");
-        iconAndCount.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
 
-        setCaption("Messages");
+        // Set the button's caption to an empty string.
+        setCaption("");
 
-        messagesLayout = new VerticalLayout();
-        messagesLayout.setMargin(true);
-        messagesLayout.setSpacing(true);
-
-        messagesWindow = new Window("Messages");
-        messagesWindow.setClosable(true);
-        messagesWindow.setModal(false);
-        messagesWindow.setWidth("300px");
-        messagesWindow.setHeightUndefined();
-        messagesWindow.setContent(messagesLayout);
+        //  Add a style name to the button to allow for custom styling of the icon and count.
+        addStyleName("messages-button");
 
         addClickListener(e -> {
-            showMessages();
-            if (messagesWindow != null && messagesWindow.getParent() == null) {
-                UI.getCurrent().addWindow(messagesWindow);
-            } else if (messagesWindow != null) {
-                messagesWindow.close();
-            }
+            messagesVisible = !messagesVisible; // Toggle visibility
+            System.out.println("Notification container clicked. notificationsVisible: " + messagesVisible); //added
+
         });
     }
 
     public void setUnreadCount(int count) {
         this.unreadCount = count;
-        countLabel.setValue(" (" + unreadCount + ")"); // Update the label's value
+        countLabel.setValue(" (" + unreadCount + ") Unread Messages"); // Update the label's value
 
         if (unreadCount > 0) {
-            addStyleName("unread"); // Apply the "unread" style
+            iconAndCount.addStyleName("unread"); // Show the count
         } else {
-            removeStyleName("unread");
+            iconAndCount.removeStyleName("unread"); // Hide the count
         }
     }
 
-    private void showMessages() {
-        messagesLayout.removeAllComponents();
-        if (unreadCount == 0) {
-            messagesLayout.addComponent(new Label("No new messages"));
-        } else {
-            for (int i = 0; i < unreadCount; i++) {
-                messagesLayout.addComponent(new Label("Message " + (i + 1) + " content..."));
-            }
-        }
+    public CssLayout getIconAndCountLayout() {
+        return iconAndCount;
     }
 }
