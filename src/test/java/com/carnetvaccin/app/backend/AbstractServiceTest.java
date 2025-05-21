@@ -24,7 +24,9 @@ public abstract class AbstractServiceTest {
         startTransaction();
 //        entityManager.getTransaction().begin();
         entityManager.createQuery("DELETE FROM VaccinUtilisateur").executeUpdate();
+        entityManager.createQuery("DELETE FROM Utilisateur").executeUpdate();
         entityManager.createQuery("DELETE FROM Vaccin").executeUpdate();
+        entityManager.createQuery("DELETE FROM Notification").executeUpdate();
         entityManager.getTransaction().commit();
     }
 

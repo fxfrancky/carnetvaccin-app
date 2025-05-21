@@ -33,29 +33,29 @@ public class Utilisateur extends BaseEntity implements Serializable {
     @Column(name = "utilisateur_id")
     private Long utilisateurId;
 
-    @Column(name = "first_name", nullable = false)
+    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name = "last_name", nullable = false)
+    @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "email", unique = true, nullable = false)
+    @Column(name = "email", unique = true)
     @Email
     private String email;
 
-    @Column(name = "date_naiss", nullable = false)
+    @Column(name = "date_naiss")
     private String dateNaissance;
 
-    @Column(name = "user_name" , unique = true, nullable = false)
+    @Column(name = "user_name" , unique = true)
     private String userName;
 
-    @Column(name = "password" , nullable = false)
+    @Column(name = "password")
     private String encryptedPassword;
 
     @Column(name = "is_admin")
     private boolean isAdmin = false;
 
-    @Column(name = "token" , nullable = false)
+    @Column(name = "token")
     private String token; // Added for Bearer Token
 
     @Column(name = "roles")

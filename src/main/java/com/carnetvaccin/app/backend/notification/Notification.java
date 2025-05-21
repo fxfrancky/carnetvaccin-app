@@ -24,28 +24,29 @@ public class Notification extends BaseEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "notification_id", nullable = false)
+    @Column(name = "notification_id")
     private Long notificationId;
 
-    @JoinColumn(name = "utilisateur_id", nullable = false)
+    @JoinColumn(name = "utilisateur_id")
     @ManyToOne
     private Utilisateur utilisateur;
 
-    @JoinColumn(name = "vaccin_id", nullable = false)
+    @JoinColumn(name = "vaccin_id")
     @ManyToOne
     private Vaccin vaccin;
 
-    @Column(name = "date_notification", nullable = false)
+    @Column(name = "date_notification")
     private LocalDate dateNotification;
 
-    @Column(name = "message", nullable = false)
+    @Column(name = "message")
     private String message;
 
     @Column(name = "is_read")
-    private boolean isRead = false;
+    private boolean isRead;
 
 
     public Notification() {
+        this.setRead(false);
     }
 
     public Notification(Long notificationId, Utilisateur utilisateur, Vaccin vaccin, LocalDate dateNotification, String message, boolean isRead) {

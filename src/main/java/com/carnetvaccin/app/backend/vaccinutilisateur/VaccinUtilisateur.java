@@ -27,21 +27,21 @@ public class VaccinUtilisateur extends BaseEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "vaccin_utilisateur_id" , nullable = false)
+    @Column(name = "vaccin_utilisateur_id")
     private Long vaccinUtilisateurId;
 
     @ManyToOne
-    @JoinColumn(name = "vaccin_id" , nullable = false)
+    @JoinColumn(name = "vaccin_id")
     private Vaccin vaccin;
 
     @ManyToOne
-    @JoinColumn(name = "utilisateur_id" , nullable = false)
+    @JoinColumn(name = "utilisateur_id")
     private Utilisateur utilisateur;
 
-    @Column(name = "date_vaccination" , nullable = false)
+    @Column(name = "date_vaccination")
     private LocalDate dateVaccination;
 
-    @Column(name = "lieu_vaccination" , nullable = false)
+    @Column(name = "lieu_vaccination")
     private String lieuVacctination;
 
     @Column(name = "commentaires_vaccin")

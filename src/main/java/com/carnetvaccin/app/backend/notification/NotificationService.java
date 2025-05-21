@@ -52,7 +52,7 @@ public class NotificationService extends AbstractService<Notification> {
     @Transactional
     public void addNotification(Notification notification) throws CarnetException {
         try {
-            create(notification);
+            update(notification);
             em.flush();
         } catch (Exception e) {
             throw new CarnetException("Error adding notification: " + e.getMessage());
