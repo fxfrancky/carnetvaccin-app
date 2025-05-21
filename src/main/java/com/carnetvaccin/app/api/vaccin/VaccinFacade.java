@@ -77,7 +77,7 @@ public class VaccinFacade extends AbstractFacade<Vaccin,VaccinDTO, VaccinService
                 boolean hasVaccination = false;
                 for (VaccinUtilisateurDTO userVaccination : userVaccinations) {
                     // Check if the user has already received this vaccine and notification is sent
-                    if (userVaccination.getVaccinDTO().getTypeVaccin().name().equals(vaccin.getTypeVaccin().name()) && userVaccination.isNotificationSent()) {
+                    if (userVaccination.getVaccinDTO().getTypeVaccin().name().equals(vaccin.getTypeVaccin().name()) && userVaccination.getVaccinDTO().getNumDose().equals(vaccin.getNumDose()) && userVaccination.isNotificationSent()) {
                         hasVaccination = true;
                         break;
                     }

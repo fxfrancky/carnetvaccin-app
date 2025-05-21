@@ -28,15 +28,13 @@ public class NotificationView extends VerticalLayout {
         backButton.setIcon(VaadinIcons.ARROW_LEFT);
         backButton.setStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
 
-        Label titleNotifination = new Label("List of Unread notifications"  + VaadinIcons.ENVELOPE.getHtml());
+        Label titleNotifination = new Label("List of Unread notifications  "  + VaadinIcons.ENVELOPE.getHtml());
 
         titleNotifination.setStyleName(ValoTheme.LABEL_H2);
         titleNotifination.setContentMode(ContentMode.HTML);
 
-
         Label markAsReadTitle = new Label("Click on a notification to mark it as Read" );
 
-//        markAsReadTitle.setStyleName(ValoTheme.LABEL_H4);
         markAsReadTitle.addStyleName(ValoTheme.LABEL_SMALL);
         markAsReadTitle.addStyleName("italic-text");
         markAsReadTitle.setContentMode(ContentMode.HTML);
@@ -66,6 +64,7 @@ public class NotificationView extends VerticalLayout {
     private void markAsRead(NotificationDTO notification) {
         notification.setRead(true);
         homeView.markAsRead(notification);
+        homeView.updateNotificationCount();
         loadNotifications(); // Refresh UI
     }
 

@@ -35,7 +35,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -117,7 +116,6 @@ public class HomeView extends VerticalLayout implements View {
     private VaccinationNotificationBatchJob notificationBatchJob;
     private ScheduledExecutorService scheduler;
 
-
     private MessagesButton messagesButton;
     private CssLayout messagesButtonLayout;
     private static final Logger logger = LoggerFactory.getLogger(HomeView.class);
@@ -142,6 +140,9 @@ public class HomeView extends VerticalLayout implements View {
                 || !((CustomAccessControl) accessControl).isUserInRole(Role.User)) {
             ui.getNavigator().navigateTo(LoginView.NAME);
         }
+        updateNotificationCount();
+//        notificationBatchJob.startNotificationScheduler();
+//        startNotificationScheduler();
     }
 
 
@@ -158,10 +159,12 @@ public class HomeView extends VerticalLayout implements View {
 
     @PreDestroy
     void destroy() {
+//        notificationBatchJob.stopNotificationScheduler();
         if (scheduler != null) {
             scheduler.shutdownNow();
         }
     }
+
     private void setupVaccinUtilisateurData() {
         vaccinUtilisateurList = vUtilisateurFacade.findAllVaccinUtilisateurByUserId(loggedInUser.getId());
         if (vaccinUtilisateurList == null || vaccinUtilisateurList.isEmpty()) {
@@ -384,7 +387,7 @@ public class HomeView extends VerticalLayout implements View {
 
         messagesButtonLayout.setStyleName("messages-button-layout");
 
-       // Add the user info and logout button to the headerbar.
+        // Add the user info and logout button to the headerbar.
         headerBar.addComponents(userInfoLabel, notificationContainer, logoutButton);
         notificationContainer.setSpacing(false);
         headerBar.setComponentAlignment(notificationContainer, Alignment.MIDDLE_CENTER);
@@ -464,7 +467,7 @@ public class HomeView extends VerticalLayout implements View {
         return vaccinTypesFilter;
     }
 
-    public void showForm(){
+    public void showForm() {
         vUtilisateurForm.setVisible(true);
         mainContentLayout.setExpandRatio(vUtilisateurForm, 20);
         mainContentLayout.setExpandRatio(vUtilisateurGrid, 80);
@@ -479,11 +482,11 @@ public class HomeView extends VerticalLayout implements View {
         vUtilisateurForm.setWidth("0%");
     }
 
-    public List<NotificationDTO> getNotificationList(){
+    public List<NotificationDTO> getNotificationList() {
         return notificationFacade.findUnreadNotificationsByUserId(loggedInUser.getId());
     }
 
-    public void markAsRead(NotificationDTO notification){
+    public void markAsRead(NotificationDTO notification) {
         notificationFacade.markAsRead(notification.getId());
 
     }
@@ -507,36 +510,14 @@ public class HomeView extends VerticalLayout implements View {
     private void startNotificationScheduler() {
         scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(() -> {
-            try {
-                // Perform the notification batch job
-                List<VaccinUtilisateurDTO> dueVaccinations = vUtilisateurFacade.findDueVaccinations(LocalDate.now());
-                for (VaccinUtilisateurDTO vu : dueVaccinations) {
-                    String message = "Reminder: Your vaccination (" + vu.getVaccinDTO().getTypeVaccin().name() + ", Dose " + vu.getVaccinDTO().getNumDose() + ") is due on " + LocalDate.now() + "."; //date
-                    NotificationDTO notification = new NotificationDTO();
-                    notification.setUtilisateurDTO(loggedInUser);
-                    notification.setVaccinDTO(vu.getVaccinDTO());
-                    notification.setMessage(message);
-                    notification.setDateNotification(LocalDate.now());
-                    notification.setRead(false);
-                    notificationFacade.addNotification(notification);
-//                    notificationService.createNotification(vu.getUser(), "Vaccination " + vu.getVaccin().getType() + " is due!");
-                    String email = vu.getUtilisateurDTO().getEmail();
-                    if (email != null && !email.isEmpty()) {
-                        emailService.sendEmail(email, "Vaccination Reminder", message);
-                    }
-                }
-                // Update unread counts for online users.
-                UI.getCurrent().access(() -> {
-                    updateNotificationCount(); //update counts.
-                });
-            } catch (Exception e) {
-                logger.error("Error during scheduled notification task:", e);
-            }
+            notificationBatchJob.sendVaccinationNotifications();
+            updateNotificationCount();
+
         }, 0, 5, TimeUnit.MINUTES); // Run every 24 hours
     }
 
     private void showNotificationView() {
         UI.getCurrent().setContent(new NotificationView(this));
     }
-    
+
 }

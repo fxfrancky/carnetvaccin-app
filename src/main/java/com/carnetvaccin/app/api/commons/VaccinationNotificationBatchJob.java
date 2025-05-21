@@ -13,16 +13,11 @@ import com.carnetvaccin.app.backend.exceptions.CarnetException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @Singleton
 @Startup
@@ -44,7 +39,7 @@ public class VaccinationNotificationBatchJob {
     private NotificationFacade notificationFacade;
 
     private static final Logger logger = LoggerFactory.getLogger(VaccinationNotificationBatchJob.class);
-    private ScheduledExecutorService scheduler;
+//    private ScheduledExecutorService scheduler;
 
 //    /**
 //     *  Add a new notification For a User and a Vaccin
@@ -64,40 +59,41 @@ public class VaccinationNotificationBatchJob {
         emailService.sendEmail(utilisateur.getEmail(), "Vaccination Reminder", message);
     }
 
+//
+//@PostConstruct
+//public void startNotificationScheduler() {
+//    scheduler = Executors.newSingleThreadScheduledExecutor();
+//    // Run the check daily at 08:00 AM
+//    long initialDelay = calculateInitialDelay();
+//    scheduler.scheduleAtFixedRate(this::sendVaccinationNotifications, initialDelay,5 * 60 * 1000, TimeUnit.MILLISECONDS);
+////    scheduler.scheduleAtFixedRate(this::sendVaccinationNotifications, initialDelay,5 * 60 * 1000, TimeUnit.MILLISECONDS);
+//    logger.info("Vaccination notification scheduler started.");
+//}
+//
+//@PreDestroy
+//public void stopNotificationScheduler() {
+//    if (scheduler != null) {
+//        scheduler.shutdownNow();
+//        logger.info("Vaccination notification scheduler stopped.");
+//    }
+//}
 
-@PostConstruct
-public void startNotificationScheduler() {
-    scheduler = Executors.newSingleThreadScheduledExecutor();
-    // Run the check daily at 08:00 AM
-    long initialDelay = calculateInitialDelay();
-    scheduler.scheduleAtFixedRate(this::sendVaccinationNotifications, initialDelay,5 * 60 * 1000, TimeUnit.MILLISECONDS);
-    logger.info("Vaccination notification scheduler started.");
-}
+//private long calculateInitialDelay() {
+//    // Calculate the delay until the next 8:00 AM
+//    java.util.Calendar now = java.util.Calendar.getInstance();
+//    java.util.Calendar nextRun = java.util.Calendar.getInstance();
+//    nextRun.set(java.util.Calendar.HOUR_OF_DAY, 8);
+//    nextRun.set(java.util.Calendar.MINUTE, 0);
+//    nextRun.set(java.util.Calendar.SECOND, 0);
+//    nextRun.set(java.util.Calendar.MILLISECOND, 0);
+//
+//    if (now.after(nextRun)) {
+//        nextRun.add(java.util.Calendar.DAY_OF_MONTH, 1);
+//    }
+//    return nextRun.getTimeInMillis() - now.getTimeInMillis();
+//}
 
-@PreDestroy
-public void stopNotificationScheduler() {
-    if (scheduler != null) {
-        scheduler.shutdownNow();
-        logger.info("Vaccination notification scheduler stopped.");
-    }
-}
-
-private long calculateInitialDelay() {
-    // Calculate the delay until the next 8:00 AM
-    java.util.Calendar now = java.util.Calendar.getInstance();
-    java.util.Calendar nextRun = java.util.Calendar.getInstance();
-    nextRun.set(java.util.Calendar.HOUR_OF_DAY, 8);
-    nextRun.set(java.util.Calendar.MINUTE, 0);
-    nextRun.set(java.util.Calendar.SECOND, 0);
-    nextRun.set(java.util.Calendar.MILLISECOND, 0);
-
-    if (now.after(nextRun)) {
-        nextRun.add(java.util.Calendar.DAY_OF_MONTH, 1);
-    }
-    return nextRun.getTimeInMillis() - now.getTimeInMillis();
-}
-
-private void sendVaccinationNotifications() {
+public void sendVaccinationNotifications() {
     logger.info("Checking for due vaccinations...");
     LocalDate today = LocalDate.now();
     List<UtilisateurDTO> users = utilisateurFacade.findAllUtilisateurs();
